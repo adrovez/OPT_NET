@@ -1,0 +1,68 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.OrdenTrabajoViewResponse
+@using OPT.Web.Libreria;
+@{
+
+    Layout = null;
+}
+
+
+<table class="table table-sm table-hover" id="TablaDatos">
+    <thead>
+        <tr class="text-center">
+            <th>Fecha</th>
+            <th>OT N°</th>
+            <th>Sucursal</th>
+            <th>Rut</th>
+            <th>Cliente</th>
+            <th>Pago</th>
+            <th>Estado</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Item in Model.OrdenDeTrabajos)
+        {
+            var idBitacora = Item.OPT_BitacoraOT.Count > 0 ? Item.OPT_BitacoraOT.Max(y => y.idBitacoraOT) : 0;
+            <tr>
+                <td>@DateTime.Parse(Item.FechaAtencion.ToString()).ToShortDateString()</td>
+                <td>@Item.idOT</td>
+                <td>@Item.OPT_Sucursal.Nombre</td>
+                <td>@Item.RutCliente</td>
+                <td>@Item.OPT_Cliente.Nombre</td>
+                <td>@Item.EstadoPago</td>
+                <td>@(Model.Estados.FirstOrDefault(x => x.idEstadoOT == Item.OPT_BitacoraOT.FirstOrDefault(y => y.idBitacoraOT == idBitacora).idEstado).Estado)</td>
+                <td class="text-center">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline" type="button" data-toggle="dropdown">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li> <a class="dropdown-item" href="@Url.Action("Details","Ingreso",new {area="OrdenTrabajo", id=Item.idOT })" name="VerDetalleOT" title="Detalle..."><i class="fa fa-eye"></i> Ver</a></li>
+
+                            @if (Item.OPT_BitacoraOT.Count > 0)
+                            {
+                                if (Item.OPT_BitacoraOT.Max(x => x.idEstado) == (int)EnumEstadoOt.Ingresado)
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Edit", "Ingreso", new { area = "OrdenTrabajo", id = Item.idOT })" name="EditarOT" title="Eliminar..."><i class="fa fa-pencil-alt"></i> Editar</a>
+                                    </li>
+                                }
+
+                                if (Item.OPT_BitacoraOT.Max(x => x.idEstado) != (int)EnumEstadoOt.Entregado)
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Delete", "Ingreso", new { area = "OrdenTrabajo", id = Item.idOT })" name="EliminarOT" title="Eliminar..."><i class="fa fa-trash"></i> Eliminar</a>
+                                    </li>
+                                }
+                            }
+                            @*<li> <a class="dropdown-item" href="@Url.Action("Index","Pago",new {area="OrdenTrabajo", id=Item.idOT })" name="PagoOT" title="Pago OT..."><i class="fa fa-money-bill"></i> Pagar</a></li>*@
+                            <li> <a class="dropdown-item" href="@Url.Action("TicketOT","Ticket",new {area="Imprimir",id=Item.idOT })" title="Imprimir OT..." target="_blank"><i class="fa fa-print"></i> Imprimir</a></li>
+                            @*<li> <a class="dropdown-item" href="@Url.Action("Bitacora","Enviar",new {area="Flujo", id=Item.idOT })" name="BitacoraOT" title="Bitacora..."><i class="fa fa-history"></i> Bitacora</a></li>*@
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

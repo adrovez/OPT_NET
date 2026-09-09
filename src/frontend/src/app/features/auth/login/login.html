@@ -1,0 +1,61 @@
+<mat-card class="login-card">
+  <div class="login-marca">
+    <p class="login-marca__nombre opt-titular">OPT</p>
+    <p class="login-marca__subtitulo">Gestión de ópticas</p>
+  </div>
+
+  <mat-card-header>
+    <mat-card-title>Ingreso al sistema</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="enviar()">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>RUT</mat-label>
+        <input matInput formControlName="rut" autocomplete="username" />
+        @if (form.controls.rut.hasError('required')) {
+          <mat-error>Ingresa tu RUT.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Clave</mat-label>
+        <input
+          matInput
+          [type]="ocultarClave() ? 'password' : 'text'"
+          formControlName="clave"
+          autocomplete="current-password"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          [attr.aria-label]="ocultarClave() ? 'Mostrar clave' : 'Ocultar clave'"
+          [attr.aria-pressed]="!ocultarClave()"
+          (click)="ocultarClave.set(!ocultarClave())"
+        >
+          <mat-icon>{{ ocultarClave() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (form.controls.clave.hasError('required')) {
+          <mat-error>Ingresa tu clave.</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="boton-enviar"
+        [disabled]="form.invalid || enviando()"
+      >
+        @if (enviando()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Ingresar
+        }
+      </button>
+    </form>
+  </mat-card-content>
+
+  <p class="login-tagline">Todo en foco.</p>
+</mat-card>

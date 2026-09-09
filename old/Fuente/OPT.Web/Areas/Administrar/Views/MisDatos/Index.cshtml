@@ -1,0 +1,66 @@
+﻿@model OPT.Entidad.OPT_Usuario
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-address-card"></i> MIS DATOS</h4>
+    <div class="card-body">
+        <form id="formEditar" action="@Url.Action("Index","MisDatos",new {Area="Administrar" })">
+            @Html.AntiForgeryToken()
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label class="col-form-label">Rut</label>
+                    <input type="text" class="form-control" id="Rut" name="Rut" value="@Model.RutUsuario" readonly />
+                </div>
+                <div class="col-sm-4">
+                    <label class="col-form-label">Nombre</label>
+                    <input type="text" class="form-control" id="Nombre" name="Nombre" value="@Model.Nombre" required />
+                </div>
+                <div class="col-sm-4">
+                    <label class="col-form-label">Mail</label>
+                    <input type="text" class="form-control" id="Apellido" name="Apellido" value="@Model.Mail" required />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label class="col-form-label">Fecha Ingreso</label>
+                    <input type="text" class="form-control" id="FechaIngreso" name="FechaIngreso" value="@Model.FechaIngreso.ToShortDateString()" readonly />
+                </div>
+                <div class="col-sm-4">
+                    <label class="col-form-label">Clave</label>
+                    <input type="password" class="form-control" id="Clave" name="Clave" value="@Model.Clave" required />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label class="col-form-label">Rol</label>
+                    <input type="text" class="form-control" value="@Model.OPT_Rol.Rol" readonly />
+                </div>
+                <div class="col-sm-4">
+                    <label>Sucursal</label>
+                    @Html.DropDownList("SucursalAsignado", (SelectList)ViewBag.SucursalAsignado, new { @class = "form-control", @data_placeholder = "--- SELECCIONAR ---", @multiple = "multiple" })
+                </div>
+
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-12 text-right">
+                    <a href="@Url.Action("Index","Home",new {Area="" })" class="btn btn-sm btn-danger" title="volver"><i class="fa fa-arrow-left"></i> Volver</a>
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script src="~/Areas/Administrar/Scripts/MisDatos.js?v=3"></script>
+}
+
+

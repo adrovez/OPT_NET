@@ -1,0 +1,433 @@
+﻿@model OPT.Web.Areas.Imprimir.Models.ImprimirOtResponse
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-size: 10px;
+        }
+
+        @@media all {
+            .page-break {
+                display: none;
+            }
+        }
+
+        @@media print {
+            .page-break {
+                display: block;
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main" class="container">
+        <div class="card">
+            <div class="card-header" style="text-align:center">
+                <h2>Centro Optico BL</h2>
+                <table>
+                    <tr>
+                        <td>Rut</td>
+                        <td>76.352.228-8</td>
+                    </tr>
+                    <tr>
+                        <td>Fono</td>
+                        <td>+56934082615</td>
+                    </tr>
+                    <tr>
+                        <td>Dirección</td>
+                        <td>Agustinas 853 Of. 507</td>
+                    </tr>
+                </table>
+            </div>
+            <hr />
+            <div class="card-body">
+                <h4 style="text-align:center">NOTA DE VENTA Y AUTORIZACION DE DESCUENTO</h4>
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <table width="80%">
+                            <tr>
+                                <td><strong>No. OT:</strong></td>
+                                <td><strong>@Model.OT</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Fecha</td>
+                                <td>@Model.FechaAtencion</td>
+                            </tr>
+                            <tr>
+                                <td>Rut</td>
+                                <td>@Model.RutCliente</td>
+                            </tr>
+                            <tr>
+                                <td>Nombre</td>
+                                <td>@Model.NombreCliente</td>
+                            </tr>
+                            <tr>
+                                <td>Telefono:</td>
+                                <td>@Model.Telefono</td>
+                            </tr>
+                            <tr>
+                                <td>Empresa:</td>
+                                <td>@Model.EmpresaCliente</td>
+                            </tr>
+                            <tr>
+                                <td>Entrega:</td>
+                                <td>@(Model.FechaEntrega +" | "+ Model.HoraEntrega)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+                <div class="table-responsive-sm">
+                    <table width="80%">
+                        <thead>
+                            <tr>
+                                <th>Un.</th>
+                                <th>Detalle</th>
+                                <th>Produc</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ordenDeTrabajoDetalles)
+                            {
+                                <tr>
+                                    <td style="text-align:right">@item.Cantidad</td>
+                                    <td style="text-align:left">@item.Comentario</td>
+                                    <td style="text-align:left">@item.OPT_Producto.Producto</td>
+                                    <td style="text-align:right">@item.ValorUnitario.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4 col-sm-5 ml-auto">
+                        <table width="80%">
+                            <tbody>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Sub total</strong></td>
+                                    <td style="text-align:right">@Model.Monto.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Abono</strong></td>
+                                    <td style="text-align:right">@Model.Abono.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Total a Pagar</strong></td>
+                                    <td style="text-align:right">@Model.Saldo.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Cuotas</strong></td>
+                                    <td style="text-align:right">@Model.Cuotas</td>
+                                </tr>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Monto Cuota</strong></td>
+                                    <td style="text-align:right">@Model.MontoCuota.ToString("N0")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <table>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>RX Lejos</td>
+                                            <td>Esf.</td>
+                                            <td>Cyl.</td>
+                                            <td>Eje.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>OD</td>
+                                            <td>@Model.recetaCristales.LejosODEsferico</td>
+                                            <td>@Model.recetaCristales.LejosODCilindro</td>
+                                            <td>@Model.recetaCristales.LejosODEje</td>
+                                        </tr>
+                                        <tr>
+                                            <td>OI</td>
+                                            <td>@Model.recetaCristales.LejosOIEsferico</td>
+                                            <td>@Model.recetaCristales.LejosOICilindro</td>
+                                            <td>@Model.recetaCristales.LejosOIEje</td>
+                                        </tr>
+                                        <tr>
+                                            <td>DP</td>
+                                            <td>@Model.recetaCristales.LejosDPEsferico</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Add</td>
+                                            <td>@Model.recetaCristales.LejosADDEsfera</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>&emsp;</td>
+                            <td>&emsp;</td>
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>RX Cerca</td>
+                                            <td>Esf.</td>
+                                            <td>Cyl.</td>
+                                            <td>Eje.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>OD</td>
+                                            <td>@Model.recetaCristales.CercaODEsferico</td>
+                                            <td>@Model.recetaCristales.CercaODCilindro</td>
+                                            <td>@Model.recetaCristales.CercaODEje</td>
+                                        </tr>
+                                        <tr>
+                                            <td>OI</td>
+                                            <td>@Model.recetaCristales.CercaOIEsferico</td>
+                                            <td>@Model.recetaCristales.CercaOICilindro</td>
+                                            <td>@Model.recetaCristales.CercaOIEje</td>
+                                        </tr>
+                                        <tr>
+                                            <td>DP</td>
+                                            <td>@Model.recetaCristales.CercaDPEsferico</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>&emsp;</td>
+                                            <td>&emsp;</td>
+                                            <td>&emsp;</td>
+                                            <td>&emsp;</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>&emsp;</td>
+                            <td>&emsp;</td>
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>Cia. de Seguro</td>
+                                            <td>____</td>
+                                        </tr>
+                                        <tr>
+                                            <td>FONASA</td>
+                                            <td>____</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ISAPRE</td>
+                                            <td>____</td>
+                                        </tr>
+                                        <tr>
+                                            <td>OTRO</td>
+                                            <td>____</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <hr />
+                <div class="row">
+                    <h4 style="text-align:center">AUTORIZACION DEL TITULAR</h4>
+                    <table width="80%">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Solicito a Opticas BL. Proceda a elaborar el despacho de mi receta
+                                    ya que estoy de acuerdo con el valor y las facilidades de pago
+                                    aquí descritas, del mismo modo autorizo a mi empleador para
+                                    que realice los descuentos acordados en forma mensual de mi
+                                    liquidacion de sueldo.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;</td>
+                            </tr>
+                            <tr>
+                                <td>Yo &emsp;  _____________________________________</td>
+                            </tr>
+                            <tr>
+                                <td>Run &emsp; _____________________________________</td>
+                            </tr>
+                            <tr>
+                                <td>Seccion &emsp; _____________________________________</td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align:center"><strong>_____________________________________</strong> </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align:center"><strong>Recibo Conforme</strong> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+    <div id="hh" class="container">
+        <div class="card">
+            <div class="card-header" style="text-align:center">
+                <h1>Centro Optico BL</h1>
+                <table>
+                    <tr>
+                        <td>Rut</td>
+                        <td>76.352.228-8</td>
+                    </tr>
+                    <tr>
+                        <td>Fono</td>
+                        <td>+56934082615</td>
+                    </tr>
+                    <tr>
+                        <td>Dirección</td>
+                        <td>Agustinas 853 Of. 507</td>
+                    </tr>
+                </table>
+            </div>
+            <br />
+            <hr />
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <table width="80%">
+                            <tr>
+                                <td><strong>No. OT:</strong></td>
+                                <td><strong>@Model.OT</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Fecha</td>
+                                <td>@Model.FechaAtencion</td>
+                            </tr>
+                            <tr>
+                                <td>Rut</td>
+                                <td>@Model.RutCliente</td>
+                            </tr>
+                            <tr>
+                                <td>Nombre</td>
+                                <td>@Model.NombreCliente</td>
+                            </tr>
+                            <tr>
+                                <td>Telefono:</td>
+                                <td>@Model.Telefono</td>
+                            </tr>
+                            <tr>
+                                <td>Empresa:</td>
+                                <td>@Model.EmpresaCliente</td>
+                            </tr>
+                            <tr>
+                                <td>Entrega:</td>
+                                <td>@(Model.FechaEntrega +" | "+ Model.HoraEntrega)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+                <div class="row  mb-4">
+                    <div class="col-lg-4 col-sm-5 ml-auto">
+                        <table width="80%">
+                            <tbody>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Total a Pagar</strong></td>
+                                    <td style="text-align:right">@Model.Saldo.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Cuotas</strong></td>
+                                    <td style="text-align:right">@Model.Cuotas</td>
+                                </tr>
+                                <tr>
+                                    <td>&emsp;&emsp;</td>
+                                    <td><strong>Monto Cuota</strong></td>
+                                    <td style="text-align:right">@Model.MontoCuota.ToString("N0")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+                <br />
+                <br />
+                <br />
+                <br />
+                <div class="row">
+                    <h4 style="text-align:center">AUTORIZACION DEL TITULAR</h4>
+                    <table width="80%">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Solicito a Opticas BL. Proceda a elaborar el despacho de mi receta
+                                    ya que estoy de acuerdo con el valor y las facilidades de pago
+                                    aquí descritas, del mismo modo autorizo a mi empleador para
+                                    que realice los descuentos acordados en forma mensual de mi
+                                    liquidacion de sueldo.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;</td>
+                            </tr>
+                            <tr>
+                                <td>Yo &emsp;  _____________________________________</td>
+                            </tr>
+                            <tr>
+                                <td>Run &emsp; _____________________________________</td>
+                            </tr>
+                            <tr>
+                                <td>Seccion &emsp; _____________________________________</td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align:center"><strong>_____________________________________</strong> </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align:center"><strong>Recibo Conforme</strong> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div id="hh2"></div>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            var doc2 = document.querySelector("#hh .card");
+            var duplier2 = document.querySelector("#hh2");
+
+            duplier2.appendChild(doc2.cloneNode(true));
+            window.print();
+        }
+
+    </script>
+
+</body>
+</html>

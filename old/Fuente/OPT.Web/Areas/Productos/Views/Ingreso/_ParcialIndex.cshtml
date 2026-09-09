@@ -1,0 +1,35 @@
+﻿@model IEnumerable<OPT.Entidad.OPT_ProductoDocumento>
+@using OPT.Web.Libreria;
+@{
+
+    Layout = null;
+}
+
+<table class="table table-sm table-hover" id="TablaDatos">
+    <thead>
+        <tr class="text-center">
+            <th>Fecha</th>
+            <th>N° Documento</th>
+            <th>Tipo Documento</th>
+            <th>Proveedor</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Item in Model)
+        {
+
+            <tr>
+                <td class="text-center">@Item.FechaDocumento.ToShortDateString()</td>
+                <td class="text-right">@Item.NumDocumento</td>
+                <td>@Item.OPT_TipoDocumento.TipoDocumento</td>
+                <td>@Item.Proveedor</td>
+                <td class="text-center">
+                    <a class="dropdown-item" href="@Url.Action("Details","Ingreso",new {area="Productos", id=Item.idProductoDocumento })" name="VerDetalleDocumento" title="Detalle..."><i class="fa fa-eye"></i> Ver</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

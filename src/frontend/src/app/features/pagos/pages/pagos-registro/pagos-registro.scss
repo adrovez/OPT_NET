@@ -1,0 +1,82 @@
+// Layout compartido por los módulos Abonos / Pagos / Cuotas: cabecera de la OT elegida,
+// resumen financiero, y dos columnas (formulario + historial) que colapsan en pantallas
+// angostas.
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+}
+
+.cabecera__identidad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--opt-space-sm);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.cabecera__cliente {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.cabecera__acciones {
+  display: flex;
+  gap: var(--opt-space-2xs);
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--opt-space-lg);
+  align-items: start;
+  margin-top: var(--opt-space-md);
+}
+
+@media (max-width: 899.98px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formulario form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--opt-space-2xs);
+}
+
+.formulario h3,
+.historial h3 {
+  margin: 0 0 var(--opt-space-xs);
+}
+
+.tabla {
+  width: 100%;
+}
+
+.num {
+  text-align: right;
+}
+
+.instruccion {
+  margin: 0 0 var(--opt-space-sm);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.atajo {
+  align-self: flex-start;
+}
+
+.aviso {
+  margin: 0 0 var(--opt-space-xs);
+  padding: var(--opt-space-xs);
+  border-radius: var(--opt-radius-sm);
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font-size: 0.8125rem;
+}

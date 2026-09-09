@@ -1,0 +1,26 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.FinalizaResponse
+
+@{
+    ViewBag.Title = "Finaliza";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-print"></i> IMPRIMIR OT</h4>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <p>OT N° @Model.idOT, Cliente RUT @Model.Rut, Nombre @Model.Cliente </p>             
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-12  text-right">
+                <a href="@Url.Action("Create","Ingreso",new {area="OrdenTrabajo" })" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Nueva OT</a>
+                <a href="@Url.Action("TicketOT","Ticket",new {area="Imprimir",id=Model.idOT })" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-print"></i> Imprimir</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+

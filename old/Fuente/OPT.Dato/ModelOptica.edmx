@@ -1,0 +1,2234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="DB_OpticaModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="OPT_Abono">
+          <Key>
+            <PropertyRef Name="idAbono" />
+          </Key>
+          <Property Name="idAbono" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idOT" Type="bigint" Nullable="false" />
+          <Property Name="idFormaPago" Type="int" Nullable="false" />
+          <Property Name="Monto" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="FechaAbono" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Anamnesis">
+          <Key>
+            <PropertyRef Name="idAnamnesis" />
+          </Key>
+          <Property Name="idAnamnesis" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RutCliente" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="FechaIngreso" Type="datetime" Nullable="false" />
+          <Property Name="RutUsuario" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="idSucursal" Type="int" Nullable="false" />
+          <Property Name="idEmpresa" Type="int" Nullable="false" />
+          <Property Name="hipertension" Type="bit" Nullable="false" />
+          <Property Name="Diabetes" Type="bit" Nullable="false" />
+          <Property Name="Alergias" Type="bit" Nullable="false" />
+          <Property Name="Lentes" Type="bit" Nullable="false" />
+          <Property Name="Observacion" Type="nvarchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="OPT_Atencion">
+          <Key>
+            <PropertyRef Name="idAtencion" />
+          </Key>
+          <Property Name="idAtencion" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RutCliente" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="FechaAtencion" Type="datetime" Nullable="false" />
+          <Property Name="Responsable" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="idAnamnesis" Type="bigint" />
+          <Property Name="idRecetaCristales" Type="bigint" />
+          <Property Name="idOT" Type="bigint" />
+        </EntityType>
+        <EntityType Name="OPT_BitacoraOT">
+          <Key>
+            <PropertyRef Name="idBitacoraOT" />
+          </Key>
+          <Property Name="idBitacoraOT" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idOT" Type="bigint" Nullable="false" />
+          <Property Name="idEstado" Type="int" Nullable="false" />
+          <Property Name="Fecha" Type="datetime" Nullable="false" />
+          <Property Name="Responsable" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Observacion" Type="varchar" MaxLength="200" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Cliente">
+          <Key>
+            <PropertyRef Name="RutCliente" />
+          </Key>
+          <Property Name="RutCliente" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="idEmpresa" Type="int" />
+          <Property Name="Nombre" Type="varchar" MaxLength="100" />
+          <Property Name="Direccion" Type="varchar" MaxLength="100" />
+          <Property Name="idComuna" Type="int" />
+          <Property Name="Celular" Type="varchar" MaxLength="10" />
+          <Property Name="Mail" Type="varchar" MaxLength="50" />
+          <Property Name="FechaIngreso" Type="datetime" />
+          <Property Name="FechaNacimiento" Type="date" />
+          <Property Name="TipoPrevision" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="OPT_Comuna">
+          <Key>
+            <PropertyRef Name="idComuna" />
+          </Key>
+          <Property Name="idComuna" Type="int" Nullable="false" />
+          <Property Name="idRegion" Type="int" Nullable="false" />
+          <Property Name="Comuna" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Cuota">
+          <Key>
+            <PropertyRef Name="idCuota" />
+          </Key>
+          <Property Name="idCuota" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idOT" Type="bigint" Nullable="false" />
+          <Property Name="Numero" Type="int" Nullable="false" />
+          <Property Name="ValorCuota" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="FechaBencimiento" Type="datetime" Nullable="false" />
+          <Property Name="FechaPago" Type="datetime" />
+          <Property Name="TipoPago" Type="varchar" MaxLength="50" />
+          <Property Name="Estado" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="OPT_Defontana">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Uri" Type="nvarchar" MaxLength="300" Nullable="false" />
+          <Property Name="Usuario" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Clave" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Cliente" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Compania" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Empresa">
+          <Key>
+            <PropertyRef Name="idEmpresa" />
+          </Key>
+          <Property Name="idEmpresa" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Empresa" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Direccion" Type="varchar" MaxLength="100" />
+          <Property Name="Contacto" Type="varchar" MaxLength="50" />
+          <Property Name="Telefono" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="OPT_EmpresaSucursal">
+          <Key>
+            <PropertyRef Name="idEmpresaSucursal" />
+          </Key>
+          <Property Name="idEmpresaSucursal" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idEmpresa" Type="int" Nullable="false" />
+          <Property Name="idSucursal" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_EstadoOT">
+          <Key>
+            <PropertyRef Name="idEstadoOT" />
+          </Key>
+          <Property Name="idEstadoOT" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Estado" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_FormaPago">
+          <Key>
+            <PropertyRef Name="idFormaPago" />
+          </Key>
+          <Property Name="idFormaPago" Type="int" Nullable="false" />
+          <Property Name="FormaPago" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_OrdenDeTrabajo">
+          <Key>
+            <PropertyRef Name="idOT" />
+          </Key>
+          <Property Name="idOT" Type="bigint" Nullable="false" />
+          <Property Name="Beneficiario" Type="varchar" MaxLength="100" />
+          <Property Name="RutCliente" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="FechaAtencion" Type="date" />
+          <Property Name="FechaEntrega" Type="date" />
+          <Property Name="HoraEntrega" Type="time" Precision="7" />
+          <Property Name="Precio" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="Abono" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="Saldo" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="NumeroCuota" Type="int" />
+          <Property Name="EstadoPago" Type="varchar" MaxLength="50" />
+          <Property Name="idSucursal" Type="int" />
+          <Property Name="Usuario" Type="varchar" MaxLength="100" />
+          <Property Name="idEmpresa" Type="int" />
+          <Property Name="FormaAbono" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="OPT_OrdenDeTrabajoDetalle">
+          <Key>
+            <PropertyRef Name="idOTDetalle" />
+          </Key>
+          <Property Name="idOTDetalle" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idOT" Type="bigint" Nullable="false" />
+          <Property Name="Cantidad" Type="int" Nullable="false" />
+          <Property Name="ValorUnitario" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="Comentario" Type="varchar" MaxLength="250" />
+          <Property Name="idProducto" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Pago">
+          <Key>
+            <PropertyRef Name="idPago" />
+          </Key>
+          <Property Name="idPago" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idOT" Type="bigint" Nullable="false" />
+          <Property Name="FechaPago" Type="datetime" Nullable="false" />
+          <Property Name="Monto" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="TipoPago" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Producto">
+          <Key>
+            <PropertyRef Name="idProducto" />
+          </Key>
+          <Property Name="idProducto" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Codigo" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Producto" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="FechaIngreso" Type="datetime" Nullable="false" />
+          <Property Name="Entrada" Type="int" />
+          <Property Name="Salida" Type="int" />
+          <Property Name="Stock" Type="int" />
+          <Property Name="StockMinimo" Type="int" Nullable="false" />
+          <Property Name="StockMaximo" Type="int" Nullable="false" />
+          <Property Name="ControlStock" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_ProductoDocumento">
+          <Key>
+            <PropertyRef Name="idProductoDocumento" />
+          </Key>
+          <Property Name="idProductoDocumento" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idTipoDocumento" Type="int" Nullable="false" />
+          <Property Name="NumDocumento" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IngresoEgreso" Type="int" Nullable="false" />
+          <Property Name="Proveedor" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="FechaDocumento" Type="datetime" Nullable="false" />
+          <Property Name="FechaIngreso" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_ProductoIngresoEgreso">
+          <Key>
+            <PropertyRef Name="idProductoIngreso" />
+          </Key>
+          <Property Name="idProductoIngreso" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idProductoDocumento" Type="bigint" Nullable="false" />
+          <Property Name="idProducto" Type="bigint" Nullable="false" />
+          <Property Name="Cantidad" Type="int" Nullable="false" />
+          <Property Name="ValorUnitario" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_RecetaCristales">
+          <Key>
+            <PropertyRef Name="idRecetaCristales" />
+          </Key>
+          <Property Name="idRecetaCristales" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idOT" Type="bigint" />
+          <Property Name="RutCliente" Type="varchar" MaxLength="12" />
+          <Property Name="FechaIngreso" Type="datetime" />
+          <Property Name="LejosODEsferico" Type="varchar" MaxLength="10" />
+          <Property Name="LejosODCilindro" Type="varchar" MaxLength="10" />
+          <Property Name="LejosODEje" Type="varchar" MaxLength="10" />
+          <Property Name="LejosODObservacion" Type="varchar" MaxLength="50" />
+          <Property Name="LejosOIEsferico" Type="varchar" MaxLength="10" />
+          <Property Name="LejosOICilindro" Type="varchar" MaxLength="10" />
+          <Property Name="LejosOIEje" Type="varchar" MaxLength="10" />
+          <Property Name="LejosOIObservacion" Type="varchar" MaxLength="50" />
+          <Property Name="LejosDPEsferico" Type="varchar" MaxLength="10" />
+          <Property Name="LejosDPObservacion" Type="varchar" MaxLength="50" />
+          <Property Name="CercaODEsferico" Type="nchar" MaxLength="10" />
+          <Property Name="CercaODCilindro" Type="varchar" MaxLength="10" />
+          <Property Name="CercaODEje" Type="varchar" MaxLength="10" />
+          <Property Name="CercaODObservacion" Type="varchar" MaxLength="50" />
+          <Property Name="CercaOIEsferico" Type="varchar" MaxLength="10" />
+          <Property Name="CercaOICilindro" Type="varchar" MaxLength="10" />
+          <Property Name="CercaOIEje" Type="varchar" MaxLength="10" />
+          <Property Name="CercaOIObservacion" Type="varchar" MaxLength="50" />
+          <Property Name="LejosADDEsfera" Type="varchar" MaxLength="10" />
+          <Property Name="CercaDPEsferico" Type="varchar" MaxLength="10" />
+          <Property Name="CercaDPObservacion" Type="varchar" MaxLength="50" />
+          <Property Name="CheckLejos" Type="bit" Nullable="false" />
+          <Property Name="CheckCerca" Type="bit" Nullable="false" />
+          <Property Name="CheckCristalesLaboratorio" Type="bit" Nullable="false" />
+          <Property Name="CheckUrgente" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Region">
+          <Key>
+            <PropertyRef Name="idRegion" />
+          </Key>
+          <Property Name="idRegion" Type="int" Nullable="false" />
+          <Property Name="Region" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_RegularizaProducto">
+          <Key>
+            <PropertyRef Name="idRegularizaProducto" />
+          </Key>
+          <Property Name="idRegularizaProducto" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idProducto" Type="bigint" Nullable="false" />
+          <Property Name="StockAnterior" Type="int" Nullable="false" />
+          <Property Name="StockNuevo" Type="int" Nullable="false" />
+          <Property Name="Fecha" Type="datetime" Nullable="false" />
+          <Property Name="Responsable" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Motivo" Type="nvarchar" MaxLength="200" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Rol">
+          <Key>
+            <PropertyRef Name="idRol" />
+          </Key>
+          <Property Name="idRol" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Rol" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Sucursal">
+          <Key>
+            <PropertyRef Name="idSucursal" />
+          </Key>
+          <Property Name="idSucursal" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Direccion" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Telefono" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="FechaRegistro" Type="date" Nullable="false" />
+          <Property Name="Matriz" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_TipoDocumento">
+          <Key>
+            <PropertyRef Name="idTipoDocumento" />
+          </Key>
+          <Property Name="idTipoDocumento" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TipoDocumento" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IngresoEgreso" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OPT_Usuario">
+          <Key>
+            <PropertyRef Name="RutUsuario" />
+          </Key>
+          <Property Name="RutUsuario" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="Nombre" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Mail" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Clave" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="FechaIngreso" Type="datetime" Nullable="false" />
+          <Property Name="idRol" Type="int" />
+        </EntityType>
+        <EntityType Name="OPT_UsuarioSucursal">
+          <Key>
+            <PropertyRef Name="idUsuarioSucursal" />
+          </Key>
+          <Property Name="idUsuarioSucursal" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RutUsuario" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="idSucursal" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK__OPT_Cuota__Estad__778AC167">
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Role="OPT_Cuota" Type="Self.OPT_Cuota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_Cuota">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Orden__idPro__02C769E9">
+          <End Role="OPT_Producto" Type="Self.OPT_Producto" Multiplicity="1" />
+          <End Role="OPT_OrdenDeTrabajoDetalle" Type="Self.OPT_OrdenDeTrabajoDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Producto">
+              <PropertyRef Name="idProducto" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajoDetalle">
+              <PropertyRef Name="idProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Produ__idPro__0A688BB1">
+          <End Role="OPT_ProductoDocumento" Type="Self.OPT_ProductoDocumento" Multiplicity="1" />
+          <End Role="OPT_ProductoIngresoEgreso" Type="Self.OPT_ProductoIngresoEgreso" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_ProductoDocumento">
+              <PropertyRef Name="idProductoDocumento" />
+            </Principal>
+            <Dependent Role="OPT_ProductoIngresoEgreso">
+              <PropertyRef Name="idProductoDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Produ__idPro__0B5CAFEA">
+          <End Role="OPT_Producto" Type="Self.OPT_Producto" Multiplicity="1" />
+          <End Role="OPT_ProductoIngresoEgreso" Type="Self.OPT_ProductoIngresoEgreso" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Producto">
+              <PropertyRef Name="idProducto" />
+            </Principal>
+            <Dependent Role="OPT_ProductoIngresoEgreso">
+              <PropertyRef Name="idProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Produ__idTip__078C1F06">
+          <End Role="OPT_TipoDocumento" Type="Self.OPT_TipoDocumento" Multiplicity="1" />
+          <End Role="OPT_ProductoDocumento" Type="Self.OPT_ProductoDocumento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_TipoDocumento">
+              <PropertyRef Name="idTipoDocumento" />
+            </Principal>
+            <Dependent Role="OPT_ProductoDocumento">
+              <PropertyRef Name="idTipoDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Recet__RutCl__19AACF41">
+          <End Role="OPT_Cliente" Type="Self.OPT_Cliente" Multiplicity="0..1" />
+          <End Role="OPT_RecetaCristales" Type="Self.OPT_RecetaCristales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_RecetaCristales">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Abono_OPT_FormaPago">
+          <End Role="OPT_FormaPago" Type="Self.OPT_FormaPago" Multiplicity="1" />
+          <End Role="OPT_Abono" Type="Self.OPT_Abono" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_FormaPago">
+              <PropertyRef Name="idFormaPago" />
+            </Principal>
+            <Dependent Role="OPT_Abono">
+              <PropertyRef Name="idFormaPago" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Abono_OPT_OrdenDeTrabajo">
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Role="OPT_Abono" Type="Self.OPT_Abono" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_Abono">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Anamnesis_OPT_Cliente">
+          <End Role="OPT_Cliente" Type="Self.OPT_Cliente" Multiplicity="1" />
+          <End Role="OPT_Anamnesis" Type="Self.OPT_Anamnesis" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_Anamnesis">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Anamnesis_OPT_Empresa">
+          <End Role="OPT_Empresa" Type="Self.OPT_Empresa" Multiplicity="1" />
+          <End Role="OPT_Anamnesis" Type="Self.OPT_Anamnesis" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_Anamnesis">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Anamnesis_OPT_Sucursal">
+          <End Role="OPT_Sucursal" Type="Self.OPT_Sucursal" Multiplicity="1" />
+          <End Role="OPT_Anamnesis" Type="Self.OPT_Anamnesis" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_Anamnesis">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Atencion_OPT_Cliente">
+          <End Role="OPT_Cliente" Type="Self.OPT_Cliente" Multiplicity="1" />
+          <End Role="OPT_Atencion" Type="Self.OPT_Atencion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_Atencion">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_BitacoraOT_OPT_EstadoOT">
+          <End Role="OPT_EstadoOT" Type="Self.OPT_EstadoOT" Multiplicity="1" />
+          <End Role="OPT_BitacoraOT" Type="Self.OPT_BitacoraOT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_EstadoOT">
+              <PropertyRef Name="idEstadoOT" />
+            </Principal>
+            <Dependent Role="OPT_BitacoraOT">
+              <PropertyRef Name="idEstado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo">
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Role="OPT_BitacoraOT" Type="Self.OPT_BitacoraOT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_BitacoraOT">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Cliente_OPT_Comuna">
+          <End Role="OPT_Comuna" Type="Self.OPT_Comuna" Multiplicity="0..1" />
+          <End Role="OPT_Cliente" Type="Self.OPT_Cliente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Comuna">
+              <PropertyRef Name="idComuna" />
+            </Principal>
+            <Dependent Role="OPT_Cliente">
+              <PropertyRef Name="idComuna" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Cliente_OPT_Empresa">
+          <End Role="OPT_Empresa" Type="Self.OPT_Empresa" Multiplicity="0..1" />
+          <End Role="OPT_Cliente" Type="Self.OPT_Cliente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_Cliente">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Comuna_OPT_Region">
+          <End Role="OPT_Region" Type="Self.OPT_Region" Multiplicity="1" />
+          <End Role="OPT_Comuna" Type="Self.OPT_Comuna" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Region">
+              <PropertyRef Name="idRegion" />
+            </Principal>
+            <Dependent Role="OPT_Comuna">
+              <PropertyRef Name="idRegion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_EmpresaSucursal_OPT_Empresa">
+          <End Role="OPT_Empresa" Type="Self.OPT_Empresa" Multiplicity="1" />
+          <End Role="OPT_EmpresaSucursal" Type="Self.OPT_EmpresaSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_EmpresaSucursal">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_EmpresaSucursal_OPT_Sucursal">
+          <End Role="OPT_Sucursal" Type="Self.OPT_Sucursal" Multiplicity="1" />
+          <End Role="OPT_EmpresaSucursal" Type="Self.OPT_EmpresaSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_EmpresaSucursal">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajo_OPT_Cliente">
+          <End Role="OPT_Cliente" Type="Self.OPT_Cliente" Multiplicity="1" />
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajo_OPT_Empresa">
+          <End Role="OPT_Empresa" Type="Self.OPT_Empresa" Multiplicity="0..1" />
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajo_OPT_Sucursal">
+          <End Role="OPT_Sucursal" Type="Self.OPT_Sucursal" Multiplicity="0..1" />
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo">
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Role="OPT_OrdenDeTrabajoDetalle" Type="Self.OPT_OrdenDeTrabajoDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajoDetalle">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Pago_OPT_OrdenDeTrabajo">
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Role="OPT_Pago" Type="Self.OPT_Pago" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_Pago">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo">
+          <End Role="OPT_OrdenDeTrabajo" Type="Self.OPT_OrdenDeTrabajo" Multiplicity="0..1" />
+          <End Role="OPT_RecetaCristales" Type="Self.OPT_RecetaCristales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_RecetaCristales">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_RegularizaProducto">
+          <End Role="OPT_Producto" Type="Self.OPT_Producto" Multiplicity="1" />
+          <End Role="OPT_RegularizaProducto" Type="Self.OPT_RegularizaProducto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Producto">
+              <PropertyRef Name="idProducto" />
+            </Principal>
+            <Dependent Role="OPT_RegularizaProducto">
+              <PropertyRef Name="idProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Usuario_OPT_Rol">
+          <End Role="OPT_Rol" Type="Self.OPT_Rol" Multiplicity="0..1" />
+          <End Role="OPT_Usuario" Type="Self.OPT_Usuario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Rol">
+              <PropertyRef Name="idRol" />
+            </Principal>
+            <Dependent Role="OPT_Usuario">
+              <PropertyRef Name="idRol" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_UsuarioSucursal_OPT_Sucursal">
+          <End Role="OPT_Sucursal" Type="Self.OPT_Sucursal" Multiplicity="1" />
+          <End Role="OPT_UsuarioSucursal" Type="Self.OPT_UsuarioSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_UsuarioSucursal">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_UsuarioSucursal_OPT_Usuario">
+          <End Role="OPT_Usuario" Type="Self.OPT_Usuario" Multiplicity="1" />
+          <End Role="OPT_UsuarioSucursal" Type="Self.OPT_UsuarioSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Usuario">
+              <PropertyRef Name="RutUsuario" />
+            </Principal>
+            <Dependent Role="OPT_UsuarioSucursal">
+              <PropertyRef Name="RutUsuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="sp_DetalleDeudores" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="idEmpresa" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_ListaDeudores" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SP_OTActualizaStock" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SP_OTEliminar" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="IdOT" Type="int" Mode="In" />
+        </Function>
+        <Function Name="sp_OTPeriodo" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="sp_OTPeriodoMes" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="idSucursal" Type="int" Mode="In" />
+        </Function>
+        <EntityContainer Name="DB_OpticaModelStoreContainer">
+          <EntitySet Name="OPT_Abono" EntityType="Self.OPT_Abono" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Anamnesis" EntityType="Self.OPT_Anamnesis" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Atencion" EntityType="Self.OPT_Atencion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_BitacoraOT" EntityType="Self.OPT_BitacoraOT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Cliente" EntityType="Self.OPT_Cliente" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Comuna" EntityType="Self.OPT_Comuna" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Cuota" EntityType="Self.OPT_Cuota" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Defontana" EntityType="Self.OPT_Defontana" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Empresa" EntityType="Self.OPT_Empresa" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_EmpresaSucursal" EntityType="Self.OPT_EmpresaSucursal" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_EstadoOT" EntityType="Self.OPT_EstadoOT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_FormaPago" EntityType="Self.OPT_FormaPago" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_OrdenDeTrabajo" EntityType="Self.OPT_OrdenDeTrabajo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_OrdenDeTrabajoDetalle" EntityType="Self.OPT_OrdenDeTrabajoDetalle" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Pago" EntityType="Self.OPT_Pago" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Producto" EntityType="Self.OPT_Producto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_ProductoDocumento" EntityType="Self.OPT_ProductoDocumento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_ProductoIngresoEgreso" EntityType="Self.OPT_ProductoIngresoEgreso" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_RecetaCristales" EntityType="Self.OPT_RecetaCristales" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Region" EntityType="Self.OPT_Region" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_RegularizaProducto" EntityType="Self.OPT_RegularizaProducto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Rol" EntityType="Self.OPT_Rol" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Sucursal" EntityType="Self.OPT_Sucursal" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_TipoDocumento" EntityType="Self.OPT_TipoDocumento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_Usuario" EntityType="Self.OPT_Usuario" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OPT_UsuarioSucursal" EntityType="Self.OPT_UsuarioSucursal" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__OPT_Cuota__Estad__778AC167" Association="Self.FK__OPT_Cuota__Estad__778AC167">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_Cuota" EntitySet="OPT_Cuota" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Orden__idPro__02C769E9" Association="Self.FK__OPT_Orden__idPro__02C769E9">
+            <End Role="OPT_Producto" EntitySet="OPT_Producto" />
+            <End Role="OPT_OrdenDeTrabajoDetalle" EntitySet="OPT_OrdenDeTrabajoDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Produ__idPro__0A688BB1" Association="Self.FK__OPT_Produ__idPro__0A688BB1">
+            <End Role="OPT_ProductoDocumento" EntitySet="OPT_ProductoDocumento" />
+            <End Role="OPT_ProductoIngresoEgreso" EntitySet="OPT_ProductoIngresoEgreso" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Produ__idPro__0B5CAFEA" Association="Self.FK__OPT_Produ__idPro__0B5CAFEA">
+            <End Role="OPT_Producto" EntitySet="OPT_Producto" />
+            <End Role="OPT_ProductoIngresoEgreso" EntitySet="OPT_ProductoIngresoEgreso" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Produ__idTip__078C1F06" Association="Self.FK__OPT_Produ__idTip__078C1F06">
+            <End Role="OPT_TipoDocumento" EntitySet="OPT_TipoDocumento" />
+            <End Role="OPT_ProductoDocumento" EntitySet="OPT_ProductoDocumento" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Recet__RutCl__19AACF41" Association="Self.FK__OPT_Recet__RutCl__19AACF41">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_RecetaCristales" EntitySet="OPT_RecetaCristales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Abono_OPT_FormaPago" Association="Self.FK_OPT_Abono_OPT_FormaPago">
+            <End Role="OPT_FormaPago" EntitySet="OPT_FormaPago" />
+            <End Role="OPT_Abono" EntitySet="OPT_Abono" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Abono_OPT_OrdenDeTrabajo" Association="Self.FK_OPT_Abono_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_Abono" EntitySet="OPT_Abono" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Anamnesis_OPT_Cliente" Association="Self.FK_OPT_Anamnesis_OPT_Cliente">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_Anamnesis" EntitySet="OPT_Anamnesis" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Anamnesis_OPT_Empresa" Association="Self.FK_OPT_Anamnesis_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_Anamnesis" EntitySet="OPT_Anamnesis" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Anamnesis_OPT_Sucursal" Association="Self.FK_OPT_Anamnesis_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_Anamnesis" EntitySet="OPT_Anamnesis" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Atencion_OPT_Cliente" Association="Self.FK_OPT_Atencion_OPT_Cliente">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_Atencion" EntitySet="OPT_Atencion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_BitacoraOT_OPT_EstadoOT" Association="Self.FK_OPT_BitacoraOT_OPT_EstadoOT">
+            <End Role="OPT_EstadoOT" EntitySet="OPT_EstadoOT" />
+            <End Role="OPT_BitacoraOT" EntitySet="OPT_BitacoraOT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo" Association="Self.FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_BitacoraOT" EntitySet="OPT_BitacoraOT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Cliente_OPT_Comuna" Association="Self.FK_OPT_Cliente_OPT_Comuna">
+            <End Role="OPT_Comuna" EntitySet="OPT_Comuna" />
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Cliente_OPT_Empresa" Association="Self.FK_OPT_Cliente_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Comuna_OPT_Region" Association="Self.FK_OPT_Comuna_OPT_Region">
+            <End Role="OPT_Region" EntitySet="OPT_Region" />
+            <End Role="OPT_Comuna" EntitySet="OPT_Comuna" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_EmpresaSucursal_OPT_Empresa" Association="Self.FK_OPT_EmpresaSucursal_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_EmpresaSucursal" EntitySet="OPT_EmpresaSucursal" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_EmpresaSucursal_OPT_Sucursal" Association="Self.FK_OPT_EmpresaSucursal_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_EmpresaSucursal" EntitySet="OPT_EmpresaSucursal" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajo_OPT_Cliente" Association="Self.FK_OPT_OrdenDeTrabajo_OPT_Cliente">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajo_OPT_Empresa" Association="Self.FK_OPT_OrdenDeTrabajo_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajo_OPT_Sucursal" Association="Self.FK_OPT_OrdenDeTrabajo_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo" Association="Self.FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_OrdenDeTrabajoDetalle" EntitySet="OPT_OrdenDeTrabajoDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Pago_OPT_OrdenDeTrabajo" Association="Self.FK_OPT_Pago_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_Pago" EntitySet="OPT_Pago" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo" Association="Self.FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_RecetaCristales" EntitySet="OPT_RecetaCristales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_RegularizaProducto" Association="Self.FK_OPT_RegularizaProducto">
+            <End Role="OPT_Producto" EntitySet="OPT_Producto" />
+            <End Role="OPT_RegularizaProducto" EntitySet="OPT_RegularizaProducto" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Usuario_OPT_Rol" Association="Self.FK_OPT_Usuario_OPT_Rol">
+            <End Role="OPT_Rol" EntitySet="OPT_Rol" />
+            <End Role="OPT_Usuario" EntitySet="OPT_Usuario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_UsuarioSucursal_OPT_Sucursal" Association="Self.FK_OPT_UsuarioSucursal_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_UsuarioSucursal" EntitySet="OPT_UsuarioSucursal" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_UsuarioSucursal_OPT_Usuario" Association="Self.FK_OPT_UsuarioSucursal_OPT_Usuario">
+            <End Role="OPT_Usuario" EntitySet="OPT_Usuario" />
+            <End Role="OPT_UsuarioSucursal" EntitySet="OPT_UsuarioSucursal" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DB_OpticaModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="DB_OpticaEntities" annotation:LazyLoadingEnabled="true">
+          <FunctionImport Name="sp_ListaDeudores" ReturnType="Collection(DB_OpticaModel.sp_ListaDeudores_Result)" />
+          <FunctionImport Name="sp_DetalleDeudores" ReturnType="Collection(DB_OpticaModel.sp_DetalleDeudores_Result)">
+          <Parameter Name="idEmpresa" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_OTPeriodo" ReturnType="Collection(DB_OpticaModel.sp_OTPeriodo_Result)" />
+          <EntitySet Name="OPT_Comuna" EntityType="DB_OpticaModel.OPT_Comuna" />
+          <EntitySet Name="OPT_Cuota" EntityType="DB_OpticaModel.OPT_Cuota" />
+          <EntitySet Name="OPT_Pago" EntityType="DB_OpticaModel.OPT_Pago" />
+          <EntitySet Name="OPT_Region" EntityType="DB_OpticaModel.OPT_Region" />
+          <EntitySet Name="OPT_Rol" EntityType="DB_OpticaModel.OPT_Rol" />
+          <EntitySet Name="OPT_Sucursal" EntityType="DB_OpticaModel.OPT_Sucursal" />
+          <EntitySet Name="OPT_Usuario" EntityType="DB_OpticaModel.OPT_Usuario" />
+          <EntitySet Name="OPT_UsuarioSucursal" EntityType="DB_OpticaModel.OPT_UsuarioSucursal" />
+          <AssociationSet Name="FK_OPT_Comuna_OPT_Region" Association="DB_OpticaModel.FK_OPT_Comuna_OPT_Region">
+            <End Role="OPT_Region" EntitySet="OPT_Region" />
+            <End Role="OPT_Comuna" EntitySet="OPT_Comuna" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Usuario_OPT_Rol" Association="DB_OpticaModel.FK_OPT_Usuario_OPT_Rol">
+            <End Role="OPT_Rol" EntitySet="OPT_Rol" />
+            <End Role="OPT_Usuario" EntitySet="OPT_Usuario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_UsuarioSucursal_OPT_Sucursal" Association="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_UsuarioSucursal" EntitySet="OPT_UsuarioSucursal" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_UsuarioSucursal_OPT_Usuario" Association="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Usuario">
+            <End Role="OPT_Usuario" EntitySet="OPT_Usuario" />
+            <End Role="OPT_UsuarioSucursal" EntitySet="OPT_UsuarioSucursal" />
+          </AssociationSet>
+          <EntitySet Name="OPT_EmpresaSucursal" EntityType="DB_OpticaModel.OPT_EmpresaSucursal" />
+          <AssociationSet Name="FK_OPT_EmpresaSucursal_OPT_Sucursal" Association="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_EmpresaSucursal" EntitySet="OPT_EmpresaSucursal" />
+          </AssociationSet>
+          <FunctionImport Name="sp_OTPeriodoMes" ReturnType="Collection(DB_OpticaModel.sp_OTPeriodoMes_Result)">
+          <Parameter Name="idSucursal" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="OPT_Empresa" EntityType="DB_OpticaModel.OPT_Empresa" />
+          <AssociationSet Name="FK_OPT_EmpresaSucursal_OPT_Empresa" Association="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_EmpresaSucursal" EntitySet="OPT_EmpresaSucursal" />
+          </AssociationSet>
+          <EntitySet Name="OPT_Abono" EntityType="DB_OpticaModel.OPT_Abono" />
+          <EntitySet Name="OPT_FormaPago" EntityType="DB_OpticaModel.OPT_FormaPago" />
+          <AssociationSet Name="FK_OPT_Abono_OPT_FormaPago" Association="DB_OpticaModel.FK_OPT_Abono_OPT_FormaPago">
+            <End Role="OPT_FormaPago" EntitySet="OPT_FormaPago" />
+            <End Role="OPT_Abono" EntitySet="OPT_Abono" />
+          </AssociationSet>
+          <FunctionImport Name="SP_OTEliminar" ReturnType="Collection(DB_OpticaModel.SP_OTEliminar_Result)">
+          <Parameter Name="IdOT" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="OPT_EstadoOT" EntityType="DB_OpticaModel.OPT_EstadoOT" />
+          <EntitySet Name="OPT_OrdenDeTrabajo" EntityType="DB_OpticaModel.OPT_OrdenDeTrabajo" />
+          <AssociationSet Name="FK_OPT_Abono_OPT_OrdenDeTrabajo" Association="DB_OpticaModel.FK_OPT_Abono_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_Abono" EntitySet="OPT_Abono" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Cuota__Estad__778AC167" Association="DB_OpticaModel.FK__OPT_Cuota__Estad__778AC167">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_Cuota" EntitySet="OPT_Cuota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajo_OPT_Empresa" Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajo_OPT_Sucursal" Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Pago_OPT_OrdenDeTrabajo" Association="DB_OpticaModel.FK_OPT_Pago_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_Pago" EntitySet="OPT_Pago" />
+          </AssociationSet>
+          <EntitySet Name="OPT_Defontana" EntityType="DB_OpticaModel.OPT_Defontana" />
+          <EntitySet Name="OPT_Anamnesis" EntityType="DB_OpticaModel.OPT_Anamnesis" />
+          <AssociationSet Name="FK_OPT_Anamnesis_OPT_Empresa" Association="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_Anamnesis" EntitySet="OPT_Anamnesis" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Anamnesis_OPT_Sucursal" Association="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Sucursal">
+            <End Role="OPT_Sucursal" EntitySet="OPT_Sucursal" />
+            <End Role="OPT_Anamnesis" EntitySet="OPT_Anamnesis" />
+          </AssociationSet>
+          <EntitySet Name="OPT_Cliente" EntityType="DB_OpticaModel.OPT_Cliente" />
+          <AssociationSet Name="FK_OPT_Anamnesis_OPT_Cliente" Association="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Cliente">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_Anamnesis" EntitySet="OPT_Anamnesis" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Cliente_OPT_Comuna" Association="DB_OpticaModel.FK_OPT_Cliente_OPT_Comuna">
+            <End Role="OPT_Comuna" EntitySet="OPT_Comuna" />
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_Cliente_OPT_Empresa" Association="DB_OpticaModel.FK_OPT_Cliente_OPT_Empresa">
+            <End Role="OPT_Empresa" EntitySet="OPT_Empresa" />
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajo_OPT_Cliente" Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Cliente">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+          </AssociationSet>
+          <EntitySet Name="OPT_RecetaCristales" EntityType="DB_OpticaModel.OPT_RecetaCristales" />
+          <AssociationSet Name="FK__OPT_Recet__RutCl__19AACF41" Association="DB_OpticaModel.FK__OPT_Recet__RutCl__19AACF41">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_RecetaCristales" EntitySet="OPT_RecetaCristales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo" Association="DB_OpticaModel.FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_RecetaCristales" EntitySet="OPT_RecetaCristales" />
+          </AssociationSet>
+          <EntitySet Name="OPT_BitacoraOT" EntityType="DB_OpticaModel.OPT_BitacoraOT" />
+          <AssociationSet Name="FK_OPT_BitacoraOT_OPT_EstadoOT" Association="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_EstadoOT">
+            <End Role="OPT_EstadoOT" EntitySet="OPT_EstadoOT" />
+            <End Role="OPT_BitacoraOT" EntitySet="OPT_BitacoraOT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo" Association="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_BitacoraOT" EntitySet="OPT_BitacoraOT" />
+          </AssociationSet>
+          <EntitySet Name="OPT_OrdenDeTrabajoDetalle" EntityType="DB_OpticaModel.OPT_OrdenDeTrabajoDetalle" />
+          <AssociationSet Name="FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo" Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo">
+            <End Role="OPT_OrdenDeTrabajo" EntitySet="OPT_OrdenDeTrabajo" />
+            <End Role="OPT_OrdenDeTrabajoDetalle" EntitySet="OPT_OrdenDeTrabajoDetalle" />
+          </AssociationSet>
+          <EntitySet Name="OPT_ProductoDocumento" EntityType="DB_OpticaModel.OPT_ProductoDocumento" />
+          <EntitySet Name="OPT_ProductoIngresoEgreso" EntityType="DB_OpticaModel.OPT_ProductoIngresoEgreso" />
+          <EntitySet Name="OPT_TipoDocumento" EntityType="DB_OpticaModel.OPT_TipoDocumento" />
+          <AssociationSet Name="FK__OPT_Produ__idPro__2704CA5F" Association="DB_OpticaModel.FK__OPT_Produ__idPro__2704CA5F">
+            <End Role="OPT_ProductoDocumento" EntitySet="OPT_ProductoDocumento" />
+            <End Role="OPT_ProductoIngresoEgreso" EntitySet="OPT_ProductoIngresoEgreso" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Produ__idTip__24285DB4" Association="DB_OpticaModel.FK__OPT_Produ__idTip__24285DB4">
+            <End Role="OPT_TipoDocumento" EntitySet="OPT_TipoDocumento" />
+            <End Role="OPT_ProductoDocumento" EntitySet="OPT_ProductoDocumento" />
+          </AssociationSet>
+          <FunctionImport Name="SP_OTActualizaStock" ReturnType="Collection(DB_OpticaModel.SP_OTActualizaStock_Result)" />
+          <EntitySet Name="OPT_Producto" EntityType="DB_OpticaModel.OPT_Producto" />
+          <AssociationSet Name="FK__OPT_Orden__idPro__12FDD1B2" Association="DB_OpticaModel.FK__OPT_Orden__idPro__12FDD1B2">
+            <End Role="OPT_Producto" EntitySet="OPT_Producto" />
+            <End Role="OPT_OrdenDeTrabajoDetalle" EntitySet="OPT_OrdenDeTrabajoDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK__OPT_Produ__idPro__27F8EE98" Association="DB_OpticaModel.FK__OPT_Produ__idPro__27F8EE98">
+            <End Role="OPT_Producto" EntitySet="OPT_Producto" />
+            <End Role="OPT_ProductoIngresoEgreso" EntitySet="OPT_ProductoIngresoEgreso" />
+          </AssociationSet>
+          <EntitySet Name="OPT_RegularizaProducto" EntityType="DB_OpticaModel.OPT_RegularizaProducto" />
+          <AssociationSet Name="FK_OPT_RegularizaProducto" Association="DB_OpticaModel.FK_OPT_RegularizaProducto">
+            <End Role="OPT_Producto" EntitySet="OPT_Producto" />
+            <End Role="OPT_RegularizaProducto" EntitySet="OPT_RegularizaProducto" />
+          </AssociationSet>
+          <EntitySet Name="OPT_Atencion" EntityType="DB_OpticaModel.OPT_Atencion" />
+          <AssociationSet Name="FK_OPT_Atencion_OPT_Cliente" Association="DB_OpticaModel.FK_OPT_Atencion_OPT_Cliente">
+            <End Role="OPT_Cliente" EntitySet="OPT_Cliente" />
+            <End Role="OPT_Atencion" EntitySet="OPT_Atencion" />
+          </AssociationSet>
+          </EntityContainer>
+        <ComplexType Name="sp_ListaDeudores_Result">
+          <Property Type="Int32" Name="idEmpresa" Nullable="false" />
+          <Property Type="String" Name="Empresa" Nullable="false" MaxLength="50" />
+          <Property Type="Decimal" Name="Precio" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Abono" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Saldo" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Pagado" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Int32" Name="OT" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="sp_DetalleDeudores_Result">
+          <Property Type="Int32" Name="idEmpresa" Nullable="false" />
+          <Property Type="String" Name="Empresa" Nullable="false" MaxLength="50" />
+          <Property Type="String" Name="RutCliente" Nullable="false" MaxLength="12" />
+          <Property Type="String" Name="Nombre" Nullable="true" MaxLength="100" />
+          <Property Type="Int64" Name="idOT" Nullable="false" />
+          <Property Type="DateTime" Name="FechaAtencion" Nullable="true" />
+          <Property Type="Decimal" Name="Precio" Nullable="true" Precision="18" Scale="0" />
+          <Property Type="Decimal" Name="Abono" Nullable="true" Precision="18" Scale="0" />
+          <Property Type="Decimal" Name="Saldo" Nullable="true" Precision="18" Scale="0" />
+          <Property Type="Int32" Name="NumeroCuota" Nullable="true" />
+          <Property Type="Int32" Name="ValorCuota" Nullable="true" />
+          <Property Type="Int32" Name="CuotasCanceladas" Nullable="true" />
+          <Property Type="Decimal" Name="MontoCancelado" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="TotalDeuda" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="String" Name="Estado" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Celular" Nullable="true" MaxLength="10" />
+        </ComplexType>
+        <ComplexType Name="sp_OTPeriodo_Result">
+          <Property Type="Int32" Name="Periodo" Nullable="true" />
+          <Property Type="Decimal" Name="Precio" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Abono" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Saldo" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Int32" Name="Cantidad" Nullable="true" />
+          <Property Type="String" Name="Empresa" Nullable="false" MaxLength="50" />
+        </ComplexType>
+        <EntityType Name="OPT_Comuna">
+          <Key>
+            <PropertyRef Name="idComuna" />
+          </Key>
+          <Property Name="idComuna" Type="Int32" Nullable="false" />
+          <Property Name="idRegion" Type="Int32" Nullable="false" />
+          <Property Name="Comuna" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_Region" Relationship="DB_OpticaModel.FK_OPT_Comuna_OPT_Region" FromRole="OPT_Comuna" ToRole="OPT_Region" />
+          <NavigationProperty Name="OPT_Cliente" Relationship="DB_OpticaModel.FK_OPT_Cliente_OPT_Comuna" FromRole="OPT_Comuna" ToRole="OPT_Cliente" />
+        </EntityType>
+        <EntityType Name="OPT_Cuota">
+          <Key>
+            <PropertyRef Name="idCuota" />
+          </Key>
+          <Property Name="idCuota" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idOT" Type="Int64" Nullable="false" />
+          <Property Name="Numero" Type="Int32" Nullable="false" />
+          <Property Name="ValorCuota" Type="Decimal" Nullable="false" Precision="18" Scale="0" />
+          <Property Name="FechaBencimiento" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FechaPago" Type="DateTime" Precision="3" />
+          <Property Name="TipoPago" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Estado" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK__OPT_Cuota__Estad__778AC167" FromRole="OPT_Cuota" ToRole="OPT_OrdenDeTrabajo" />
+        </EntityType>
+        <EntityType Name="OPT_Pago">
+          <Key>
+            <PropertyRef Name="idPago" />
+          </Key>
+          <Property Name="idPago" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idOT" Type="Int64" Nullable="false" />
+          <Property Name="FechaPago" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Monto" Type="Decimal" Nullable="false" Precision="18" Scale="0" />
+          <Property Name="TipoPago" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_Pago_OPT_OrdenDeTrabajo" FromRole="OPT_Pago" ToRole="OPT_OrdenDeTrabajo" />
+        </EntityType>
+        <EntityType Name="OPT_Region">
+          <Key>
+            <PropertyRef Name="idRegion" />
+          </Key>
+          <Property Name="idRegion" Type="Int32" Nullable="false" />
+          <Property Name="Region" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_Comuna" Relationship="DB_OpticaModel.FK_OPT_Comuna_OPT_Region" FromRole="OPT_Region" ToRole="OPT_Comuna" />
+        </EntityType>
+        <EntityType Name="OPT_Rol">
+          <Key>
+            <PropertyRef Name="idRol" />
+          </Key>
+          <Property Name="idRol" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Rol" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_Usuario" Relationship="DB_OpticaModel.FK_OPT_Usuario_OPT_Rol" FromRole="OPT_Rol" ToRole="OPT_Usuario" />
+        </EntityType>
+        <EntityType Name="OPT_Sucursal">
+          <Key>
+            <PropertyRef Name="idSucursal" />
+          </Key>
+          <Property Name="idSucursal" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Direccion" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Telefono" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="FechaRegistro" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Matriz" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="OPT_UsuarioSucursal" Relationship="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Sucursal" FromRole="OPT_Sucursal" ToRole="OPT_UsuarioSucursal" />
+          <NavigationProperty Name="OPT_EmpresaSucursal" Relationship="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Sucursal" FromRole="OPT_Sucursal" ToRole="OPT_EmpresaSucursal" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Sucursal" FromRole="OPT_Sucursal" ToRole="OPT_OrdenDeTrabajo" />
+          <NavigationProperty Name="OPT_Anamnesis" Relationship="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Sucursal" FromRole="OPT_Sucursal" ToRole="OPT_Anamnesis" />
+        </EntityType>
+        <EntityType Name="OPT_Usuario">
+          <Key>
+            <PropertyRef Name="RutUsuario" />
+          </Key>
+          <Property Name="RutUsuario" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="idRol" Type="Int32" />
+          <Property Name="Nombre" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Mail" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Clave" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="FechaIngreso" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="OPT_Rol" Relationship="DB_OpticaModel.FK_OPT_Usuario_OPT_Rol" FromRole="OPT_Usuario" ToRole="OPT_Rol" />
+          <NavigationProperty Name="OPT_UsuarioSucursal" Relationship="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Usuario" FromRole="OPT_Usuario" ToRole="OPT_UsuarioSucursal" />
+        </EntityType>
+        <EntityType Name="OPT_UsuarioSucursal">
+          <Key>
+            <PropertyRef Name="idUsuarioSucursal" />
+          </Key>
+          <Property Name="idUsuarioSucursal" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RutUsuario" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="idSucursal" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OPT_Sucursal" Relationship="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Sucursal" FromRole="OPT_UsuarioSucursal" ToRole="OPT_Sucursal" />
+          <NavigationProperty Name="OPT_Usuario" Relationship="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Usuario" FromRole="OPT_UsuarioSucursal" ToRole="OPT_Usuario" />
+        </EntityType>
+        <Association Name="FK_OPT_Comuna_OPT_Region">
+          <End Type="DB_OpticaModel.OPT_Region" Role="OPT_Region" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Comuna" Role="OPT_Comuna" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Region">
+              <PropertyRef Name="idRegion" />
+            </Principal>
+            <Dependent Role="OPT_Comuna">
+              <PropertyRef Name="idRegion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Usuario_OPT_Rol">
+          <End Type="DB_OpticaModel.OPT_Rol" Role="OPT_Rol" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_Usuario" Role="OPT_Usuario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Rol">
+              <PropertyRef Name="idRol" />
+            </Principal>
+            <Dependent Role="OPT_Usuario">
+              <PropertyRef Name="idRol" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_UsuarioSucursal_OPT_Sucursal">
+          <End Type="DB_OpticaModel.OPT_Sucursal" Role="OPT_Sucursal" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_UsuarioSucursal" Role="OPT_UsuarioSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_UsuarioSucursal">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_UsuarioSucursal_OPT_Usuario">
+          <End Type="DB_OpticaModel.OPT_Usuario" Role="OPT_Usuario" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_UsuarioSucursal" Role="OPT_UsuarioSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Usuario">
+              <PropertyRef Name="RutUsuario" />
+            </Principal>
+            <Dependent Role="OPT_UsuarioSucursal">
+              <PropertyRef Name="RutUsuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_EmpresaSucursal">
+          <Key>
+            <PropertyRef Name="idEmpresaSucursal" />
+          </Key>
+          <Property Name="idEmpresaSucursal" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idEmpresa" Type="Int32" Nullable="false" />
+          <Property Name="idSucursal" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OPT_Sucursal" Relationship="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Sucursal" FromRole="OPT_EmpresaSucursal" ToRole="OPT_Sucursal" />
+          <NavigationProperty Name="OPT_Empresa" Relationship="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Empresa" FromRole="OPT_EmpresaSucursal" ToRole="OPT_Empresa" />
+        </EntityType>
+        <Association Name="FK_OPT_EmpresaSucursal_OPT_Sucursal">
+          <End Type="DB_OpticaModel.OPT_Sucursal" Role="OPT_Sucursal" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_EmpresaSucursal" Role="OPT_EmpresaSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_EmpresaSucursal">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="sp_OTPeriodoMes_Result">
+          <Property Type="Int32" Name="Anio" Nullable="true" />
+          <Property Type="Int32" Name="Mes" Nullable="true" />
+          <Property Type="Decimal" Name="Precio" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Abono" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Decimal" Name="Saldo" Nullable="true" Precision="38" Scale="0" />
+          <Property Type="Int32" Name="Cantidad" Nullable="true" />
+          <Property Type="String" Name="Empresa" Nullable="false" MaxLength="50" />
+        </ComplexType>
+        <EntityType Name="OPT_Empresa">
+          <Key>
+            <PropertyRef Name="idEmpresa" />
+          </Key>
+          <Property Name="idEmpresa" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Empresa" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Direccion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Contacto" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Telefono" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_EmpresaSucursal" Relationship="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Empresa" FromRole="OPT_Empresa" ToRole="OPT_EmpresaSucursal" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Empresa" FromRole="OPT_Empresa" ToRole="OPT_OrdenDeTrabajo" />
+          <NavigationProperty Name="OPT_Anamnesis" Relationship="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Empresa" FromRole="OPT_Empresa" ToRole="OPT_Anamnesis" />
+          <NavigationProperty Name="OPT_Cliente" Relationship="DB_OpticaModel.FK_OPT_Cliente_OPT_Empresa" FromRole="OPT_Empresa" ToRole="OPT_Cliente" />
+        </EntityType>
+        <Association Name="FK_OPT_EmpresaSucursal_OPT_Empresa">
+          <End Type="DB_OpticaModel.OPT_Empresa" Role="OPT_Empresa" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_EmpresaSucursal" Role="OPT_EmpresaSucursal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_EmpresaSucursal">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_Abono">
+          <Key>
+            <PropertyRef Name="idAbono" />
+          </Key>
+          <Property Name="idAbono" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idOT" Type="Int64" Nullable="false" />
+          <Property Name="idFormaPago" Type="Int32" Nullable="false" />
+          <Property Name="Monto" Type="Decimal" Nullable="false" Precision="18" Scale="0" />
+          <Property Name="FechaAbono" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="OPT_FormaPago" Relationship="DB_OpticaModel.FK_OPT_Abono_OPT_FormaPago" FromRole="OPT_Abono" ToRole="OPT_FormaPago" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_Abono_OPT_OrdenDeTrabajo" FromRole="OPT_Abono" ToRole="OPT_OrdenDeTrabajo" />
+        </EntityType>
+        <EntityType Name="OPT_FormaPago">
+          <Key>
+            <PropertyRef Name="idFormaPago" />
+          </Key>
+          <Property Name="idFormaPago" Type="Int32" Nullable="false" />
+          <Property Name="FormaPago" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="OPT_Abono" Relationship="DB_OpticaModel.FK_OPT_Abono_OPT_FormaPago" FromRole="OPT_FormaPago" ToRole="OPT_Abono" />
+        </EntityType>
+        <Association Name="FK_OPT_Abono_OPT_FormaPago">
+          <End Type="DB_OpticaModel.OPT_FormaPago" Role="OPT_FormaPago" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Abono" Role="OPT_Abono" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_FormaPago">
+              <PropertyRef Name="idFormaPago" />
+            </Principal>
+            <Dependent Role="OPT_Abono">
+              <PropertyRef Name="idFormaPago" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="SP_OTEliminar_Result">
+          <Property Type="Int32" Name="OK" Nullable="true" />
+          <Property Type="String" Name="Mensaje" Nullable="true" MaxLength="500" />
+        </ComplexType>
+        <EntityType Name="OPT_EstadoOT">
+          <Key>
+            <PropertyRef Name="idEstadoOT" />
+          </Key>
+          <Property Name="idEstadoOT" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Estado" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="OPT_BitacoraOT" Relationship="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_EstadoOT" FromRole="OPT_EstadoOT" ToRole="OPT_BitacoraOT" />
+        </EntityType>
+        <EntityType Name="OPT_OrdenDeTrabajo">
+          <Key>
+            <PropertyRef Name="idOT" />
+          </Key>
+          <Property Name="idOT" Type="Int64" Nullable="false" />
+          <Property Name="Beneficiario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="RutCliente" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="FechaAtencion" Type="DateTime" Precision="0" />
+          <Property Name="FechaEntrega" Type="DateTime" Precision="0" />
+          <Property Name="HoraEntrega" Type="Time" Precision="7" />
+          <Property Name="Precio" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="Abono" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="Saldo" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="NumeroCuota" Type="Int32" />
+          <Property Name="EstadoPago" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="idSucursal" Type="Int32" />
+          <Property Name="Usuario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="idEmpresa" Type="Int32" />
+          <Property Name="FormaAbono" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_Abono" Relationship="DB_OpticaModel.FK_OPT_Abono_OPT_OrdenDeTrabajo" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_Abono" />
+          <NavigationProperty Name="OPT_Cuota" Relationship="DB_OpticaModel.FK__OPT_Cuota__Estad__778AC167" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_Cuota" />
+          <NavigationProperty Name="OPT_Empresa" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Empresa" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_Empresa" />
+          <NavigationProperty Name="OPT_Sucursal" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Sucursal" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_Sucursal" />
+          <NavigationProperty Name="OPT_Pago" Relationship="DB_OpticaModel.FK_OPT_Pago_OPT_OrdenDeTrabajo" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_Pago" />
+          <NavigationProperty Name="OPT_Cliente" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Cliente" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_Cliente" />
+          <NavigationProperty Name="OPT_RecetaCristales" Relationship="DB_OpticaModel.FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_RecetaCristales" />
+          <NavigationProperty Name="OPT_BitacoraOT" Relationship="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_BitacoraOT" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajoDetalle" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo" FromRole="OPT_OrdenDeTrabajo" ToRole="OPT_OrdenDeTrabajoDetalle" />
+        </EntityType>
+        <Association Name="FK_OPT_Abono_OPT_OrdenDeTrabajo">
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Abono" Role="OPT_Abono" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_Abono">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Cuota__Estad__778AC167">
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Cuota" Role="OPT_Cuota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_Cuota">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajo_OPT_Empresa">
+          <End Type="DB_OpticaModel.OPT_Empresa" Role="OPT_Empresa" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajo_OPT_Sucursal">
+          <End Type="DB_OpticaModel.OPT_Sucursal" Role="OPT_Sucursal" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Pago_OPT_OrdenDeTrabajo">
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Pago" Role="OPT_Pago" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_Pago">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_Defontana">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Uri" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="true" />
+          <Property Name="Usuario" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Clave" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Cliente" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Compania" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="OPT_Anamnesis">
+          <Key>
+            <PropertyRef Name="idAnamnesis" />
+          </Key>
+          <Property Name="idAnamnesis" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RutCliente" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="FechaIngreso" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="RutUsuario" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="idSucursal" Type="Int32" Nullable="false" />
+          <Property Name="idEmpresa" Type="Int32" Nullable="false" />
+          <Property Name="hipertension" Type="Boolean" Nullable="false" />
+          <Property Name="Diabetes" Type="Boolean" Nullable="false" />
+          <Property Name="Alergias" Type="Boolean" Nullable="false" />
+          <Property Name="Lentes" Type="Boolean" Nullable="false" />
+          <Property Name="Observacion" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="OPT_Empresa" Relationship="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Empresa" FromRole="OPT_Anamnesis" ToRole="OPT_Empresa" />
+          <NavigationProperty Name="OPT_Sucursal" Relationship="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Sucursal" FromRole="OPT_Anamnesis" ToRole="OPT_Sucursal" />
+          <NavigationProperty Name="OPT_Cliente" Relationship="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Cliente" FromRole="OPT_Anamnesis" ToRole="OPT_Cliente" />
+        </EntityType>
+        <Association Name="FK_OPT_Anamnesis_OPT_Empresa">
+          <End Type="DB_OpticaModel.OPT_Empresa" Role="OPT_Empresa" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Anamnesis" Role="OPT_Anamnesis" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_Anamnesis">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Anamnesis_OPT_Sucursal">
+          <End Type="DB_OpticaModel.OPT_Sucursal" Role="OPT_Sucursal" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Anamnesis" Role="OPT_Anamnesis" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Sucursal">
+              <PropertyRef Name="idSucursal" />
+            </Principal>
+            <Dependent Role="OPT_Anamnesis">
+              <PropertyRef Name="idSucursal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_Cliente">
+          <Key>
+            <PropertyRef Name="RutCliente" />
+          </Key>
+          <Property Name="RutCliente" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="idEmpresa" Type="Int32" />
+          <Property Name="Nombre" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Direccion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="idComuna" Type="Int32" />
+          <Property Name="Celular" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Mail" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FechaIngreso" Type="DateTime" Precision="3" />
+          <Property Name="FechaNacimiento" Type="DateTime" Precision="0" />
+          <Property Name="TipoPrevision" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_Anamnesis" Relationship="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Cliente" FromRole="OPT_Cliente" ToRole="OPT_Anamnesis" />
+          <NavigationProperty Name="OPT_Comuna" Relationship="DB_OpticaModel.FK_OPT_Cliente_OPT_Comuna" FromRole="OPT_Cliente" ToRole="OPT_Comuna" />
+          <NavigationProperty Name="OPT_Empresa" Relationship="DB_OpticaModel.FK_OPT_Cliente_OPT_Empresa" FromRole="OPT_Cliente" ToRole="OPT_Empresa" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Cliente" FromRole="OPT_Cliente" ToRole="OPT_OrdenDeTrabajo" />
+          <NavigationProperty Name="OPT_RecetaCristales" Relationship="DB_OpticaModel.FK__OPT_Recet__RutCl__19AACF41" FromRole="OPT_Cliente" ToRole="OPT_RecetaCristales" />
+          <NavigationProperty Name="OPT_Atencion" Relationship="DB_OpticaModel.FK_OPT_Atencion_OPT_Cliente" FromRole="OPT_Cliente" ToRole="OPT_Atencion" />
+        </EntityType>
+        <Association Name="FK_OPT_Anamnesis_OPT_Cliente">
+          <End Type="DB_OpticaModel.OPT_Cliente" Role="OPT_Cliente" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Anamnesis" Role="OPT_Anamnesis" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_Anamnesis">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Cliente_OPT_Comuna">
+          <End Type="DB_OpticaModel.OPT_Comuna" Role="OPT_Comuna" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_Cliente" Role="OPT_Cliente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Comuna">
+              <PropertyRef Name="idComuna" />
+            </Principal>
+            <Dependent Role="OPT_Cliente">
+              <PropertyRef Name="idComuna" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_Cliente_OPT_Empresa">
+          <End Type="DB_OpticaModel.OPT_Empresa" Role="OPT_Empresa" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_Cliente" Role="OPT_Cliente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Empresa">
+              <PropertyRef Name="idEmpresa" />
+            </Principal>
+            <Dependent Role="OPT_Cliente">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_OrdenDeTrabajo_OPT_Cliente">
+          <End Type="DB_OpticaModel.OPT_Cliente" Role="OPT_Cliente" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_RecetaCristales">
+          <Key>
+            <PropertyRef Name="idRecetaCristales" />
+          </Key>
+          <Property Name="idRecetaCristales" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idOT" Type="Int64" />
+          <Property Name="LejosODEsferico" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosODCilindro" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosODEje" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosODObservacion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LejosOIEsferico" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosOICilindro" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosOIEje" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosOIObservacion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LejosDPEsferico" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LejosDPObservacion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CercaODEsferico" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="CercaODCilindro" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaODEje" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaODObservacion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CercaOIEsferico" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaOICilindro" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaOIEje" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaOIObservacion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LejosADDEsfera" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaDPEsferico" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CercaDPObservacion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CheckLejos" Type="Boolean" Nullable="false" />
+          <Property Name="CheckCerca" Type="Boolean" Nullable="false" />
+          <Property Name="CheckCristalesLaboratorio" Type="Boolean" Nullable="false" />
+          <Property Name="CheckUrgente" Type="Boolean" Nullable="false" />
+          <Property Name="RutCliente" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="FechaIngreso" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="OPT_Cliente" Relationship="DB_OpticaModel.FK__OPT_Recet__RutCl__19AACF41" FromRole="OPT_RecetaCristales" ToRole="OPT_Cliente" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo" FromRole="OPT_RecetaCristales" ToRole="OPT_OrdenDeTrabajo" />
+        </EntityType>
+        <Association Name="FK__OPT_Recet__RutCl__19AACF41">
+          <End Type="DB_OpticaModel.OPT_Cliente" Role="OPT_Cliente" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_RecetaCristales" Role="OPT_RecetaCristales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_RecetaCristales">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo">
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="0..1" />
+          <End Type="DB_OpticaModel.OPT_RecetaCristales" Role="OPT_RecetaCristales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_RecetaCristales">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_BitacoraOT">
+          <Key>
+            <PropertyRef Name="idBitacoraOT" />
+          </Key>
+          <Property Name="idBitacoraOT" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idOT" Type="Int64" Nullable="false" />
+          <Property Name="idEstado" Type="Int32" Nullable="false" />
+          <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Responsable" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Observacion" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OPT_EstadoOT" Relationship="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_EstadoOT" FromRole="OPT_BitacoraOT" ToRole="OPT_EstadoOT" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo" FromRole="OPT_BitacoraOT" ToRole="OPT_OrdenDeTrabajo" />
+        </EntityType>
+        <Association Name="FK_OPT_BitacoraOT_OPT_EstadoOT">
+          <End Type="DB_OpticaModel.OPT_EstadoOT" Role="OPT_EstadoOT" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_BitacoraOT" Role="OPT_BitacoraOT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_EstadoOT">
+              <PropertyRef Name="idEstadoOT" />
+            </Principal>
+            <Dependent Role="OPT_BitacoraOT">
+              <PropertyRef Name="idEstado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo">
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_BitacoraOT" Role="OPT_BitacoraOT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_BitacoraOT">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_OrdenDeTrabajoDetalle">
+          <Key>
+            <PropertyRef Name="idOTDetalle" />
+          </Key>
+          <Property Name="idOTDetalle" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idOT" Type="Int64" Nullable="false" />
+          <Property Name="Cantidad" Type="Int32" Nullable="false" />
+          <Property Name="ValorUnitario" Type="Decimal" Nullable="false" Precision="18" Scale="0" />
+          <Property Name="Comentario" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="idProducto" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajo" Relationship="DB_OpticaModel.FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo" FromRole="OPT_OrdenDeTrabajoDetalle" ToRole="OPT_OrdenDeTrabajo" />
+          <NavigationProperty Name="OPT_Producto" Relationship="DB_OpticaModel.FK__OPT_Orden__idPro__12FDD1B2" FromRole="OPT_OrdenDeTrabajoDetalle" ToRole="OPT_Producto" />
+        </EntityType>
+        <Association Name="FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo">
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajo" Role="OPT_OrdenDeTrabajo" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajoDetalle" Role="OPT_OrdenDeTrabajoDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_OrdenDeTrabajo">
+              <PropertyRef Name="idOT" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajoDetalle">
+              <PropertyRef Name="idOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_ProductoDocumento">
+          <Key>
+            <PropertyRef Name="idProductoDocumento" />
+          </Key>
+          <Property Name="idProductoDocumento" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idTipoDocumento" Type="Int32" Nullable="false" />
+          <Property Name="NumDocumento" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IngresoEgreso" Type="Int32" Nullable="false" />
+          <Property Name="Proveedor" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FechaDocumento" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FechaIngreso" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="OPT_ProductoIngresoEgreso" Relationship="DB_OpticaModel.FK__OPT_Produ__idPro__2704CA5F" FromRole="OPT_ProductoDocumento" ToRole="OPT_ProductoIngresoEgreso" />
+          <NavigationProperty Name="OPT_TipoDocumento" Relationship="DB_OpticaModel.FK__OPT_Produ__idTip__24285DB4" FromRole="OPT_ProductoDocumento" ToRole="OPT_TipoDocumento" />
+        </EntityType>
+        <EntityType Name="OPT_ProductoIngresoEgreso">
+          <Key>
+            <PropertyRef Name="idProductoIngreso" />
+          </Key>
+          <Property Name="idProductoIngreso" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idProductoDocumento" Type="Int64" Nullable="false" />
+          <Property Name="idProducto" Type="Int64" Nullable="false" />
+          <Property Name="Cantidad" Type="Int32" Nullable="false" />
+          <Property Name="ValorUnitario" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OPT_ProductoDocumento" Relationship="DB_OpticaModel.FK__OPT_Produ__idPro__2704CA5F" FromRole="OPT_ProductoIngresoEgreso" ToRole="OPT_ProductoDocumento" />
+          <NavigationProperty Name="OPT_Producto" Relationship="DB_OpticaModel.FK__OPT_Produ__idPro__27F8EE98" FromRole="OPT_ProductoIngresoEgreso" ToRole="OPT_Producto" />
+        </EntityType>
+        <EntityType Name="OPT_TipoDocumento">
+          <Key>
+            <PropertyRef Name="idTipoDocumento" />
+          </Key>
+          <Property Name="idTipoDocumento" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TipoDocumento" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IngresoEgreso" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OPT_ProductoDocumento" Relationship="DB_OpticaModel.FK__OPT_Produ__idTip__24285DB4" FromRole="OPT_TipoDocumento" ToRole="OPT_ProductoDocumento" />
+        </EntityType>
+        <Association Name="FK__OPT_Produ__idPro__2704CA5F">
+          <End Type="DB_OpticaModel.OPT_ProductoDocumento" Role="OPT_ProductoDocumento" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_ProductoIngresoEgreso" Role="OPT_ProductoIngresoEgreso" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_ProductoDocumento">
+              <PropertyRef Name="idProductoDocumento" />
+            </Principal>
+            <Dependent Role="OPT_ProductoIngresoEgreso">
+              <PropertyRef Name="idProductoDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Produ__idTip__24285DB4">
+          <End Type="DB_OpticaModel.OPT_TipoDocumento" Role="OPT_TipoDocumento" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_ProductoDocumento" Role="OPT_ProductoDocumento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_TipoDocumento">
+              <PropertyRef Name="idTipoDocumento" />
+            </Principal>
+            <Dependent Role="OPT_ProductoDocumento">
+              <PropertyRef Name="idTipoDocumento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="SP_OTActualizaStock_Result">
+          <Property Type="Int32" Name="OK" Nullable="true" />
+          <Property Type="String" Name="Mensaje" Nullable="true" MaxLength="500" />
+        </ComplexType>
+        <EntityType Name="OPT_Producto">
+          <Key>
+            <PropertyRef Name="idProducto" />
+          </Key>
+          <Property Name="idProducto" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Codigo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FechaIngreso" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Entrada" Type="Int32" />
+          <Property Name="Salida" Type="Int32" />
+          <Property Name="Stock" Type="Int32" />
+          <Property Name="StockMinimo" Type="Int32" Nullable="false" />
+          <Property Name="StockMaximo" Type="Int32" Nullable="false" />
+          <Property Name="ControlStock" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="OPT_OrdenDeTrabajoDetalle" Relationship="DB_OpticaModel.FK__OPT_Orden__idPro__12FDD1B2" FromRole="OPT_Producto" ToRole="OPT_OrdenDeTrabajoDetalle" />
+          <NavigationProperty Name="OPT_ProductoIngresoEgreso" Relationship="DB_OpticaModel.FK__OPT_Produ__idPro__27F8EE98" FromRole="OPT_Producto" ToRole="OPT_ProductoIngresoEgreso" />
+          <NavigationProperty Name="OPT_RegularizaProducto" Relationship="DB_OpticaModel.FK_OPT_RegularizaProducto" FromRole="OPT_Producto" ToRole="OPT_RegularizaProducto" />
+        </EntityType>
+        <Association Name="FK__OPT_Orden__idPro__12FDD1B2">
+          <End Type="DB_OpticaModel.OPT_Producto" Role="OPT_Producto" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_OrdenDeTrabajoDetalle" Role="OPT_OrdenDeTrabajoDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Producto">
+              <PropertyRef Name="idProducto" />
+            </Principal>
+            <Dependent Role="OPT_OrdenDeTrabajoDetalle">
+              <PropertyRef Name="idProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__OPT_Produ__idPro__27F8EE98">
+          <End Type="DB_OpticaModel.OPT_Producto" Role="OPT_Producto" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_ProductoIngresoEgreso" Role="OPT_ProductoIngresoEgreso" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Producto">
+              <PropertyRef Name="idProducto" />
+            </Principal>
+            <Dependent Role="OPT_ProductoIngresoEgreso">
+              <PropertyRef Name="idProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_RegularizaProducto">
+          <Key>
+            <PropertyRef Name="idRegularizaProducto" />
+          </Key>
+          <Property Name="idRegularizaProducto" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idProducto" Type="Int64" Nullable="false" />
+          <Property Name="StockAnterior" Type="Int32" Nullable="false" />
+          <Property Name="StockNuevo" Type="Int32" Nullable="false" />
+          <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Responsable" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Motivo" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="OPT_Producto" Relationship="DB_OpticaModel.FK_OPT_RegularizaProducto" FromRole="OPT_RegularizaProducto" ToRole="OPT_Producto" />
+        </EntityType>
+        <Association Name="FK_OPT_RegularizaProducto">
+          <End Type="DB_OpticaModel.OPT_Producto" Role="OPT_Producto" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_RegularizaProducto" Role="OPT_RegularizaProducto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Producto">
+              <PropertyRef Name="idProducto" />
+            </Principal>
+            <Dependent Role="OPT_RegularizaProducto">
+              <PropertyRef Name="idProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OPT_Atencion">
+          <Key>
+            <PropertyRef Name="idAtencion" />
+          </Key>
+          <Property Name="idAtencion" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RutCliente" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="FechaAtencion" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Responsable" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="idAnamnesis" Type="Int64" />
+          <Property Name="idRecetaCristales" Type="Int64" />
+          <Property Name="idOT" Type="Int64" />
+          <NavigationProperty Name="OPT_Cliente" Relationship="DB_OpticaModel.FK_OPT_Atencion_OPT_Cliente" FromRole="OPT_Atencion" ToRole="OPT_Cliente" />
+        </EntityType>
+        <Association Name="FK_OPT_Atencion_OPT_Cliente">
+          <End Type="DB_OpticaModel.OPT_Cliente" Role="OPT_Cliente" Multiplicity="1" />
+          <End Type="DB_OpticaModel.OPT_Atencion" Role="OPT_Atencion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OPT_Cliente">
+              <PropertyRef Name="RutCliente" />
+            </Principal>
+            <Dependent Role="OPT_Atencion">
+              <PropertyRef Name="RutCliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DB_OpticaModelStoreContainer" CdmEntityContainer="DB_OpticaEntities">
+          <FunctionImportMapping FunctionImportName="sp_ListaDeudores" FunctionName="DB_OpticaModel.Store.sp_ListaDeudores">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DB_OpticaModel.sp_ListaDeudores_Result">
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="Empresa" ColumnName="Empresa" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="Abono" ColumnName="Abono" />
+                <ScalarProperty Name="Saldo" ColumnName="Saldo" />
+                <ScalarProperty Name="Pagado" ColumnName="Pagado" />
+                <ScalarProperty Name="OT" ColumnName="OT" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_DetalleDeudores" FunctionName="DB_OpticaModel.Store.sp_DetalleDeudores">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DB_OpticaModel.sp_DetalleDeudores_Result">
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="Empresa" ColumnName="Empresa" />
+                <ScalarProperty Name="RutCliente" ColumnName="RutCliente" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="FechaAtencion" ColumnName="FechaAtencion" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="Abono" ColumnName="Abono" />
+                <ScalarProperty Name="Saldo" ColumnName="Saldo" />
+                <ScalarProperty Name="NumeroCuota" ColumnName="NumeroCuota" />
+                <ScalarProperty Name="ValorCuota" ColumnName="ValorCuota" />
+                <ScalarProperty Name="CuotasCanceladas" ColumnName="CuotasCanceladas" />
+                <ScalarProperty Name="MontoCancelado" ColumnName="MontoCancelado" />
+                <ScalarProperty Name="TotalDeuda" ColumnName="TotalDeuda" />
+                <ScalarProperty Name="Estado" ColumnName="Estado" />
+                <ScalarProperty Name="Celular" ColumnName="Celular" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="sp_OTPeriodo" FunctionName="DB_OpticaModel.Store.sp_OTPeriodo">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DB_OpticaModel.sp_OTPeriodo_Result">
+                <ScalarProperty Name="Periodo" ColumnName="Periodo" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="Abono" ColumnName="Abono" />
+                <ScalarProperty Name="Saldo" ColumnName="Saldo" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+                <ScalarProperty Name="Empresa" ColumnName="Empresa" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="OPT_Comuna">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Comuna">
+              <MappingFragment StoreEntitySet="OPT_Comuna">
+                <ScalarProperty Name="Comuna" ColumnName="Comuna" />
+                <ScalarProperty Name="idRegion" ColumnName="idRegion" />
+                <ScalarProperty Name="idComuna" ColumnName="idComuna" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Cuota">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Cuota">
+              <MappingFragment StoreEntitySet="OPT_Cuota">
+                <ScalarProperty Name="Estado" ColumnName="Estado" />
+                <ScalarProperty Name="TipoPago" ColumnName="TipoPago" />
+                <ScalarProperty Name="FechaPago" ColumnName="FechaPago" />
+                <ScalarProperty Name="FechaBencimiento" ColumnName="FechaBencimiento" />
+                <ScalarProperty Name="ValorCuota" ColumnName="ValorCuota" />
+                <ScalarProperty Name="Numero" ColumnName="Numero" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idCuota" ColumnName="idCuota" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Pago">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Pago">
+              <MappingFragment StoreEntitySet="OPT_Pago">
+                <ScalarProperty Name="TipoPago" ColumnName="TipoPago" />
+                <ScalarProperty Name="Monto" ColumnName="Monto" />
+                <ScalarProperty Name="FechaPago" ColumnName="FechaPago" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idPago" ColumnName="idPago" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Region">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Region">
+              <MappingFragment StoreEntitySet="OPT_Region">
+                <ScalarProperty Name="Region" ColumnName="Region" />
+                <ScalarProperty Name="idRegion" ColumnName="idRegion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Rol">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Rol">
+              <MappingFragment StoreEntitySet="OPT_Rol">
+                <ScalarProperty Name="Rol" ColumnName="Rol" />
+                <ScalarProperty Name="idRol" ColumnName="idRol" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Sucursal">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Sucursal">
+              <MappingFragment StoreEntitySet="OPT_Sucursal">
+                <ScalarProperty Name="Matriz" ColumnName="Matriz" />
+                <ScalarProperty Name="FechaRegistro" ColumnName="FechaRegistro" />
+                <ScalarProperty Name="Telefono" ColumnName="Telefono" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="idSucursal" ColumnName="idSucursal" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Usuario">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Usuario">
+              <MappingFragment StoreEntitySet="OPT_Usuario">
+                <ScalarProperty Name="FechaIngreso" ColumnName="FechaIngreso" />
+                <ScalarProperty Name="Clave" ColumnName="Clave" />
+                <ScalarProperty Name="Mail" ColumnName="Mail" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="idRol" ColumnName="idRol" />
+                <ScalarProperty Name="RutUsuario" ColumnName="RutUsuario" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_UsuarioSucursal">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_UsuarioSucursal">
+              <MappingFragment StoreEntitySet="OPT_UsuarioSucursal">
+                <ScalarProperty Name="idSucursal" ColumnName="idSucursal" />
+                <ScalarProperty Name="RutUsuario" ColumnName="RutUsuario" />
+                <ScalarProperty Name="idUsuarioSucursal" ColumnName="idUsuarioSucursal" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_EmpresaSucursal">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_EmpresaSucursal">
+              <MappingFragment StoreEntitySet="OPT_EmpresaSucursal">
+                <ScalarProperty Name="idSucursal" ColumnName="idSucursal" />
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="idEmpresaSucursal" ColumnName="idEmpresaSucursal" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_OTPeriodoMes" FunctionName="DB_OpticaModel.Store.sp_OTPeriodoMes">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DB_OpticaModel.sp_OTPeriodoMes_Result">
+                <ScalarProperty Name="Anio" ColumnName="Anio" />
+                <ScalarProperty Name="Mes" ColumnName="Mes" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="Abono" ColumnName="Abono" />
+                <ScalarProperty Name="Saldo" ColumnName="Saldo" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+                <ScalarProperty Name="Empresa" ColumnName="Empresa" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="OPT_Empresa">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Empresa">
+              <MappingFragment StoreEntitySet="OPT_Empresa">
+                <ScalarProperty Name="Telefono" ColumnName="Telefono" />
+                <ScalarProperty Name="Contacto" ColumnName="Contacto" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Empresa" ColumnName="Empresa" />
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Abono">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Abono">
+              <MappingFragment StoreEntitySet="OPT_Abono">
+                <ScalarProperty Name="FechaAbono" ColumnName="FechaAbono" />
+                <ScalarProperty Name="Monto" ColumnName="Monto" />
+                <ScalarProperty Name="idFormaPago" ColumnName="idFormaPago" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idAbono" ColumnName="idAbono" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_FormaPago">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_FormaPago">
+              <MappingFragment StoreEntitySet="OPT_FormaPago">
+                <ScalarProperty Name="FormaPago" ColumnName="FormaPago" />
+                <ScalarProperty Name="idFormaPago" ColumnName="idFormaPago" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_OTEliminar" FunctionName="DB_OpticaModel.Store.SP_OTEliminar">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DB_OpticaModel.SP_OTEliminar_Result">
+                <ScalarProperty Name="OK" ColumnName="OK" />
+                <ScalarProperty Name="Mensaje" ColumnName="Mensaje" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="OPT_EstadoOT">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_EstadoOT">
+              <MappingFragment StoreEntitySet="OPT_EstadoOT">
+                <ScalarProperty Name="Estado" ColumnName="Estado" />
+                <ScalarProperty Name="idEstadoOT" ColumnName="idEstadoOT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_OrdenDeTrabajo">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_OrdenDeTrabajo">
+              <MappingFragment StoreEntitySet="OPT_OrdenDeTrabajo">
+                <ScalarProperty Name="FormaAbono" ColumnName="FormaAbono" />
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="Usuario" ColumnName="Usuario" />
+                <ScalarProperty Name="idSucursal" ColumnName="idSucursal" />
+                <ScalarProperty Name="EstadoPago" ColumnName="EstadoPago" />
+                <ScalarProperty Name="NumeroCuota" ColumnName="NumeroCuota" />
+                <ScalarProperty Name="Saldo" ColumnName="Saldo" />
+                <ScalarProperty Name="Abono" ColumnName="Abono" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="HoraEntrega" ColumnName="HoraEntrega" />
+                <ScalarProperty Name="FechaEntrega" ColumnName="FechaEntrega" />
+                <ScalarProperty Name="FechaAtencion" ColumnName="FechaAtencion" />
+                <ScalarProperty Name="RutCliente" ColumnName="RutCliente" />
+                <ScalarProperty Name="Beneficiario" ColumnName="Beneficiario" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Defontana">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Defontana">
+              <MappingFragment StoreEntitySet="OPT_Defontana">
+                <ScalarProperty Name="Compania" ColumnName="Compania" />
+                <ScalarProperty Name="Cliente" ColumnName="Cliente" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Clave" ColumnName="Clave" />
+                <ScalarProperty Name="Usuario" ColumnName="Usuario" />
+                <ScalarProperty Name="Uri" ColumnName="Uri" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Anamnesis">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Anamnesis">
+              <MappingFragment StoreEntitySet="OPT_Anamnesis">
+                <ScalarProperty Name="Observacion" ColumnName="Observacion" />
+                <ScalarProperty Name="Lentes" ColumnName="Lentes" />
+                <ScalarProperty Name="Alergias" ColumnName="Alergias" />
+                <ScalarProperty Name="Diabetes" ColumnName="Diabetes" />
+                <ScalarProperty Name="hipertension" ColumnName="hipertension" />
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="idSucursal" ColumnName="idSucursal" />
+                <ScalarProperty Name="RutUsuario" ColumnName="RutUsuario" />
+                <ScalarProperty Name="FechaIngreso" ColumnName="FechaIngreso" />
+                <ScalarProperty Name="RutCliente" ColumnName="RutCliente" />
+                <ScalarProperty Name="idAnamnesis" ColumnName="idAnamnesis" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Cliente">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Cliente">
+              <MappingFragment StoreEntitySet="OPT_Cliente">
+                <ScalarProperty Name="TipoPrevision" ColumnName="TipoPrevision" />
+                <ScalarProperty Name="FechaNacimiento" ColumnName="FechaNacimiento" />
+                <ScalarProperty Name="FechaIngreso" ColumnName="FechaIngreso" />
+                <ScalarProperty Name="Mail" ColumnName="Mail" />
+                <ScalarProperty Name="Celular" ColumnName="Celular" />
+                <ScalarProperty Name="idComuna" ColumnName="idComuna" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="RutCliente" ColumnName="RutCliente" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_RecetaCristales">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_RecetaCristales">
+              <MappingFragment StoreEntitySet="OPT_RecetaCristales">
+                <ScalarProperty Name="FechaIngreso" ColumnName="FechaIngreso" />
+                <ScalarProperty Name="RutCliente" ColumnName="RutCliente" />
+                <ScalarProperty Name="CheckUrgente" ColumnName="CheckUrgente" />
+                <ScalarProperty Name="CheckCristalesLaboratorio" ColumnName="CheckCristalesLaboratorio" />
+                <ScalarProperty Name="CheckCerca" ColumnName="CheckCerca" />
+                <ScalarProperty Name="CheckLejos" ColumnName="CheckLejos" />
+                <ScalarProperty Name="CercaDPObservacion" ColumnName="CercaDPObservacion" />
+                <ScalarProperty Name="CercaDPEsferico" ColumnName="CercaDPEsferico" />
+                <ScalarProperty Name="LejosADDEsfera" ColumnName="LejosADDEsfera" />
+                <ScalarProperty Name="CercaOIObservacion" ColumnName="CercaOIObservacion" />
+                <ScalarProperty Name="CercaOIEje" ColumnName="CercaOIEje" />
+                <ScalarProperty Name="CercaOICilindro" ColumnName="CercaOICilindro" />
+                <ScalarProperty Name="CercaOIEsferico" ColumnName="CercaOIEsferico" />
+                <ScalarProperty Name="CercaODObservacion" ColumnName="CercaODObservacion" />
+                <ScalarProperty Name="CercaODEje" ColumnName="CercaODEje" />
+                <ScalarProperty Name="CercaODCilindro" ColumnName="CercaODCilindro" />
+                <ScalarProperty Name="CercaODEsferico" ColumnName="CercaODEsferico" />
+                <ScalarProperty Name="LejosDPObservacion" ColumnName="LejosDPObservacion" />
+                <ScalarProperty Name="LejosDPEsferico" ColumnName="LejosDPEsferico" />
+                <ScalarProperty Name="LejosOIObservacion" ColumnName="LejosOIObservacion" />
+                <ScalarProperty Name="LejosOIEje" ColumnName="LejosOIEje" />
+                <ScalarProperty Name="LejosOICilindro" ColumnName="LejosOICilindro" />
+                <ScalarProperty Name="LejosOIEsferico" ColumnName="LejosOIEsferico" />
+                <ScalarProperty Name="LejosODObservacion" ColumnName="LejosODObservacion" />
+                <ScalarProperty Name="LejosODEje" ColumnName="LejosODEje" />
+                <ScalarProperty Name="LejosODCilindro" ColumnName="LejosODCilindro" />
+                <ScalarProperty Name="LejosODEsferico" ColumnName="LejosODEsferico" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idRecetaCristales" ColumnName="idRecetaCristales" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_BitacoraOT">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_BitacoraOT">
+              <MappingFragment StoreEntitySet="OPT_BitacoraOT">
+                <ScalarProperty Name="Observacion" ColumnName="Observacion" />
+                <ScalarProperty Name="Responsable" ColumnName="Responsable" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="idEstado" ColumnName="idEstado" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idBitacoraOT" ColumnName="idBitacoraOT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_OrdenDeTrabajoDetalle">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_OrdenDeTrabajoDetalle">
+              <MappingFragment StoreEntitySet="OPT_OrdenDeTrabajoDetalle">
+                <ScalarProperty Name="idProducto" ColumnName="idProducto" />
+                <ScalarProperty Name="Comentario" ColumnName="Comentario" />
+                <ScalarProperty Name="ValorUnitario" ColumnName="ValorUnitario" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idOTDetalle" ColumnName="idOTDetalle" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_ProductoDocumento">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_ProductoDocumento">
+              <MappingFragment StoreEntitySet="OPT_ProductoDocumento">
+                <ScalarProperty Name="FechaIngreso" ColumnName="FechaIngreso" />
+                <ScalarProperty Name="FechaDocumento" ColumnName="FechaDocumento" />
+                <ScalarProperty Name="Proveedor" ColumnName="Proveedor" />
+                <ScalarProperty Name="IngresoEgreso" ColumnName="IngresoEgreso" />
+                <ScalarProperty Name="NumDocumento" ColumnName="NumDocumento" />
+                <ScalarProperty Name="idTipoDocumento" ColumnName="idTipoDocumento" />
+                <ScalarProperty Name="idProductoDocumento" ColumnName="idProductoDocumento" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_ProductoIngresoEgreso">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_ProductoIngresoEgreso">
+              <MappingFragment StoreEntitySet="OPT_ProductoIngresoEgreso">
+                <ScalarProperty Name="ValorUnitario" ColumnName="ValorUnitario" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+                <ScalarProperty Name="idProducto" ColumnName="idProducto" />
+                <ScalarProperty Name="idProductoDocumento" ColumnName="idProductoDocumento" />
+                <ScalarProperty Name="idProductoIngreso" ColumnName="idProductoIngreso" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_TipoDocumento">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_TipoDocumento">
+              <MappingFragment StoreEntitySet="OPT_TipoDocumento">
+                <ScalarProperty Name="IngresoEgreso" ColumnName="IngresoEgreso" />
+                <ScalarProperty Name="TipoDocumento" ColumnName="TipoDocumento" />
+                <ScalarProperty Name="idTipoDocumento" ColumnName="idTipoDocumento" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SP_OTActualizaStock" FunctionName="DB_OpticaModel.Store.SP_OTActualizaStock">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DB_OpticaModel.SP_OTActualizaStock_Result">
+                <ScalarProperty Name="OK" ColumnName="OK" />
+                <ScalarProperty Name="Mensaje" ColumnName="Mensaje" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="OPT_Producto">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Producto">
+              <MappingFragment StoreEntitySet="OPT_Producto">
+                <ScalarProperty Name="ControlStock" ColumnName="ControlStock" />
+                <ScalarProperty Name="StockMaximo" ColumnName="StockMaximo" />
+                <ScalarProperty Name="StockMinimo" ColumnName="StockMinimo" />
+                <ScalarProperty Name="Stock" ColumnName="Stock" />
+                <ScalarProperty Name="Salida" ColumnName="Salida" />
+                <ScalarProperty Name="Entrada" ColumnName="Entrada" />
+                <ScalarProperty Name="FechaIngreso" ColumnName="FechaIngreso" />
+                <ScalarProperty Name="Producto" ColumnName="Producto" />
+                <ScalarProperty Name="Codigo" ColumnName="Codigo" />
+                <ScalarProperty Name="idProducto" ColumnName="idProducto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_RegularizaProducto">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_RegularizaProducto">
+              <MappingFragment StoreEntitySet="OPT_RegularizaProducto">
+                <ScalarProperty Name="Motivo" ColumnName="Motivo" />
+                <ScalarProperty Name="Responsable" ColumnName="Responsable" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="StockNuevo" ColumnName="StockNuevo" />
+                <ScalarProperty Name="StockAnterior" ColumnName="StockAnterior" />
+                <ScalarProperty Name="idProducto" ColumnName="idProducto" />
+                <ScalarProperty Name="idRegularizaProducto" ColumnName="idRegularizaProducto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OPT_Atencion">
+            <EntityTypeMapping TypeName="DB_OpticaModel.OPT_Atencion">
+              <MappingFragment StoreEntitySet="OPT_Atencion">
+                <ScalarProperty Name="idOT" ColumnName="idOT" />
+                <ScalarProperty Name="idRecetaCristales" ColumnName="idRecetaCristales" />
+                <ScalarProperty Name="idAnamnesis" ColumnName="idAnamnesis" />
+                <ScalarProperty Name="Responsable" ColumnName="Responsable" />
+                <ScalarProperty Name="FechaAtencion" ColumnName="FechaAtencion" />
+                <ScalarProperty Name="RutCliente" ColumnName="RutCliente" />
+                <ScalarProperty Name="idAtencion" ColumnName="idAtencion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram DiagramId="52f86430012f4f5f8a7d4706c2c53cdb" Name="Diagram1" ZoomLevel="94">
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Comuna" Width="1.5" PointX="0.5" PointY="5.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Cuota" Width="1.5" PointX="7" PointY="6.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Pago" Width="1.5" PointX="7.25" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Region" Width="1.5" PointX="0.5" PointY="6" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Rol" Width="1.5" PointX="5" PointY="0.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Sucursal" Width="1.5" PointX="5.375" PointY="3.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Usuario" Width="1.5" PointX="5" PointY="1.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_UsuarioSucursal" Width="2" PointX="8.25" PointY="1.375" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Comuna_OPT_Region" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Usuario_OPT_Rol" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Sucursal" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_UsuarioSucursal_OPT_Usuario" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_EmpresaSucursal" Width="1.875" PointX="5" PointY="2.125" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Sucursal" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Empresa" Width="1.5" PointX="0.625" PointY="2.25" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_EmpresaSucursal_OPT_Empresa" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Abono" Width="2.375" PointX="6.25" PointY="7.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_FormaPago" Width="2.375" PointX="9.875" PointY="7.375" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Abono_OPT_FormaPago" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_EstadoOT" Width="1.625" PointX="9.125" PointY="8" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_OrdenDeTrabajo" Width="2.125" PointX="5.25" PointY="4.125" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Abono_OPT_OrdenDeTrabajo" />
+        <AssociationConnector Association="DB_OpticaModel.FK__OPT_Cuota__Estad__778AC167" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Empresa" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Sucursal" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Pago_OPT_OrdenDeTrabajo" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Defontana" Width="1.5" PointX="1.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Anamnesis" Width="1.5" PointX="3.125" PointY="3.125" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Empresa" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Sucursal" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Cliente" Width="1.625" PointX="0.5" PointY="3.875" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Anamnesis_OPT_Cliente" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Cliente_OPT_Comuna" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Cliente_OPT_Empresa" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajo_OPT_Cliente" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_RecetaCristales" Width="1.75" PointX="5.5" PointY="8.625" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK__OPT_Recet__RutCl__19AACF41" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_RecetaCristales_OPT_OrdenDeTrabajo" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_BitacoraOT" Width="1.5" PointX="6" PointY="8" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_EstadoOT" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_BitacoraOT_OPT_OrdenDeTrabajo" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_OrdenDeTrabajoDetalle" Width="2.5" PointX="6.75" PointY="6.75" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_OrdenDeTrabajoDetalle_OPT_OrdenDeTrabajo" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_ProductoDocumento" Width="2.5" PointX="12.875" PointY="5.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_ProductoIngresoEgreso" Width="2.5" PointX="12.875" PointY="6.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_TipoDocumento" Width="2.25" PointX="16.25" PointY="5.125" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK__OPT_Produ__idPro__2704CA5F" />
+        <AssociationConnector Association="DB_OpticaModel.FK__OPT_Produ__idTip__24285DB4" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Producto" Width="1.5" PointX="10.125" PointY="6.75" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK__OPT_Orden__idPro__12FDD1B2" />
+        <AssociationConnector Association="DB_OpticaModel.FK__OPT_Produ__idPro__27F8EE98" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_RegularizaProducto" Width="2.125" PointX="9.75" PointY="5.625" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_RegularizaProducto" />
+        <EntityTypeShape EntityType="DB_OpticaModel.OPT_Atencion" Width="1.5" PointX="2.875" PointY="4.75" IsExpanded="false" />
+        <AssociationConnector Association="DB_OpticaModel.FK_OPT_Atencion_OPT_Cliente" />
+        </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>

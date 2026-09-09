@@ -1,0 +1,45 @@
+.graduacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--opt-space-lg);
+}
+
+.graduacion__bloque h4 {
+  margin: 0 0 var(--opt-space-2xs);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.graduacion__tabla {
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+
+  th,
+  td {
+    padding: 2px 14px 2px 0;
+    text-align: right;
+  }
+
+  thead th,
+  tbody th {
+    color: var(--mat-sys-on-surface-variant);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  tbody th {
+    text-align: left;
+  }
+}
+
+.nota {
+  margin: var(--opt-space-xs) 0 0;
+  color: var(--mat-sys-on-surface-variant);
+
+  span + span {
+    margin-left: var(--opt-space-md);
+  }
+}

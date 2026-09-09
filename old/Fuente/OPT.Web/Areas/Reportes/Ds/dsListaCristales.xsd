@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsListaCristales" targetNamespace="http://tempuri.org/dsListaCristales.xsd" xmlns:mstns="http://tempuri.org/dsListaCristales.xsd" xmlns="http://tempuri.org/dsListaCristales.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="Web.config" AppSettingsPropertyName="DB_OpticaConnectionDS" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="DB_OpticaConnectionDS (Web.config)" ParameterPrefix="@" PropertyReference="AppConfig.System.Configuration.ConfigurationManager.0.ConnectionStrings.DB_OpticaConnectionDS.ConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables>
+          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="OPT_OrdenTrabajoAdapter" GeneratorDataComponentClassName="OPT_OrdenTrabajoAdapter" Name="OPT_OrdenTrabajo" UserDataComponentName="OPT_OrdenTrabajoAdapter">
+            <MainSource>
+              <DbSource ConnectionRef="DB_OpticaConnectionDS (Web.config)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="Fill" GenerateMethods="Both" GenerateShortCommands="false" GeneratorGetMethodName="GetData" GeneratorSourceName="Fill" GetMethodModifier="Public" GetMethodName="GetData" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="false" UserGetMethodName="GetData" UserSourceName="Fill">
+                <SelectCommand>
+                  <DbCommand CommandType="Text" ModifiedByUser="true">
+                    <CommandText>Select (SELECT Nombre FROM OPT_Sucursal AS Suc WHERE Suc.idSucursal = A.idSucursal ) as Sucursal
+      ,(SELECT Empresa FROM OPT_Empresa AS Emp WHERE Emp.idEmpresa = A.idEmpresa ) as Empresa
+	  ,A.idOT
+	  ,A.RutCliente
+	  ,(SELECT Nombre FROM OPT_Cliente AS Cli WHERE Cli.RutCliente = A.RutCliente) AS Nombre
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosODEsferico	ELSE '' END AS LejosODEsferico
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosODCilindro	ELSE '' END AS LejosODCilindro	
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosODEje			ELSE '' END AS LejosODEje
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosODObservacion	ELSE '' END AS LejosODObservacion
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosOIEsferico	ELSE '' END AS LejosOIEsferico
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosOICilindro	ELSE '' END AS LejosOICilindro	
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosOIEje			ELSE '' END AS LejosOIEje		    
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosOIObservacion	ELSE '' END AS LejosOIObservacion
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosDPEsferico	ELSE '' END AS LejosDPEsferico	
+	  ,CASE WHEN B.CheckLejos = 1 THEN B.LejosADDEsfera		ELSE '' END AS LejosADDEsfera	    
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaODEsferico	ELSE '' END AS CercaODEsferico	
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaODCilindro	ELSE '' END AS CercaODCilindro
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaODEje			ELSE '' END AS CercaODEje
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaODObservacion	ELSE '' END AS CercaODObservacion
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaOIEsferico	ELSE '' END AS CercaOIEsferico
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaOICilindro	ELSE '' END AS CercaOICilindro
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaOIEje			ELSE '' END AS CercaOIEje 
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaOIObservacion	ELSE '' END AS CercaOIObservacion
+	  ,CASE WHEN B.CheckCerca = 1 THEN B.CercaDPEsferico	ELSE '' END AS CercaDPEsferico
+	  ,CASE WHEN (B.CheckLejos = 1 AND (LEN(B.LejosODEsferico)&gt; 0 or LEN(B.LejosODCilindro)&gt;0)) Then COUNT(1) ELSE 0 END as CantidadLejosOD
+	  ,CASE WHEN (B.CheckLejos = 1 AND (LEN(B.LejosOIEsferico)&gt; 0 or LEN(B.LejosOICilindro)&gt;0)) Then COUNT(1) ELSE 0 END as CantidadLejosOI
+	  ,CASE WHEN (B.CheckCerca = 1 AND (LEN(B.CercaODEsferico)&gt; 0 or LEN(B.CercaODCilindro)&gt;0)) Then COUNT(1) ELSE 0 END as CantidadCercaOD
+	  ,CASE WHEN (B.CheckCerca = 1 AND (LEN(B.CercaOIEsferico)&gt; 0 or LEN(B.CercaOICilindro)&gt;0)) Then COUNT(1) ELSE 0 END as CantidadCercaOI
+	  ,CASE WHEN B.CheckUrgente = 1 THEN 'SI'
+			ELSE 'NO' END as Urgente
+	  ,CASE WHEN B.CheckCristalesLaboratorio = 1 THEN 'SI'
+			ELSE 'NO' END as CristalLaboratorio
+	  ,B.LejosDPObservacion
+	  ,B.CercaDPObservacion
+From OPT_OrdenDeTrabajo AS A
+INNER JOIN OPT_RecetaCristales as B
+		ON A.idOT = B.idOT
+INNER JOIN OPT_BitacoraOT AS C 
+		ON A.idOT = C.idOt
+		AND C.idEstado = 1
+WHERE A.idEmpresa = @idEmpresa 
+  AND A.FechaAtencion BETWEEN @FechaDesde AND @FechaHasta
+  AND (B.CheckLejos = 1 OR B.CheckCerca = 1)
+GROUP BY A.idOT
+	  ,A.idSucursal
+	  ,A.idEmpresa
+	  ,A.RutCliente	
+	  ,B.CheckLejos
+	  ,B.CheckCerca
+	  ,B.LejosODEsferico
+	  ,B.LejosODCilindro
+	  ,B.LejosODEje
+	  ,B.LejosODObservacion
+	  ,B.LejosOIEsferico
+	  ,B.LejosOICilindro
+	  ,B.LejosOIEje
+	  ,B.LejosOIObservacion
+	  ,B.LejosDPEsferico
+	  ,B.LejosADDEsfera
+	  ,B.CercaODEsferico
+	  ,B.CercaODCilindro
+	  ,B.CercaODEje
+	  ,B.CercaODObservacion
+	  ,B.CercaOIEsferico
+	  ,B.CercaOICilindro
+	  ,B.CercaOIEje
+	  ,B.CercaOIObservacion
+	  ,B.CercaDPEsferico
+	  ,B.CheckUrgente
+	  ,B.CheckCristalesLaboratorio
+	  ,B.LejosDPObservacion
+	  ,B.CercaDPObservacion
+ORDER BY A.idOT</CommandText>
+                    <Parameters>
+                      <Parameter AllowDbNull="true" AutogeneratedName="idEmpresa" ColumnName="idEmpresa" DataSourceName="DB_A25CFD_OPT_PROD.dbo.OPT_OrdenDeTrabajo" DataTypeServer="int" DbType="Int32" Direction="Input" ParameterName="@idEmpresa" Precision="0" ProviderType="Int" Scale="0" Size="4" SourceColumn="idEmpresa" SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="FechaDesde" ColumnName="FechaAtencion" DataSourceName="DB_A25CFD_OPT_PROD.dbo.OPT_OrdenDeTrabajo" DataTypeServer="date" DbType="AnsiString" Direction="Input" ParameterName="@FechaDesde" Precision="0" ProviderType="Date" Scale="0" Size="3" SourceColumn="FechaAtencion" SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="FechaHasta" ColumnName="FechaAtencion" DataSourceName="DB_A25CFD_OPT_PROD.dbo.OPT_OrdenDeTrabajo" DataTypeServer="date" DbType="AnsiString" Direction="Input" ParameterName="@FechaHasta" Precision="0" ProviderType="Date" Scale="0" Size="3" SourceColumn="FechaAtencion" SourceColumnNullMapping="false" SourceVersion="Current" />
+                    </Parameters>
+                  </DbCommand>
+                </SelectCommand>
+              </DbSource>
+            </MainSource>
+            <Mappings>
+              <Mapping SourceColumn="Empresa" DataSetColumn="Empresa" />
+              <Mapping SourceColumn="idOT" DataSetColumn="idOT" />
+              <Mapping SourceColumn="RutCliente" DataSetColumn="RutCliente" />
+              <Mapping SourceColumn="Nombre" DataSetColumn="Nombre" />
+              <Mapping SourceColumn="LejosODEsferico" DataSetColumn="LejosODEsferico" />
+              <Mapping SourceColumn="LejosODCilindro" DataSetColumn="LejosODCilindro" />
+              <Mapping SourceColumn="LejosODEje" DataSetColumn="LejosODEje" />
+              <Mapping SourceColumn="LejosODObservacion" DataSetColumn="LejosODObservacion" />
+              <Mapping SourceColumn="LejosOIEsferico" DataSetColumn="LejosOIEsferico" />
+              <Mapping SourceColumn="LejosOICilindro" DataSetColumn="LejosOICilindro" />
+              <Mapping SourceColumn="LejosOIEje" DataSetColumn="LejosOIEje" />
+              <Mapping SourceColumn="LejosOIObservacion" DataSetColumn="LejosOIObservacion" />
+              <Mapping SourceColumn="LejosDPEsferico" DataSetColumn="LejosDPEsferico" />
+              <Mapping SourceColumn="LejosADDEsfera" DataSetColumn="LejosADDEsfera" />
+              <Mapping SourceColumn="CercaODEsferico" DataSetColumn="CercaODEsferico" />
+              <Mapping SourceColumn="CercaODCilindro" DataSetColumn="CercaODCilindro" />
+              <Mapping SourceColumn="CercaODEje" DataSetColumn="CercaODEje" />
+              <Mapping SourceColumn="CercaODObservacion" DataSetColumn="CercaODObservacion" />
+              <Mapping SourceColumn="CercaOIEsferico" DataSetColumn="CercaOIEsferico" />
+              <Mapping SourceColumn="CercaOICilindro" DataSetColumn="CercaOICilindro" />
+              <Mapping SourceColumn="CercaOIEje" DataSetColumn="CercaOIEje" />
+              <Mapping SourceColumn="CercaOIObservacion" DataSetColumn="CercaOIObservacion" />
+              <Mapping SourceColumn="CercaDPEsferico" DataSetColumn="CercaDPEsferico" />
+              <Mapping SourceColumn="CantidadLejosOD" DataSetColumn="CantidadLejosOD" />
+              <Mapping SourceColumn="CantidadLejosOI" DataSetColumn="CantidadLejosOI" />
+              <Mapping SourceColumn="CantidadCercaOD" DataSetColumn="CantidadCercaOD" />
+              <Mapping SourceColumn="CantidadCercaOI" DataSetColumn="CantidadCercaOI" />
+              <Mapping SourceColumn="Sucursal" DataSetColumn="Sucursal" />
+              <Mapping SourceColumn="Urgente" DataSetColumn="Urgente" />
+              <Mapping SourceColumn="CristalLaboratorio" DataSetColumn="CristalLaboratorio" />
+              <Mapping SourceColumn="LejosDPObservacion" DataSetColumn="LejosDPObservacion" />
+              <Mapping SourceColumn="CercaDPObservacion" DataSetColumn="CercaDPObservacion" />
+            </Mappings>
+            <Sources />
+          </TableAdapter>
+        </Tables>
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsListaCristales" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="dsListaCristales" msprop:Generator_UserDSName="dsListaCristales">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="OPT_OrdenTrabajo" msprop:Generator_TableClassName="OPT_OrdenTrabajoDataTable" msprop:Generator_TableVarName="tableOPT_OrdenTrabajo" msprop:Generator_RowChangedName="OPT_OrdenTrabajoRowChanged" msprop:Generator_TablePropName="OPT_OrdenTrabajo" msprop:Generator_RowDeletingName="OPT_OrdenTrabajoRowDeleting" msprop:Generator_RowChangingName="OPT_OrdenTrabajoRowChanging" msprop:Generator_RowEvHandlerName="OPT_OrdenTrabajoRowChangeEventHandler" msprop:Generator_RowDeletedName="OPT_OrdenTrabajoRowDeleted" msprop:Generator_RowClassName="OPT_OrdenTrabajoRow" msprop:Generator_UserTableName="OPT_OrdenTrabajo" msprop:Generator_RowEvArgName="OPT_OrdenTrabajoRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Empresa" msprop:Generator_ColumnVarNameInTable="columnEmpresa" msprop:Generator_ColumnPropNameInRow="Empresa" msprop:Generator_ColumnPropNameInTable="EmpresaColumn" msprop:Generator_UserColumnName="Empresa" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="idOT" msprop:Generator_ColumnVarNameInTable="columnidOT" msprop:Generator_ColumnPropNameInRow="idOT" msprop:Generator_ColumnPropNameInTable="idOTColumn" msprop:Generator_UserColumnName="idOT" type="xs:long" />
+              <xs:element name="RutCliente" msprop:Generator_ColumnVarNameInTable="columnRutCliente" msprop:Generator_ColumnPropNameInRow="RutCliente" msprop:Generator_ColumnPropNameInTable="RutClienteColumn" msprop:Generator_UserColumnName="RutCliente">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="12" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Nombre" msprop:Generator_ColumnVarNameInTable="columnNombre" msprop:Generator_ColumnPropNameInRow="Nombre" msprop:Generator_ColumnPropNameInTable="NombreColumn" msprop:Generator_UserColumnName="Nombre" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="100" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosODEsferico" msprop:Generator_ColumnVarNameInTable="columnLejosODEsferico" msprop:Generator_ColumnPropNameInRow="LejosODEsferico" msprop:Generator_ColumnPropNameInTable="LejosODEsfericoColumn" msprop:Generator_UserColumnName="LejosODEsferico" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosODCilindro" msprop:Generator_ColumnVarNameInTable="columnLejosODCilindro" msprop:Generator_ColumnPropNameInRow="LejosODCilindro" msprop:Generator_ColumnPropNameInTable="LejosODCilindroColumn" msprop:Generator_UserColumnName="LejosODCilindro" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosODEje" msprop:Generator_ColumnVarNameInTable="columnLejosODEje" msprop:Generator_ColumnPropNameInRow="LejosODEje" msprop:Generator_ColumnPropNameInTable="LejosODEjeColumn" msprop:Generator_UserColumnName="LejosODEje" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosODObservacion" msprop:Generator_ColumnVarNameInTable="columnLejosODObservacion" msprop:Generator_ColumnPropNameInRow="LejosODObservacion" msprop:Generator_ColumnPropNameInTable="LejosODObservacionColumn" msprop:Generator_UserColumnName="LejosODObservacion" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosOIEsferico" msprop:Generator_ColumnVarNameInTable="columnLejosOIEsferico" msprop:Generator_ColumnPropNameInRow="LejosOIEsferico" msprop:Generator_ColumnPropNameInTable="LejosOIEsfericoColumn" msprop:Generator_UserColumnName="LejosOIEsferico" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosOICilindro" msprop:Generator_ColumnVarNameInTable="columnLejosOICilindro" msprop:Generator_ColumnPropNameInRow="LejosOICilindro" msprop:Generator_ColumnPropNameInTable="LejosOICilindroColumn" msprop:Generator_UserColumnName="LejosOICilindro" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosOIEje" msprop:Generator_ColumnVarNameInTable="columnLejosOIEje" msprop:Generator_ColumnPropNameInRow="LejosOIEje" msprop:Generator_ColumnPropNameInTable="LejosOIEjeColumn" msprop:Generator_UserColumnName="LejosOIEje" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosOIObservacion" msprop:Generator_ColumnVarNameInTable="columnLejosOIObservacion" msprop:Generator_ColumnPropNameInRow="LejosOIObservacion" msprop:Generator_ColumnPropNameInTable="LejosOIObservacionColumn" msprop:Generator_UserColumnName="LejosOIObservacion" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosDPEsferico" msprop:Generator_ColumnVarNameInTable="columnLejosDPEsferico" msprop:Generator_ColumnPropNameInRow="LejosDPEsferico" msprop:Generator_ColumnPropNameInTable="LejosDPEsfericoColumn" msprop:Generator_UserColumnName="LejosDPEsferico" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosADDEsfera" msprop:Generator_ColumnVarNameInTable="columnLejosADDEsfera" msprop:Generator_ColumnPropNameInRow="LejosADDEsfera" msprop:Generator_ColumnPropNameInTable="LejosADDEsferaColumn" msprop:Generator_UserColumnName="LejosADDEsfera" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaODEsferico" msprop:Generator_ColumnVarNameInTable="columnCercaODEsferico" msprop:Generator_ColumnPropNameInRow="CercaODEsferico" msprop:Generator_ColumnPropNameInTable="CercaODEsfericoColumn" msprop:Generator_UserColumnName="CercaODEsferico" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaODCilindro" msprop:Generator_ColumnVarNameInTable="columnCercaODCilindro" msprop:Generator_ColumnPropNameInRow="CercaODCilindro" msprop:Generator_ColumnPropNameInTable="CercaODCilindroColumn" msprop:Generator_UserColumnName="CercaODCilindro" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaODEje" msprop:Generator_ColumnVarNameInTable="columnCercaODEje" msprop:Generator_ColumnPropNameInRow="CercaODEje" msprop:Generator_ColumnPropNameInTable="CercaODEjeColumn" msprop:Generator_UserColumnName="CercaODEje" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaODObservacion" msprop:Generator_ColumnVarNameInTable="columnCercaODObservacion" msprop:Generator_ColumnPropNameInRow="CercaODObservacion" msprop:Generator_ColumnPropNameInTable="CercaODObservacionColumn" msprop:Generator_UserColumnName="CercaODObservacion" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaOIEsferico" msprop:Generator_ColumnVarNameInTable="columnCercaOIEsferico" msprop:Generator_ColumnPropNameInRow="CercaOIEsferico" msprop:Generator_ColumnPropNameInTable="CercaOIEsfericoColumn" msprop:Generator_UserColumnName="CercaOIEsferico" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaOICilindro" msprop:Generator_ColumnVarNameInTable="columnCercaOICilindro" msprop:Generator_ColumnPropNameInRow="CercaOICilindro" msprop:Generator_ColumnPropNameInTable="CercaOICilindroColumn" msprop:Generator_UserColumnName="CercaOICilindro" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaOIEje" msprop:Generator_ColumnVarNameInTable="columnCercaOIEje" msprop:Generator_ColumnPropNameInRow="CercaOIEje" msprop:Generator_ColumnPropNameInTable="CercaOIEjeColumn" msprop:Generator_UserColumnName="CercaOIEje" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaOIObservacion" msprop:Generator_ColumnVarNameInTable="columnCercaOIObservacion" msprop:Generator_ColumnPropNameInRow="CercaOIObservacion" msprop:Generator_ColumnPropNameInTable="CercaOIObservacionColumn" msprop:Generator_UserColumnName="CercaOIObservacion" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaDPEsferico" msprop:Generator_ColumnVarNameInTable="columnCercaDPEsferico" msprop:Generator_ColumnPropNameInRow="CercaDPEsferico" msprop:Generator_ColumnPropNameInTable="CercaDPEsfericoColumn" msprop:Generator_UserColumnName="CercaDPEsferico" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CantidadLejosOD" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnCantidadLejosOD" msprop:Generator_ColumnPropNameInRow="CantidadLejosOD" msprop:Generator_ColumnPropNameInTable="CantidadLejosODColumn" msprop:Generator_UserColumnName="CantidadLejosOD" type="xs:int" minOccurs="0" />
+              <xs:element name="CantidadLejosOI" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnCantidadLejosOI" msprop:Generator_ColumnPropNameInRow="CantidadLejosOI" msprop:Generator_ColumnPropNameInTable="CantidadLejosOIColumn" msprop:Generator_UserColumnName="CantidadLejosOI" type="xs:int" minOccurs="0" />
+              <xs:element name="CantidadCercaOD" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnCantidadCercaOD" msprop:Generator_ColumnPropNameInRow="CantidadCercaOD" msprop:Generator_ColumnPropNameInTable="CantidadCercaODColumn" msprop:Generator_UserColumnName="CantidadCercaOD" type="xs:int" minOccurs="0" />
+              <xs:element name="CantidadCercaOI" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnCantidadCercaOI" msprop:Generator_ColumnPropNameInRow="CantidadCercaOI" msprop:Generator_ColumnPropNameInTable="CantidadCercaOIColumn" msprop:Generator_UserColumnName="CantidadCercaOI" type="xs:int" minOccurs="0" />
+              <xs:element name="Sucursal" msprop:Generator_ColumnVarNameInTable="columnSucursal" msprop:Generator_ColumnPropNameInRow="Sucursal" msprop:Generator_ColumnPropNameInTable="SucursalColumn" msprop:Generator_UserColumnName="Sucursal" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Urgente" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnUrgente" msprop:Generator_ColumnPropNameInRow="Urgente" msprop:Generator_ColumnPropNameInTable="UrgenteColumn" msprop:Generator_UserColumnName="Urgente" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="2" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CristalLaboratorio" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnCristalLaboratorio" msprop:Generator_ColumnPropNameInRow="CristalLaboratorio" msprop:Generator_ColumnPropNameInTable="CristalLaboratorioColumn" msprop:Generator_UserColumnName="CristalLaboratorio" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="2" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LejosDPObservacion" msprop:Generator_ColumnVarNameInTable="columnLejosDPObservacion" msprop:Generator_ColumnPropNameInRow="LejosDPObservacion" msprop:Generator_ColumnPropNameInTable="LejosDPObservacionColumn" msprop:Generator_UserColumnName="LejosDPObservacion" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CercaDPObservacion" msprop:Generator_ColumnVarNameInTable="columnCercaDPObservacion" msprop:Generator_ColumnPropNameInRow="CercaDPObservacion" msprop:Generator_ColumnPropNameInTable="CercaDPObservacionColumn" msprop:Generator_UserColumnName="CercaDPObservacion" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:OPT_OrdenTrabajo" />
+      <xs:field xpath="mstns:idOT" />
+    </xs:unique>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,40 @@
+============================ 17-05-2023 10:44:57 ============================
+OPT.Web
+OPT.Entidad.OPT_Cliente ClienteInsertar(OPT.Web.Areas.OrdenTrabajo.Models.ClienteRequest)
+Referencia a objeto no establecida como instancia de un objeto.
+   en OPT.Web.Areas.OrdenTrabajo.Controllers.IngresoController.ClienteInsertar(ClienteRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\OrdenTrabajo\Controllers\IngresoController.cs:línea 577
+
+============================ 17-05-2023 10:44:57 ============================
+OPT.Web
+OPT.Entidad.OPT_Cliente ClienteInsertar(OPT.Web.Areas.OrdenTrabajo.Models.ClienteRequest)
+Referencia a objeto no establecida como instancia de un objeto.
+   en OPT.Web.Areas.OrdenTrabajo.Controllers.IngresoController.ClienteInsertar(ClienteRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\OrdenTrabajo\Controllers\IngresoController.cs:línea 597
+   en OPT.Web.Areas.Clientes.Controllers.AtencionController.Create(AtencionRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Clientes\Controllers\AtencionController.cs:línea 59
+
+============================ 17-05-2023 10:51:38 ============================
+OPT.Web
+OPT.Entidad.OPT_Cliente ClienteInsertar(OPT.Web.Areas.OrdenTrabajo.Models.ClienteRequest)
+Referencia a objeto no establecida como instancia de un objeto.
+   en OPT.Web.Areas.OrdenTrabajo.Controllers.IngresoController.ClienteInsertar(ClienteRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\OrdenTrabajo\Controllers\IngresoController.cs:línea 577
+
+============================ 17-05-2023 10:51:38 ============================
+OPT.Web
+OPT.Entidad.OPT_Cliente ClienteInsertar(OPT.Web.Areas.OrdenTrabajo.Models.ClienteRequest)
+Referencia a objeto no establecida como instancia de un objeto.
+   en OPT.Web.Areas.OrdenTrabajo.Controllers.IngresoController.ClienteInsertar(ClienteRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\OrdenTrabajo\Controllers\IngresoController.cs:línea 597
+   en OPT.Web.Areas.Clientes.Controllers.AtencionController.Create(AtencionRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Clientes\Controllers\AtencionController.cs:línea 59
+
+============================ 17-05-2023 11:04:59 ============================
+OPT.Web
+System.Web.Mvc.JsonResult ExisteRut(System.String)
+Rut ya esta tegistrado.
+   en OPT.Web.Controllers.UtilController.ExisteRut(String id) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Controllers\UtilController.cs:línea 86
+
+============================ 17-05-2023 15:26:34 ============================
+mscorlib
+System.TimeZoneInfo FindSystemTimeZoneById(System.String)
+No se encontró el id. de zona horaria 'America/Santiago' en el equipo local.
+   en System.TimeZoneInfo.FindSystemTimeZoneById(String id)
+   en OPT.Web.Libreria.Util.getFechaZona() en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Libreria\Util.cs:línea 44
+   en OPT.Web.Areas.Clientes.Controllers.AtencionController.Create(AtencionRequest item) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Clientes\Controllers\AtencionController.cs:línea 54
+

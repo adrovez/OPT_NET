@@ -1,0 +1,370 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+// Paleta de marca OPT v2.0 (primary #2F5D8A "Añil", tertiary #E2703B "Terracota"),
+// generada con `ng generate @angular/material:theme-color` — ver
+// .agents/context/branding-ux-ui.md para el contexto de marca completo.
+// Para regenerar tras un cambio de color: volver a correr ese comando con los
+// mismos hex y reemplazar este archivo.
+@use './theme-colors' as theme;
+// Tokens de marca que el generador de tema no cubre (colores con significado de
+// OPT_EstadoOT/OPT_FormaPago, tipografía de titulares/mono, escalas de espaciado/
+// elevación/movimiento) — ver theme-tokens.scss.
+@use './theme-tokens';
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Tema Angular Material M3 — claro por defecto, oscuro por preferencia de sistema o toggle
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Esta versión de Angular Material no acepta `theme-type: light dark` en una sola emisión,
+// así que se emite `mat.theme` una vez por modo (patrón oficial de dark mode por selector).
+// El toggle manual (servicio `Tema`, src/app/shared/services/tema.ts) escribe
+// `data-opt-theme="light" | "dark"` en <html>; sin ese atributo se sigue `prefers-color-scheme`.
+
+html {
+  height: 100%;
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: theme.$primary-palette,
+        tertiary: theme.$tertiary-palette,
+      ),
+      typography: 'IBM Plex Sans',
+      // Densidad negativa: OPT es un back-office de escritorio denso en datos; la escala
+      // por defecto de M3 (density: 0) está calibrada para uso táctil/móvil y hace que los
+      // inputs (~56px) y las filas de tabla se vean sobredimensionados. -2 baja el
+      // form-field a ~48px sin llegar a lo "apretado" y es estable con appearance="outline"
+      // (el único appearance usado en el proyecto). Ver
+      // src/Guia_de_estilo/propuesta-densidad-tipografia.html (Propuesta v2.1).
+      density: -2,
+    )
+  );
+
+  // ── Escala tipográfica compacta v2.1 ────────────────────────────────────────────────────
+  // Se sobrescriben los tokens de sistema de Material DESPUÉS de mat.theme(). Las familias
+  // y los pesos siguen saliendo del tema (var(--mat-sys-*-font/-weight)); acá solo cambian
+  // tamaño e interlineado, más contenidos para una interfaz de trabajo de escritorio.
+  // M3 stock: body-large 16/24 (texto de inputs), body-medium 14/20, body-small 12/16,
+  // label-large 14/20, title-medium 16/24, title-large 22/28.
+  // Se redefine cada rol granular Y su shorthand (algunos componentes y `styles.scss` usan
+  // `font: var(--mat-sys-body-medium)`). Ver la Propuesta v2.1 en src/Guia_de_estilo/.
+  --mat-sys-body-large-size: 0.875rem; // 16 → 14 (texto dentro de los inputs)
+  --mat-sys-body-large-line-height: 1.25rem; // 24 → 20
+  --mat-sys-body-large: var(--mat-sys-body-large-weight) var(--mat-sys-body-large-size) /
+    var(--mat-sys-body-large-line-height) var(--mat-sys-body-large-font);
+
+  --mat-sys-body-medium-size: 0.84375rem; // 14 → 13.5 (cuerpo, celdas de tabla)
+  --mat-sys-body-medium-line-height: 1.1875rem; // 20 → 19
+  --mat-sys-body-medium: var(--mat-sys-body-medium-weight) var(--mat-sys-body-medium-size) /
+    var(--mat-sys-body-medium-line-height) var(--mat-sys-body-medium-font);
+
+  --mat-sys-body-small-size: 0.71875rem; // 12 → 11.5 (mat-hint, mat-error, metadatos)
+  --mat-sys-body-small-line-height: 1rem; // 16 (sin cambio)
+  --mat-sys-body-small: var(--mat-sys-body-small-weight) var(--mat-sys-body-small-size) /
+    var(--mat-sys-body-small-line-height) var(--mat-sys-body-small-font);
+
+  --mat-sys-label-large-size: 0.8125rem; // 14 → 13 (texto de botón, etiqueta de campo)
+  --mat-sys-label-large-line-height: 1.125rem; // 20 → 18
+  --mat-sys-label-large: var(--mat-sys-label-large-weight) var(--mat-sys-label-large-size) /
+    var(--mat-sys-label-large-line-height) var(--mat-sys-label-large-font);
+
+  --mat-sys-title-medium-size: 0.9375rem; // 16 → 15 (título de app-empty-state, cards)
+  --mat-sys-title-medium-line-height: 1.375rem; // 24 → 22
+  --mat-sys-title-medium: var(--mat-sys-title-medium-weight) var(--mat-sys-title-medium-size) /
+    var(--mat-sys-title-medium-line-height) var(--mat-sys-title-medium-font);
+
+  --mat-sys-title-large-size: 1.1875rem; // 22 → 19 (título de diálogo)
+  --mat-sys-title-large-line-height: 1.625rem; // 28 → 26
+  --mat-sys-title-large: var(--mat-sys-title-large-weight) var(--mat-sys-title-large-size) /
+    var(--mat-sys-title-large-line-height) var(--mat-sys-title-large-font);
+}
+
+// Excepción móvil: el texto de los inputs vuelve a 16px bajo 600px para evitar el
+// auto-zoom de iOS al enfocar un campo (Safari hace zoom si el texto del input es <16px).
+// Ver src/Guia_de_estilo/propuesta-densidad-tipografia.html §9 (Accesibilidad).
+@media (max-width: 599.98px) {
+  html {
+    --mat-sys-body-large-size: 1rem; // 16px
+    --mat-sys-body-large-line-height: 1.375rem; // 22px
+  }
+}
+
+@mixin _tema-oscuro {
+  color-scheme: dark;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: theme.$primary-palette,
+        tertiary: theme.$tertiary-palette,
+      ),
+    )
+  );
+}
+
+// Preferencia del sistema — solo si la persona no forzó el modo claro con el toggle.
+@media (prefers-color-scheme: dark) {
+  html:not([data-opt-theme='light']) {
+    @include _tema-oscuro;
+  }
+}
+
+// Toggle manual — gana siempre sobre la preferencia del sistema.
+html[data-opt-theme='dark'] {
+  @include _tema-oscuro;
+}
+html[data-opt-theme='light'] {
+  color-scheme: light;
+}
+
+body {
+  // El color de fondo/texto sale de los tokens de sistema de Material, que ya cambian
+  // con el tema — no fijar `color-scheme` acá (vive en <html>, ver arriba).
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+// Respeta la preferencia de "reducir movimiento" del sistema operativo.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* You can add global styles to this file, and also import other style files */
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Tipografía de encabezados de página (Propuesta v2.1 §3: H1 24 / H2 19 / H3 15, peso 600)
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Bajados un escalón respecto a la guía v2.0 (eran 27 / 21 / 16.5) — un listado o formulario
+// de trabajo no necesita un titular de portada; 24px sigue dominando la jerarquía con la
+// densidad -2. Solo encabezados "desnudos" del contenido — los de componentes Material
+// (p. ej. `h2[mat-dialog-title]`, que trae la clase `mat-mdc-dialog-title`) quedan excluidos
+// por el `:not([class])` y conservan su propia escala.
+h1:not([class]) {
+  margin: 0 0 var(--opt-space-sm);
+  font-family: inherit; // IBM Plex Sans, heredado del body
+  font-size: 1.5rem; // 24px
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--mat-sys-on-surface);
+}
+
+h2:not([class]) {
+  margin: 0 0 var(--opt-space-xs);
+  font-size: 1.1875rem; // 19px
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--mat-sys-on-surface);
+}
+
+h3:not([class]) {
+  margin: var(--opt-space-lg) 0 var(--opt-space-xs);
+  font-size: 0.9375rem; // 15px
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--mat-sys-on-surface);
+}
+
+// Foco de formulario reforzado (mesón con luz variable) — color + halo, nunca solo
+// borde de 1px. Ver "Componentes UI — lineamientos" en .agents/context/branding-ux-ui.md
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  box-shadow: 0 0 0 3px var(--mat-sys-primary-container);
+  border-radius: 4px;
+}
+
+// Utilidad de titular/marca — solo para login/portada/marketing, nunca dentro de la
+// interfaz de trabajo diario (ver "Naming y tagline" en branding-ux-ui.md).
+.opt-titular {
+  font-family: var(--opt-font-titular);
+  font-weight: 700;
+}
+
+// Utilidad de dato numérico/código (folios de OT, RUT, montos, fechas en tablas densas)
+// — ver "Tipografía" en branding-ux-ui.md. Aplicada a los listados en la 2ª pasada UX/UI.
+.opt-mono {
+  font-family: var(--opt-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+// Badge de dato sensible (Ley 21.719) — usar en toda pantalla que muestre Anamnesis o
+// RecetaCristales (ver "Señal visual de dato sensible" en branding-ux-ui.md).
+.opt-badge-clinico {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--opt-space-2xs);
+  padding: 2px 10px;
+  border-radius: var(--opt-radius-pill);
+  background-color: var(--opt-primary-dark);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+
+  .mat-icon,
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Chip de flag / atributo booleano (Urgente, Laboratorio, antecedentes de la anamnesis).
+// Global porque lo usan la ficha del cliente y la de la OT con el mismo significado —
+// siempre fondo + texto, nunca solo color (regla de accesibilidad del branding doc).
+.opt-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--opt-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  border: 1px solid transparent;
+}
+
+// Atributo presente / flag activo.
+.opt-chip--si {
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+.opt-chip--alerta {
+  background-color: var(--mat-sys-error);
+  color: var(--mat-sys-on-error);
+}
+
+.opt-chip--info {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+// Armonía de color "moderada" en listados y formularios de todos los módulos — reglas
+// globales (mismo patrón que el halo de foco de arriba) en vez de tocar cada feature.
+// Ver .agents/context/branding-ux-ui.md "Aplicación de color en listados y formularios".
+
+// Título de diálogo/formulario (todo el CRUD del proyecto usa MatDialog, ver
+// src/frontend/CLAUDE.md "CRUD simple: lista + diálogo").
+.mat-mdc-dialog-title {
+  color: var(--mat-sys-primary);
+}
+
+// Encabezado de tabla — tratamiento liviano (Propuesta v2.1 §6): en lugar de una banda
+// `primary-container` plena (que agrega peso visual y va contra el atributo "sencillo" de
+// la marca), la cabecera va sobre `surface` con un borde inferior de 2px en `primary` y el
+// texto en `primary`. Mantiene la señal de marca sin el bloque de color. El hover de fila
+// sí conserva el tinte `primary-container` (feedback puntual, no permanente).
+.mat-mdc-table {
+  .mat-mdc-header-row {
+    background-color: var(--mat-sys-surface);
+  }
+
+  .mat-mdc-header-cell {
+    color: var(--mat-sys-primary);
+    font-weight: 600;
+    border-bottom-color: var(--mat-sys-primary);
+    border-bottom-width: 2px;
+  }
+
+  .mat-mdc-row {
+    transition: background-color var(--opt-motion-fast) var(--opt-easing-standard);
+  }
+
+  .mat-mdc-row:hover {
+    background-color: var(--mat-sys-primary-container);
+  }
+}
+
+// Botón de acción destructiva dentro de una fila/tarjeta (icon-button con `color="warn"`
+// no siempre tiñe el ícono en M3) — se marca explícitamente.
+.opt-accion-destructiva {
+  --mdc-icon-button-icon-color: var(--mat-sys-error);
+  color: var(--mat-sys-error);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Diálogos (MatDialog) — reglas globales, ver src/frontend/CLAUDE.md §"Formularios"
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Red de seguridad: el contenido de un diálogo nunca hace scroll horizontal. Angular
+// Material define `.mat-mdc-dialog-content { overflow-x: auto }`; se necesita un selector
+// con 2 clases (`.mat-mdc-dialog-container .mat-mdc-dialog-content`) para ganarle en
+// especificidad. El ancho de cada formulario lo fija su `:host` (nunca > 520px, que cabe
+// en el panel por defecto de MatDialog de 560px sin desbordar).
+.mat-mdc-dialog-container .mat-mdc-dialog-content {
+  overflow-x: hidden;
+}
+
+// Subtítulo de sección dentro de un formulario (agrupa campos: "Identificación", "Contacto",
+// "Ubicación", …). Formularios de una sola columna — NO usar grillas de 2 columnas dentro de
+// un MatDialog: el panel por defecto (560px) es angosto y una grilla se desborda o queda
+// apretada. Para 2 campos cortos lado a lado, un `.fila` flex por feature (ver cliente-form).
+.opt-form-section {
+  margin: var(--opt-space-md) 0 var(--opt-space-xs);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.opt-form-section:first-child {
+  margin-top: 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Impresión — ticket de la OT
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Reemplaza al `rptTicketOT.rdlc` del legacy (Areas/Imprimir): en vez de un reporte servido
+// por el backend, el ticket es un componente Angular que se imprime desde el navegador.
+// Quien imprime agrega `opt-imprimiendo` al <body> mientras dura el `window.print()`; acá se
+// oculta todo lo que no sea el diálogo que lo contiene. Vive en global y no en el componente
+// porque el `@media print` de un componente encapsulado no puede ocultar al resto de la app.
+@media print {
+  body.opt-imprimiendo {
+    background: #fff;
+  }
+
+  body.opt-imprimiendo > *:not(.cdk-overlay-container),
+  body.opt-imprimiendo .cdk-overlay-backdrop,
+  body.opt-imprimiendo .opt-no-imprimir {
+    display: none !important;
+  }
+
+  // El overlay de Material es `position: fixed`: en papel eso recorta todo a la primera
+  // página. Se devuelve al flujo normal del documento mientras dura la impresión.
+  body.opt-imprimiendo .cdk-overlay-container,
+  body.opt-imprimiendo .cdk-global-overlay-wrapper,
+  body.opt-imprimiendo .cdk-overlay-pane {
+    position: static !important;
+    max-width: none !important;
+    width: auto !important;
+    display: block !important;
+  }
+
+  body.opt-imprimiendo .mat-mdc-dialog-container,
+  body.opt-imprimiendo .mat-mdc-dialog-surface,
+  body.opt-imprimiendo .mat-mdc-dialog-content {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+}

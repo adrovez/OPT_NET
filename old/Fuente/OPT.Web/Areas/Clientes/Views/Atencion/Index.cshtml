@@ -1,0 +1,70 @@
+﻿@model IEnumerable<OPT.Entidad.OPT_Atencion>
+@{
+    OPT.Entidad.DTO.SessionDTO mySession = new OPT.Entidad.DTO.SessionDTO();
+    OPT.Web.Libreria.UsuarioConectado.ValidaSession(ref mySession);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-user"></i> Lista Atencion</h4>
+    <div class="card-body">
+        <form id="formIndex">
+            <div class="form-group row">
+                <div class="col-sm-12 text-right">
+                    <br />
+                    <a href="@Url.Action("Create","Atencion",new {area="Clientes" })" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Nuevo</a>
+                    <a href="@Url.Action("Reporte","Atencion",new {area="Clientes" })" class="btn btn-sm btn-primary" target="_blank"><i class="fa fa-print"></i> Imprimir</a>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <div class="table-responsive" id="TableListaAtencion">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Fecha</th>
+                                    <th>Rut</th>
+                                    <th>Nombre</th>
+                                    <th>Celular</th>
+                                    @if (mySession.idRol != 4)
+                                    {
+                                        <th>Accion</th>
+                                    }
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var Item in Model)
+                                {
+                                    <tr>
+                                        <td>@Item.FechaAtencion</td>
+                                        <td>@Item.RutCliente</td>
+                                        <td>@Item.OPT_Cliente.Nombre</td>
+                                        <td>@Item.OPT_Cliente.Celular</td>
+                                        @if (mySession.idRol != 4)
+                                        {
+                                            <td class="text-center">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline" type="button" data-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="@Url.Action("Create", "Ingreso", new { area = "OrdenTrabajo", id = Item.RutCliente,idAtencion = Item.idAtencion })"  title="Nueva OT..."><i class="fa fa-newspaper"></i> Nueva OT</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+

@@ -1,0 +1,50 @@
+﻿@model OPT.Entidad.OPT_Empresa
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form id="formCreate" name="formCreate" method="post" action="@Url.Action("Edit","Empresa",new {area="Empresas" })">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="idEmpresa" name="idEmpresa" value="@Model.idEmpresa" />
+
+    <div class="card  border-primary">
+        <h4 class="card-header alert-primary"><i class="fa fa-edit"></i> Editar Empresa</h4>
+        <div class="card-body">
+
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <label>Empresa</label>
+                    <input type="text" id="Empresa" name="Empresa" value="@Model.Empresa" class="form-control form-control-sm" maxlength="50" required>
+                </div>
+                <div class="col-sm-8">
+                    <label>Direccion</label>
+                    <input type="text" id="Direccion" name="Direccion" value="@Model.Direccion" class="form-control form-control-sm" maxlength="100" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <label>Contacto</label>
+                    <input type="text" id="Contacto" name="Contacto" value="@Model.Contacto" class="form-control form-control-sm" maxlength="50">
+                </div>
+                <div class="col-sm-4">
+                    <label>Telefono</label>
+                    <input type="text" id="Telefono" name="Telefono" value="@Model.Telefono" class="form-control form-control-sm" maxlength="10">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+            <div class="form-group">
+                <div class="col-sm-12 text-right">
+                    <a href="@Url.Action("Index","Empresa",new {area="Empresas" })" class="btn btn-sm btn-danger"><i class="fa fa-arrow-left"></i> Volver</a>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+

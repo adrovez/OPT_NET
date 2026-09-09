@@ -1,0 +1,350 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.OrdenTrabajo.OrdenTrabajoDetalleResponse
+@{
+    decimal TotalProducto = 0;
+    decimal TotalAbono = 0;
+
+    int Saldo = int.Parse(Model.Saldo.ToString());
+    int Cuotas = Model.NumeroCuota == null ? 0 : int.Parse(Model.NumeroCuota.ToString());
+    int ValorCuota = Cuotas == 0 ? 0 : Saldo / Cuotas;
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-info">
+                <h5 class="modal-title"><i class="fa fa-eye"></i> DETALLE ORDEN DE TRABAJO</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label>N° OT</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.idOT" readonly>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Fecha</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.FechaAtencion.ToShortDateString()" readonly>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Fecha Entrega</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.FechaEntrega.ToShortDateString()" readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label>Beneficiario</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.Beneficiario" readonly>
+                    </div>
+                    <div class="col-sm-6">
+                        <label>Empresa</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.NombreEmpresa" readonly>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="Cliente-tab" href="#Cliente-tab-content" data-toggle="tab" role="tab" aria-controls="Cliente" aria-selected="true">Cliente</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="Receta-tab" href="#Receta-tab-content" data-toggle="tab" role="tab" aria-controls="Receta" aria-selected="false">Receta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="Lentes-tab" href="#Lentes-tab-content" data-toggle="tab" role="tab" aria-controls="Lentes" aria-selected="false">Lentes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="Pago-tab" href="#Pago-tab-content" data-toggle="tab" role="tab" aria-controls="Pago" aria-selected="false">Abonos</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="Cliente-tab-content" role="tabpanel" aria-labelledby="Cliente-tab">
+                        <div class="card-body">
+
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label>Rut</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.RutCliente" data-tipo="RUT" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Nombre</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.Nombre" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Fecha Nacimiento</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.FechaNacimiento" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label>Prevision</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.TipoPrevision" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Celular</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.Celular" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Mail</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.Mail" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label>Region</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.OPT_Comuna.OPT_Region.Region" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Comuna</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.OPT_Comuna.Comuna" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Direccion</label>
+                                    <input type="text" class="form-control form-control-sm" value="@Model.Cliente.Direccion" readonly>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="Receta-tab-content" role="tabpanel" aria-labelledby="Receta-tab">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label> Cristales de Laboratorios</label>
+                                    <input type="checkbox" class="custom-checkbox" @(Model.Cristales == null ? "" : Model.Cristales.CheckCristalesLaboratorio == true ? "checked" : "") />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label> Urgente</label>
+                                    <input type="checkbox" class="custom-checkbox" @(Model.Cristales == null ? "" : Model.Cristales.CheckUrgente == true ? "checked" : "") />
+                                </div>
+                            </div>
+                            <hr />
+
+                            <div class="form-group row">
+                                <div class="col-sm-6">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="5">
+                                                        <label>Incluir Cristales Lejos</label>
+                                                        <input type="checkbox" id="checkLejos" class="custom-checkbox" @(Model.Cristales == null ? "" : Model.Cristales.CheckLejos == true ? "checked" : "") />
+                                                    </th>
+                                                </tr>
+                                                <tr class="text-center">
+                                                    <th>Lejos</th>
+                                                    <th>Esferico</th>
+                                                    <th>Cilindrico</th>
+                                                    <th>Eje</th>
+                                                    <th>Observacion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>OD</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosODEsferico)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosODCilindro)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosODEje)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosODObservacion)" readonly></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>OI</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosOIEsferico)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosOICilindro)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosOIEje)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosOIObservacion)" readonly></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>DP</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosDPEsferico)" readonly></td>
+                                                    <td colspan="3"><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosDPObservacion)" readonly></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>ADD</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.LejosADDEsfera)" readonly></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="5">
+                                                        <label>Incluir Cristales Cerca</label>
+                                                        <input type="checkbox" id="checkCerca" class="custom-checkbox" @(Model.Cristales == null ? "" : Model.Cristales.CheckCerca == true ? "checked" : "") />
+                                                    </th>
+                                                </tr>
+                                                <tr class="text-center">
+                                                    <th>Cerca</th>
+                                                    <th>Esferico</th>
+                                                    <th>Cilindrico</th>
+                                                    <th>Eje</th>
+                                                    <th>Observacion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>OD</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaODEsferico)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaODCilindro)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaODEje)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaODObservacion)" readonly></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>OI</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaOIEsferico)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaOICilindro)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaOIEje)" readonly></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaOIObservacion)" readonly></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>DP</td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaDPEsferico)" readonly></td>
+                                                    <td colspan="3"><input type="text" class="form-control form-control-sm" value="@(Model.Cristales == null ? "" : Model.Cristales.CercaDPObservacion)" readonly></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="Lentes-tab-content" role="tabpanel" aria-labelledby="Lentes-tab">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover" id="TableProducto">
+                                            <thead>
+                                                <tr class="text-center">
+                                                    <th>Producto</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Valor</th>
+                                                    <th>Total</th>
+                                                    <th>Comentario</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.Productos.Count > 0)
+                                                {
+
+                                                    foreach (var item in Model.Productos)
+                                                    {
+                                                        <tr>
+                                                            <td>@item.Producto</td>
+                                                            <td class="text-right">@item.Cantidad</td>
+                                                            <td class="text-right">@item.Valor.ToString("N0")</td>
+                                                            <td class="text-right">@(int.Parse((item.Cantidad * item.Valor).ToString()).ToString("N0"))</td>
+                                                            <td>@item.Comentario</td>
+                                                        </tr>
+
+                                                        TotalProducto += (item.Cantidad * item.Valor);
+                                                    }
+                                                }
+
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td class="text-right font-weight-bold" colspan="3">Total</td>
+                                                    <td class="text-right font-weight-bold">@TotalProducto.ToString("N0")</td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="Pago-tab-content" role="tabpanel" aria-labelledby="Pago-tab">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group row">
+                                        <div class="col-sm-4">
+                                            <label>Total OT</label>
+                                            <input type="text" class="form-control form-control-sm text-right" value="@TotalProducto.ToString("N0")" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover" id="TableAbono">
+                                                    <thead>
+                                                        <tr class="text-center">
+                                                            <th>Abona con</th>
+                                                            <th>Monto Abono</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var item in Model.Abonos)
+                                                        {
+                                                            <tr>
+                                                                <td>@item.FormaPago</td>
+                                                                <td class="text-right">@item.Monto</td>
+                                                            </tr>
+
+                                                            TotalAbono += item.Monto;
+                                                        }
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td class="text-right font-weight-bold">@TotalAbono</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <label>Saldo</label>
+                                            <input type="text" class="form-control form-control-sm text-right" data-tipo="Numeric" value="@Saldo.ToString("N0")" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <label>N° Cuotas</label>
+                                            <input type="text" class="form-control form-control-sm text-right" data-tipo="Numeric" value="@Model.NumeroCuota" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <label>Valor Cuotas</label>
+                                            <input type="text" class="form-control form-control-sm text-right" data-tipo="Numeric" value="@ValorCuota.ToString("N0")" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

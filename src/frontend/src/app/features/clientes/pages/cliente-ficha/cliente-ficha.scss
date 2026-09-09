@@ -1,0 +1,152 @@
+// Layout tipo "ficha clínica": panel de identidad fijo + historial en pestañas.
+.ficha {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--opt-space-lg);
+  align-items: start;
+}
+
+@media (max-width: 899.98px) {
+  .ficha {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ───────── Panel de identidad ─────────
+.paciente {
+  position: sticky;
+  top: var(--opt-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--opt-space-sm);
+  padding: var(--opt-space-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-md);
+  background-color: var(--mat-sys-surface-container-low);
+}
+
+@media (max-width: 899.98px) {
+  .paciente {
+    position: static;
+  }
+}
+
+.paciente__rut {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.paciente__datos {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--opt-space-xs) var(--opt-space-md);
+  margin: 0;
+
+  dt {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.paciente__sub {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.paciente__resumen {
+  padding-top: var(--opt-space-xs);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.paciente__editar {
+  align-self: flex-start;
+}
+
+// ───────── Historial ─────────
+.panel {
+  padding: var(--opt-space-md) 0 var(--opt-space-xs);
+}
+
+.panel__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--opt-space-md);
+  margin-bottom: var(--opt-space-md);
+}
+
+.panel__conteo {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+.tab-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: var(--opt-space-xs);
+  border-radius: var(--opt-radius-pill);
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+// ───────── Tarjeta de registro (anamnesis / receta) ─────────
+.registro {
+  padding: var(--opt-space-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-md);
+  margin-bottom: var(--opt-space-sm);
+  background-color: var(--mat-sys-surface);
+}
+
+.registro__cab {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+}
+
+.registro__fecha {
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.registro__flags {
+  display: flex;
+  gap: var(--opt-space-2xs);
+}
+
+.registro__acciones {
+  margin-left: auto;
+  display: flex;
+  gap: var(--opt-space-2xs);
+}
+
+.registro__nota {
+  margin: var(--opt-space-xs) 0 0;
+  color: var(--mat-sys-on-surface-variant);
+
+  span + span {
+    margin-left: var(--opt-space-md);
+  }
+}
+
+// ───────── Chips de antecedentes / flags ─────────
+.antecedentes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--opt-space-2xs);
+}

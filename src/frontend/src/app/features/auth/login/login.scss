@@ -1,0 +1,53 @@
+.login-card {
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-marca {
+  text-align: center;
+  padding-top: 24px;
+
+  // En pantallas anchas la marca ya se muestra en el panel de auth-layout.scss —
+  // evita duplicar el mismo mensaje dos veces en la misma vista.
+  @media (min-width: 900px) {
+    display: none;
+  }
+
+  &__nombre {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: 0.5px;
+    color: var(--mat-sys-primary);
+  }
+
+  &__subtitulo {
+    margin: 4px 0 0;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.login-tagline {
+  text-align: center;
+  margin: 0;
+  padding: 0 16px 20px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--mat-sys-on-surface-variant);
+
+  // Ídem login-marca: en pantallas anchas el tagline ya está en el panel de marca.
+  @media (min-width: 900px) {
+    display: none;
+  }
+}
+
+.campo {
+  width: 100%;
+}
+
+.boton-enviar {
+  width: 100%;
+  margin-top: 8px;
+}

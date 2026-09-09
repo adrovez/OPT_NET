@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  // Cabe dentro del ancho por defecto del panel de MatDialog (560px) sin scroll horizontal
+  // — mismo criterio que empresa-form. Se angosta en pantallas chicas.
+  width: min(520px, 94vw);
+}
+
+.campo {
+  width: 100%;
+  display: block;
+}
+
+// Dos campos cortos en una fila; colapsan a una columna cuando no hay ancho.
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--opt-space-md);
+
+  .campo {
+    flex: 1 1 200px;
+  }
+}

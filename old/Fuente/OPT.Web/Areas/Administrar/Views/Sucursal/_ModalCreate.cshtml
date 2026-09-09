@@ -1,0 +1,61 @@
+﻿@{
+    Layout = null;
+}
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <form id="formCrear" action="@Url.Action("Create","Sucursal",new {area="Administrar" })">
+                @Html.AntiForgeryToken()
+                <div class="modal-header alert-primary">
+                    <h5 class="modal-title"><i class="fa fa-store-alt"></i> NUEVA SUCURSAL</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="col-sm-4">
+                            <label>Nombre</label>
+                            <input type="text" id="Nombre" name="Nombre" value="" class="form-control form-control-sm" maxlength="50" required />
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Telefono</label>
+                            <input type="text" id="Telefono" name="Telefono" value="" class="form-control form-control-sm" maxlength="50">
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Fecha Registro</label>
+                            <input type="text" id="FechaRegistro" name="FechaRegistro" value="@DateTime.Now.ToString("dd/MM/yyyy")" class="form-control form-control-sm" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-4">
+                            <label>Matriz</label>
+                            <select id="Matriz" name="Matriz" class="form-control" required>
+                                <option> --- SELECCIONAR --- </option>
+                                <option value="true"> SI </option>
+                                <option value="false"> NO </option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Clientes</label>
+                            @Html.DropDownList("idEmpresa", (SelectList)ViewBag.ComboEmpresa, "--- SELECCIONAR ---", new { @class = "form-control", @required = "required", @multiple = "multiple" })
+                        </div>                       
+                    </div>
+
+                    <div class="form-row">                        
+                        <div class="col-sm-12">
+                            <label>Dirección</label>
+                            <input type="text" id="Direccion" name="Direccion" value="" class="form-control form-control-sm" maxlength="100" placeholder="Direccion - Comuna" required>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

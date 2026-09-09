@@ -1,0 +1,65 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.OrdenTrabajoResponse
+
+@{
+    Layout = null;
+}
+
+<input type="hidden" name="idAtencion" value="@Model.idAtencion" />
+
+<div class="form-group row">
+    <div class="col-sm-4">
+        <label>Rut</label>
+        <input type="text" id="RutCliente" name="RutCliente" value="@Model.cliente.RutCliente" class="form-control form-control-sm" data-tipo="RUT" maxlength="12" required>
+    </div>
+    <div class="col-sm-4">
+        <label>Nombre</label>
+        <input type="text" id="Nombre" name="Nombre" value="@Model.cliente.Nombre" class="form-control form-control-sm" data-tipo="Alfa" maxlength="100" required>
+    </div>
+    <div class="col-sm-4">
+        <label>Fecha Nacimiento</label>
+        <input type="text" id="FechaNacimiento" name="FechaNacimiento" value="@(Model.cliente.FechaNacimiento==null? "": DateTime.Parse(Model.cliente.FechaNacimiento.ToString()).ToShortDateString())" class="form-control form-control-sm" maxlength="10" autocomplete="off" required>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-sm-4">
+        <label>Previsión</label>
+        <select id="TipoPrevision" name="TipoPrevision" class="form-control form-control-sm" required>
+            <option value="FONASA" selected>FONASA</option>
+            <option value="ISAPRE">ISAPRE</option>
+        </select>
+    </div>
+    <div class="col-sm-4">
+        <label>Celular</label>
+        <input type="text" id="Celular" name="Celular" value="@Model.cliente.Celular" class="form-control form-control-sm" data-tipo="SoloNumero" maxlength="10">
+    </div>
+    <div class="col-sm-4">
+        <label>Mail</label>
+        <input type="text" id="Mail" name="Mail" value="@Model.cliente.Mail" class="form-control form-control-sm" data-tipo="Email" maxlength="50">
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-sm-12">
+        <label>Direccion</label>
+        <input type="text" id="Direccion" name="Direccion" value="@Model.cliente.Direccion" class="form-control form-control-sm" data-tipo="AlfaNumeric" maxlength="100">
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-sm-4">
+        <label>Region</label>
+        @Html.DropDownList("idRegion", Model.cliente.ListRegion as IEnumerable<SelectListItem>, "--- SELECCIONAR ---", new { @class = "form-control form-control-sm", @required = "required" })
+    </div>
+    <div class="col-sm-4">
+        <label>Comuna</label>
+        @Html.DropDownList("idComuna", Model.cliente.ListComuna as IEnumerable<SelectListItem>, "--- SELECCIONAR ---", new { @class = "form-control form-control-sm", @required = "required" })
+    </div>
+</div>
+
+
+<div class="form-group row">
+    <div class="col-sm-12  text-right">
+        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-arrow-right"></i> Siguiente</button>
+    </div>
+</div>
+

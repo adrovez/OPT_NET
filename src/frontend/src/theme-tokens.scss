@@ -1,0 +1,109 @@
+// Tokens de marca OPT que NO forman parte del tema M3 autogenerado (theme-colors.scss).
+// Son los colores con significado de negocio (OPT_EstadoOT, OPT_FormaPago), la paleta
+// manual de referencia, y — desde 2026-08-27 (2ª pasada UX/UI) — las escalas de sistema
+// que la guía de estilo v2.0 no cubría: espaciado, radios, elevación y movimiento.
+// Transcritos 1:1 desde .agents/context/branding-ux-ui.md — no modificar un valor acá sin
+// actualizar primero ese documento (y viceversa).
+//
+// v2.0 (sesión 2026-08-27): paleta "Añil + Terracota" reemplaza a "Iris teal + Ámbar lente"
+// (v1.0). Ver branding-ux-ui.md sección "Evolución de marca v2.0" para el porqué y los
+// contrastes recalculados.
+
+:root {
+  // ── Paleta manual de referencia (roles que no tienen un mat-sys-* 1:1 exacto) ──────────
+  --opt-primary-dark: #1b3a66;
+  --opt-accent: #e2703b;
+  --opt-accent-dark: #a8471e;
+  --opt-accent-container: #fce3d2;
+  --opt-on-accent-container: #7a3115;
+
+  // ── OPT_EstadoOT — rampa de un solo matiz (añil), en orden de Id (proceso lineal) ──────
+  // Cada chip lleva SIEMPRE fondo + color de texto explícitos (isla de color): se ve igual
+  // en tema claro y oscuro a propósito — un estado de proceso es semántico, no debe
+  // invertirse con el tema. Los pares fondo/texto ya están verificados AA (ver Accesibilidad
+  // en branding-ux-ui.md); no recalcular ni agregar variante dark.
+  --opt-estado-ot-ingresado: #dce8f5;
+  --opt-estado-ot-ingresado-fg: #1a2230;
+  --opt-estado-ot-en-proceso: #b7d0ea;
+  --opt-estado-ot-en-proceso-fg: #1a2230;
+  --opt-estado-ot-montaje: #8fb4da;
+  --opt-estado-ot-montaje-fg: #1a2230;
+  --opt-estado-ot-laboratorio: #5f8fc0;
+  --opt-estado-ot-laboratorio-fg: #1a2230;
+  --opt-estado-ot-calidad: #3a6ea0;
+  --opt-estado-ot-calidad-fg: #ffffff; // punto de corte oscuro/blanco, un escalón antes que en v1.0
+  --opt-estado-ot-despacho: #1e4a78;
+  --opt-estado-ot-despacho-fg: #ffffff;
+  --opt-estado-ot-entregado: #1f8a4c;
+  --opt-estado-ot-entregado-fg: #ffffff; // único estado en verde (cierre exitoso), sin cambios respecto a v1.0
+  // ANULADO (id 7) no existe en el legacy: lo agrega el sistema nuevo (script 005) como
+  // segundo estado terminal. Queda FUERA de la rampa añil a propósito — no es una etapa del
+  // proceso sino su interrupción — en gris neutro, nunca en rojo (anular es una operación
+  // legítima del mesón, no un error). Contraste texto/fondo 7,5:1 — AA y AAA para texto normal.
+  --opt-estado-ot-anulado: #d6d3d1;
+  --opt-estado-ot-anulado-fg: #3f3a37;
+
+  // ── OPT_FormaPago — chips neutros, sin jerarquía de color ──────────────────────────────
+  // Referencian roles M3, así adaptan solos al tema oscuro.
+  --opt-forma-pago-bg: var(--mat-sys-primary-container);
+  --opt-forma-pago-fg: var(--mat-sys-on-primary-container);
+  --opt-forma-pago-sin-info-bg: var(--mat-sys-surface-container-highest);
+  --opt-forma-pago-sin-info-fg: var(--mat-sys-on-surface-variant);
+
+  // ── Tipografía de marca ───────────────────────────────────────────────────────────────
+  // Titulares/marca (login, portada, marketing) — nunca en la interfaz de trabajo diario.
+  --opt-font-titular: 'Fraunces', Georgia, serif;
+  // Datos numéricos/código (folios de OT, RUT, montos, fechas en tablas densas).
+  --opt-font-mono: 'IBM Plex Mono', Consolas, monospace;
+
+  // ── Escala de espaciado (2ª pasada UX/UI 2026-08-27) ──────────────────────────────────
+  // Base 4px. Usar SIEMPRE estas variables en SCSS nuevo en vez de píxeles sueltos, para
+  // que el ritmo vertical sea consistente entre features.
+  --opt-space-3xs: 2px;
+  --opt-space-2xs: 4px;
+  --opt-space-xs: 8px;
+  --opt-space-sm: 12px;
+  --opt-space-md: 16px;
+  --opt-space-lg: 24px;
+  --opt-space-xl: 32px;
+  --opt-space-2xl: 48px;
+
+  // ── Radios de esquina ────────────────────────────────────────────────────────────────
+  --opt-radius-sm: 8px;
+  --opt-radius-md: 12px; // tarjetas, contenedores
+  --opt-radius-lg: 16px;
+  --opt-radius-pill: 999px; // botones y chips (regla "radio generoso" del branding doc)
+
+  // ── Elevación ────────────────────────────────────────────────────────────────────────
+  --opt-elevation-1: 0 1px 2px rgba(26, 34, 48, 0.06), 0 1px 3px rgba(26, 34, 48, 0.1);
+  --opt-elevation-2: 0 2px 6px rgba(26, 34, 48, 0.08), 0 4px 14px rgba(26, 34, 48, 0.1);
+
+  // ── Movimiento ───────────────────────────────────────────────────────────────────────
+  --opt-motion-fast: 120ms;
+  --opt-motion-base: 200ms;
+  --opt-motion-slow: 320ms;
+  --opt-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --opt-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
+}
+
+// ── Overrides de tema oscuro ───────────────────────────────────────────────────────────
+// Solo lo que NO adapta solo: las sombras casi no se ven sobre un fondo oscuro, se
+// refuerzan con negro más opaco. Los colores con significado (OPT_EstadoOT) y los que
+// referencian roles M3 (OPT_FormaPago) no necesitan override.
+// Se aplica tanto por preferencia de sistema como por el toggle manual (data-opt-theme).
+@mixin _opt-tokens-dark {
+  --opt-accent-container: #4a2312;
+  --opt-on-accent-container: #ffdbca;
+  --opt-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --opt-elevation-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-opt-theme='light']) {
+    @include _opt-tokens-dark;
+  }
+}
+
+:root[data-opt-theme='dark'] {
+  @include _opt-tokens-dark;
+}

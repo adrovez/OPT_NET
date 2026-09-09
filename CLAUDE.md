@@ -1,0 +1,380 @@
+# CLAUDE.md
+
+Guía técnica para Claude Code (o cualquier agente IA) al trabajar en este repositorio. Complementa a `AGENTS.md` (que es agnóstico de herramienta) con el detalle específico necesario para generar código consistente.
+
+---
+
+## Qué es este proyecto
+
+OPT es un sistema de gestión de ópticas en migración desde una aplicación legacy .NET Framework 4.8 / MVC 5 (`old/`) hacia una arquitectura nueva. **Nunca modificar `old/`** — es solo referencia de lectura.
+
+`src/backend/` contiene **dos capas de desarrollo**:
+
+- **Iteración previa** (`.NET 10, Angular 21, multi-tenant`) — construida antes del análisis formal del legacy. No la uses como referencia de arquitectura sin confirmarlo con el equipo; puede tener patrones útiles a nivel de código Angular/EF Core, pero sus decisiones estructurales no están validadas por los ADRs de `.agents/decisions/`.
+- **Scaffold Fase 0** (`.NET 8, Clean Architecture`) — generado en 2026-08-19 siguiendo los ADRs vigentes. **Este es el punto de partida correcto para continuar el desarrollo.** Contiene: `OPT.sln`, `OPT.Domain`, `OPT.Application`, `OPT.Infrastructure`, `OPT.API`, `OPT.Migracion` (herramienta de consola standalone para la migración de datos legacy — deliberadamente **fuera** de la arquitectura en capas, ver ADR `0005`; no es parte del sistema en producción).
+
+---
+
+## Estado actual
+
+El scaffold de backend (Fase 0) está generado y **compila limpio** (`dotnet build OPT.sln`), con `IEntityTypeConfiguration<T>` completas para los 4 módulos (Organización, Clínico, Comercial, Inventario). El esquema está aplicado en la base de datos de desarrollo (`dbOPT_NET`, verificado vía `sqlcmd`) en cuatro scripts secuenciales de `src/basedatos/`:
+
+- `001_esquema_inicial.sql` — 17 tablas, prefijo `OPT_` + singular (ADR `0004`), seeds de `OPT_Region` (16), `OPT_Comuna` (346) y `OPT_Rol` (3 genéricos).
+- `002_catalogos.sql` — agrega `OPT_EstadoOT` (7 valores heredados del legacy), `OPT_FormaPago` (5 valores) y `OPT_CategoriaProducto` (1 valor: "General"), extiende `OPT_Rol` a 8 filas (los 6 roles reales del legacy conservados como filas distintas + los 2 genéricos ya sembrados), y agrega las FKs `OrdenDeTrabajo.EstadoOTId`, `Abono.FormaPagoId` y `Producto.CategoriaId` (antes columnas `int` sin constraint).
+- `003_extras_cliente_receta.sql` (sesión 2026-08-26, previo a migrar datos clínicos) — agrega `OPT_Cliente.FechaNacimiento` (`date`) y `OPT_Cliente.TipoPrevision` (`nvarchar(50)`), y `OPT_RecetaCristales.DpLejos`/`DpCerca`/`AddLejos` (`nvarchar(20)`, texto libre) — el legacy los usa en 66%/59%/91% de sus filas respectivamente y no tenían columna equivalente en el scaffold original.
+- `004_comercial_pagos_cuotas.sql` (sesión 2026-08-27, previo a migrar el módulo Comercial) — agrega el valor `CHEQUE` (id 5) a `OPT_FormaPago` (lo usa 1 pago del legacy y no existía en el catálogo), crea el catálogo `OPT_EstadoCuota` (PENDIENTE/PAGADA/ANULADA), agrega `OPT_OrdenDeTrabajo.Beneficiario`/`FechaAtencion`/`HoraEntrega`/`NumeroCuotas` (campos del legacy sin destino), y crea las tablas `OPT_Pago` y `OPT_Cuota` (el legacy tiene 3.736 pagos y 34.110 cuotas sin ninguna tabla equivalente). ⚠ **Escrito a mano, no generado con `dotnet ef migrations script`** — la sesión estaba acotada a "solo base de datos". La desalineación que dejó (entidades `Pago`/`Cuota`/`EstadoCuota` y 4 propiedades de `OrdenDeTrabajo` ausentes del dominio) **quedó resuelta en la sesión 2026-08-27** al implementar la API del módulo Comercial (ADR `0007`).
+
+- `006_receta_ot_detalle_comentario.sql` (sesión 2026-08-28, para la vista "Ver Orden") — agrega `OPT_RecetaCristales.OrdenDeTrabajoId` (`int NULL` + FK + índice; reproduce el `idOT` del legacy: la receta pasa a poder materializarse en una OT concreta, sin dejar de colgar del Cliente) y `OPT_DetalleOT.Comentario` (`nvarchar(200)`, la anotación de armazón que el legacy tenía y el esquema nuevo había perdido). Escrito a mano, con las entidades y sus `IEntityTypeConfiguration` actualizadas en la **misma** sesión — el modelo sigue alineado. La carga de datos va aparte en `migracion/M006_backfill_receta_ot_detalle_comentario.sql`: 12.574 recetas vinculadas y 11.168 comentarios, ambos 100% de lo esperado. El mapeo receta legacy→destino es **ordinal** (`OPT.Migracion` insertó las 13.183 en orden y sin saltarse ninguna) y el propio script lo verifica fila a fila contra `ClienteId` y `FechaIngreso` antes de escribir.
+
+- `007_receta_incluir_observaciones_detalle.sql` (sesión 2026-09-08, formulario de Receta) — agrega `OPT_RecetaCristales.IncluirLejos`/`IncluirCerca` (`bit NOT NULL DEFAULT 0`, reproducen `CheckLejos`/`CheckCerca` del legacy) y 6 columnas `ObservacionOd/Oi/Dp{Lejos,Cerca}` (`nvarchar(50)`, una por ojo/DP y por Lejos/Cerca, igual largo que las columnas equivalentes del legacy). Coexisten con `Observaciones` (notas generales / texto combinado de los datos migrados — no se toca ni se revierte esa consolidación, ver `RecetaCristalesParser.CombinarObservaciones`). Filas existentes quedan con los flags en `0` y las observaciones en `NULL` — dato que no existía para ese concepto antes de esta funcionalidad. Escrito a mano (sin `dotnet ef` disponible en la sesión) siguiendo el patrón idempotente de `003`/`006` — **pendiente regenerarlo con `dotnet ef migrations script --idempotent`** y diffearlo antes de aplicarlo a una base real, por las dudas. Entidad y `IEntityTypeConfiguration` actualizadas en la misma sesión. **Corrección posterior, misma fecha (ADR `0010`):** las 6 columnas de observación dejaron de ser obligatorias cuando su checkbox `IncluirLejos`/`IncluirCerca` está activo — se quitaron las reglas `NotEmpty().When(...)` de `CrearRecetaCristalesCommandValidator`/`ActualizarRecetaCristalesCommandValidator` (se mantiene `MaximumLength(50)`). No cambia el esquema, solo la validación en `OPT.Application`.
+
+- `005_ot_publicid_estado_anulado.sql` (sesión 2026-08-27, previo a publicar la API del módulo Comercial) — agrega `OPT_OrdenDeTrabajo.PublicId` (`uniqueidentifier NOT NULL DEFAULT NEWID()` + índice único; las 12.578 filas migradas quedaron pobladas y verificadas) y el valor `ANULADO` (id 7) a `OPT_EstadoOT`, que pasa de 7 a 8 estados. Escrito a mano igual que `004`, pero **con este script el modelo de EF Core y `dbOPT_NET` vuelven a estar alineados** (ver ADR `0007`).
+
+Total: **23 tablas** en `dbOPT_NET` (las 20 tras `002`/`003`, más `OPT_EstadoCuota`, `OPT_Pago` y `OPT_Cuota` de `004`; verificado con `sqlcmd`). Referencia completa tabla-por-tabla, columna-por-columna: `src/documentos/Diccionario_Datos_OPT.docx` (actualizado con las 3 tablas y las 4 columnas de `004` el 2026-08-27).
+
+El módulo Organización tiene **CRUD/API completo** para Sucursal, Empresa, Usuario y Rol (sesión 2026-08-24), además del login ya existente: `SucursalesController`, `EmpresasController`, `UsuariosController`, `RolesController` (Rol es solo lectura — catálogo sembrado sin mutadores de dominio), con sus Commands/Queries en `OPT.Application/Features/Sucursales|Empresas|Usuarios|Roles/`. Verificado end-to-end contra `dbOPT_NET` real (login + CRUD + soft delete + validaciones de negocio). La gestión de `EmpresaSucursal` (asignar sucursales a una empresa) quedó deliberadamente fuera — `UsuarioSucursal` sí se cubrió (`Usuario.AsignarSucursal`/`QuitarSucursal`) porque sin sucursal asignada un usuario no puede iniciar sesión.
+
+`Región` y `Comuna` también tienen **API de solo lectura** (sesión 2026-08-25): `RegionesController` (`GET /api/regiones`, catálogo completo) y `ComunasController` (`GET /api/comunas?regionId={id}`, filtrado por región — replica el comportamiento del legacy `OPT_ComunaDAL.Lista(idRegion)`), con `IRegionRepositorio`/`IComunaRepositorio` (no genéricos, mismo patrón que `IRolRepositorio` por ser `CatalogEntity`) y sus Queries en `OPT.Application/Features/Regiones|Comunas/`. Sin Commands — son catálogos sembrados, igual que `Rol`, `EstadoOT` y `FormaPago`. Verificado contra los datos reales de `dbOPT_NET` (16 regiones, comunas filtradas correctamente — p. ej. 52 comunas para Región Metropolitana). Usan el `Id` interno en la API, no `PublicId` — no están en el alcance del ADR `0004` (no son datos personales/sensibles).
+
+El módulo Clínico (Fase 1) tiene **CRUD/API completo** para Cliente, Anamnesis y RecetaCristales (sesión 2026-08-26, mismo día que la migración de datos Clínico): `ClientesController`, `AnamnesisController`, `RecetaCristalesController`, con sus Commands/Queries en `OPT.Application/Features/Clientes|Anamnesis|RecetaCristales/`. Las 3 usan `PublicId` en rutas/DTOs (ADR `0004`). Se preguntó explícitamente al usuario si correspondía crear un módulo "Atención" (como en el legacy) — se confirmó que no, consistente con la decisión ya tomada de que `OPT_Atencion` no tiene tabla equivalente en el esquema nuevo; Anamnesis y RecetaCristales quedan como recursos independientes con su propio `PublicId`, cada uno con `GET /api/{recurso}?clientePublicId={guid}` para el historial de un cliente (reemplaza `ListaPorRut`/`Listar(pRut)` del legacy). `ObtenerClientesQuery` es **paginado** (ver el párrafo de paginación server-side más abajo). Se agregó `Anamnesis.Actualizar(...)` y `RecetaCristales.Actualizar(...)` al dominio (el scaffold original solo tenía `Crear` para estas dos entidades). Ver entrada 2026-08-26 de `.agents/progress.md` para el detalle completo, incluido un gotcha de namespace (`OPT.Application.Features.Anamnesis` coincide con el nombre de la entidad `Anamnesis`, resuelto con alias de tipo). Verificado con `dotnet build OPT.sln` — no verificado aún end-to-end contra `dbOPT_NET` real.
+
+El módulo **Comercial (Fase 2) tiene CRUD/API completo** para Orden de Trabajo y todo su dinero (sesión 2026-08-27, ADR `0007`): `OrdenesDeTrabajoController` (`/api/ordenes-de-trabajo`, siempre por `PublicId`) con listado paginado y filtrado (`clientePublicId`, `sucursalId`, `estadoOTId`, `soloConSaldo`), vista completa, alta con detalle —y opcionalmente plan de cuotas y abono inicial en la misma transacción—, edición de cabecera/detalle, `POST {publicId}/estado`, `/anular`, `/abonos`, `/pagos`, `/cuotas`, `/cuotas/{numero}/pagar` y `/cuotas/{numero}/anular`; más los catálogos de solo lectura `EstadosOTController` (`/api/estados-ot`, expone `esTerminal`), `FormasPagoController` (`/api/formas-pago`) y `EstadosCuotaController` (`/api/estados-cuota`). La OT es un **agregado real**: detalles, abonos, pagos, cuotas y bitácora solo se modifican a través de `OrdenDeTrabajo`, que recalcula `Precio` (= suma del detalle), `TotalAbonado` (= abonos + pagos) y `Saldo` en la misma operación. El **flujo de estados** vive en el dominio (`EstadosOT` + `OrdenDeTrabajo.CambiarEstado`): avance de a un paso, retroceso de a un paso con observación obligatoria, `ENTREGADO`/`ANULADO` terminales, sin saltos. **El sobrepago está permitido** por decisión del negocio. Los hijos (Abono, Pago, Cuota, DetalleOT, BitacoraOT) se exponen anidados bajo la OT con su Id interno — no llevan `PublicId` (ADR `0007`). Verificado con `dotnet build OPT.sln` limpio; **no verificado aún end-to-end contra `dbOPT_NET` con sesión autenticada**, y **sin frontend** todavía.
+
+**Vista "Ver Orden" y listado sin carga inicial** (sesión 2026-08-28, ADR `0008`, a pedido del negocio sobre la pantalla equivalente del legacy): la ficha de la OT (`/ordenes-de-trabajo/:publicId`) se rediseñó al layout del modal "Detalle Orden de Trabajo" del legacy —cabecera arriba (N° OT, fecha, fecha de entrega, beneficiario, empresa, sucursal, estado) y pestañas debajo— con las **cuatro pestañas del legacy**: Cliente, Receta, Detalle (el legacy lo llamaba "Lentes", nombre que el usuario descartó por incorrecto) y Abonos, más Pagos / Cuotas / Bitácora, que son propias del sistema nuevo. Para sostenerlas hicieron falta dos cambios de esquema (script `006`) y tres de API: `OrdenDeTrabajoDto` gana `Cliente` (`ClienteOTDto`: RUT, nombre, fecha de nacimiento, previsión, celular, correo, región, comuna, dirección — región y comuna resueltas en el backend) y `Recetas` (`IReadOnlyList<RecetaCristalesDto>`, las vinculadas a **esa** OT, no las del cliente); `DetalleOTDto`/`LineaDetalleOTDto` ganan `Comentario`; y `CrearOrdenDeTrabajoCommand`/`ActualizarOrdenDeTrabajoCommand` aceptan `RecetaPublicId` (en Actualizar es **estado final**, igual que `EmpresaPublicId`: si va null la orden queda sin receta). El **listado de OT ya no carga nada al entrar**, igual que el legacy —donde traer todo daba timeout—: muestra un estado inicial "Busca una orden de trabajo" y consulta recién con la primera búsqueda o filtro, salvo que se llegue con un filtro de contexto en la URL (`clientePublicId`/`empresaPublicId`/`soloConSaldo`), que ya es un criterio. En el frontend se agregó el componente compartido `features/receta-cristales/components/receta-graduacion/` (la tabla de graduación, antes duplicada en la ficha del cliente) y las clases globales `.opt-chip*` en `styles.scss`. Verificado: `dotnet build` limpio, `npm run lint`/`build`/`test` (80/80) OK y los datos migrados contrastados en SQL contra las capturas del legacy (OT 17067: receta -1.25/-2.00 DP 64, detalle "FORMOSA F4 C2", abono 20.000). **No verificado end-to-end vía HTTP**: los usuarios migrados conservan la clave de 4 caracteres del legacy y el validador de login exige 6, así que no hay credenciales utilizables en `dbOPT_NET` para una sesión autenticada.
+
+**API de Productos y de Cobranza** (sesión 2026-08-27, para desbloquear el frontend Comercial): `ProductosController` (`GET /api/productos`, paginado, búsqueda por código/descripción, orden por `codigo|descripcion`) — es el catálogo que necesita el selector de producto del detalle de una OT; el resto de Inventario sigue siendo stub. `CobranzaController` (`GET /api/cobranza/deudores`) devuelve la deuda vigente agrupada por empresa convenio (OT con saldo > 0 y no anuladas), reemplazando al `sp_ListaDeudores` del legacy; la agrupación la hace la base de datos (`IOrdenDeTrabajoRepositorio.ObtenerDeudaPorEmpresaAsync`) y las OT particulares llegan como una fila con `empresaPublicId = null`. No hay endpoint de detalle por deudor **a propósito**: es el listado de OT filtrado, para lo cual `ObtenerOrdenesDeTrabajoQuery` ganó el filtro `empresaPublicId`. Verificado con `dotnet build OPT.sln` limpio; **no verificado aún contra `dbOPT_NET` con sesión autenticada**.
+
+**Paginación server-side, búsqueda única y formularios en modal** (sesión 2026-08-27, transversal): los 4 listados transaccionales con API (`Clientes`, `Empresas`, `Usuarios`, `Sucursales`) usan **paginación del lado del servidor** vía un contrato común. Query params: `pagina`, `tamanioPagina` (tope `ParametrosPaginacion.TamanioPaginaMaximo = 100`), `busqueda` (un solo término tipo Google contra varios campos por entidad), `ordenarPor` + `direccionOrden` (`asc`/`desc`, orden por **lista blanca** de columnas por repositorio). Respuesta: `PagedResult<T>` (`Items`, `Pagina`, `TamanioPagina`, `Total` + calculados `TotalPaginas`, `TienePaginaAnterior`, `TienePaginaSiguiente`). Primitivas reutilizables: `OPT.Domain/Common/ParametrosPaginacion.cs` + `OPT.Domain/Common/PagedResult.cs` (`PagedResult<T>` se **movió** de `OPT.Application/Common/Models/` a `OPT.Domain/Common/` — Domain no referencia Application y los repos reciben `ParametrosPaginacion`; `PagedResultFactory.Crear(...)` ensambla la página de DTOs) y `OPT.Infrastructure/Persistence/Extensions/QueryablePaginacionExtensions.cs` (`AplicarOrden` whitelist + `PaginarAsync`). Cada `Obtener{Modulo}Query : ParametrosPaginacion`; el controller la enlaza con `[FromQuery]`. Los catálogos (`Region`, `Comuna`, `Rol`, `EstadoOT`, `FormaPago`) **no** cambian — siguen como lista completa. Frontend: `shared/utils/estado-lista-paginada.ts` (`EstadoListaPaginada<T>`) + `shared/components/search-box/` (`<app-search-box>`, debounced) + `<mat-paginator>` + `matSort` en los 4 listados. **Formularios en `MatDialog`**: una sola columna (se retiró `.opt-form-grid`, era frágil), `:host` ≤ 520px para caber en el panel por defecto de MatDialog (560px) sin scroll horizontal — este era el bug de `cliente-form`; para 2 campos cortos lado a lado, un `.fila` flex por feature. La **Ficha del cliente** (`cliente-ficha`) se rediseñó a layout "ficha clínica" (panel de identidad fijo a la izquierda + historial en pestañas a la derecha, como la Ficha Paciente del legacy); `AnamnesisDto`/`RecetaCristalesDto` ganaron `FechaRegistro` (desde el audit `CreadoEn` — en datos migrados = la fecha real del legacy), sin cambio de esquema. `dotnet build` + `npm run lint/build/test` (50/50) OK. Verificado en navegador real contra `dbOPT_NET` con sesión autenticada: login, listado de Clientes paginado (11.881 filas, "1–20 de 11881"), modal Editar cliente sin scroll horizontal, ficha rediseñada con datos reales. **Pendiente de verificación end-to-end**: Empresas/Usuarios/Sucursales (paginación + guardado), y los `.docx`. Detalle: entradas 2026-08-27 de `.agents/progress.md` y `src/frontend/CLAUDE.md`.
+
+Pendiente:
+
+1. ~~Configurar `user-secrets` con la cadena de conexión y clave JWT~~ — hecho localmente en la sesión 2026-08-24 (es config por máquina, no versionada; cualquier entorno nuevo debe repetir este paso, ver sección de comandos). Ver gotcha de `ASPNETCORE_ENVIRONMENT` en la tabla de "Gotchas conocidos" antes de correr `dotnet run` localmente.
+2. Verificar end-to-end las APIs de Clientes/Anamnesis/RecetaCristales contra `dbOPT_NET` real, y continuar con el resto de Fase 1 (OrdenesDeTrabajo, Inventario) — **usar `PublicId`, nunca el `Id` interno, en cualquier ruta de API o DTO de `Cliente`, `Empresa`, `Usuario`, `Anamnesis` o `RecetaCristales`** (ADR `0004`).
+3. Scaffold del frontend generado en `src/frontend/` (Angular 21, standalone, zoneless, Angular Material — ADR `0002` Aceptada). Compila y pasa lint/tests limpio. El tema de marca (M3 + tokens de `OPT_EstadoOT`/`OPT_FormaPago`/tipografía) ya está aplicado (sesión 2026-08-25, ver `.agents/context/branding-ux-ui.md` sección "Implementación en código") — falta el vector final del logotipo, que sigue pendiente de diseño. El módulo Organización tiene **formularios reales contra el backend** (sesión 2026-08-25): `features/sucursales|empresas|roles|usuarios` — CRUD completo con diálogos (`MatDialog`) para Sucursales/Empresas, solo lectura para Roles, y CRUD + acciones (cambiar clave, activar/desactivar, asignar/quitar sucursal) para Usuarios, ver `src/frontend/CLAUDE.md`. El módulo Clínico también tiene **formularios reales contra el backend** (sesión 2026-08-26): `features/clientes` — CRUD completo con búsqueda paginada (RUT/nombre) y diálogo de alta/edición (RUT inmutable al editar, datepicker de fecha de nacimiento, selector cascada Región→Comuna); `features/anamnesis` y `features/receta-cristales` — sin listado propio, se consumen desde las pestañas Anamnesis/Receta de cristales de `ClienteFicha` (`/clientes/:publicId`), la página nueva que reemplaza a la pantalla "Atención" del legacy (no existe una entidad `Atencion` equivalente en el esquema nuevo — ver punto 4); el diálogo `RecetaCristalesForm` recibió una pasada de UX/UI (sesión 2026-09-08): ancho explícito de 960px en cada `.open()`, DP/ADD numéricos (la API los sigue recibiendo como string), el check "Incluir Cerca" se marca solo al ingresar un ADD > 0, y los checks "Incluir Lejos/Cerca" se mudaron a la caption de su propia tabla — ver `src/frontend/CLAUDE.md`; `features/regiones`/`features/comunas` — catálogos de solo lectura, únicos consumidores del selector de Comuna. Verificado con `npm run lint`/`npm run build`/`npm test` (36/36) — **no verificado aún end-to-end contra `dbOPT_NET` real con sesión autenticada**. Detalle completo en `src/documentos/Manual_Tecnico_Frontend_OPT.docx` (secciones 5.1–5.7) y en `src/frontend/CLAUDE.md` (patrón "ficha ruteada" y gotchas de la sesión). El módulo **Comercial tiene frontend completo** (sesión 2026-08-27): `features/ordenes-de-trabajo` (listado paginado con filtros de estado / solo-con-saldo / contexto por query param, alta y edición en página ruteada con detalle editable y autocompletado de cliente/empresa/producto, y **ficha de la OT** con cabecera fija, barra del flujo de estados, y pestañas Detalle / Abonos / Pagos / Cuotas / Bitácora), `features/abonos`, `features/pagos`, `features/cuotas` (pantallas propias, como en el legacy: eligen la OT con `<app-selector-orden>` o la reciben en `?ot=<publicId>` desde la ficha) y `features/cobranza` (deudores por empresa, enlaza al listado de OT filtrado). El **flujo de estados** vive en la ficha: avanzar/retroceder de a una etapa y anular, con `MotivoDialog` para los dos casos que exigen texto — reemplaza el modal "Enviar OT a flujo" del legacy, que dejaba elegir cualquier estado de un `<select>`. **El alta de una OT es un asistente por pasos** (sesión 2026-08-28, 2ª): `mat-stepper` con Cliente / Receta / Detalle / Pago, la misma secuencia de las 4 pestañas del legacy (`Ingreso/Create.cshtml`). Recupera tres cosas que la migración había perdido: dar de alta al **cliente** sin salir de la orden (abre `ClienteForm` con el RUT ya tecleado), **tomar la receta** ahí mismo (abre `RecetaCristalesForm`) y cerrar con **confirmación + ticket imprimible** (`components/orden-creada-dialog/` + `components/ticket-ot/`, que reemplazan a `Finaliza.cshtml` y al reporte `rptTicketOT.rdlc`). Más la regla del legacy de que un saldo no quede sin plan de cuotas, con la salida explícita "Sin plan de cuotas (cobro directo)" que allá no existía. Las reglas de `@media print` viven en `styles.scss` (clase `opt-imprimiendo` en el `<body>`, `.opt-no-imprimir` para lo que no va en papel). Sin cambios de backend ni de esquema. Piezas transversales nuevas: `shared/pipes/pesos-pipe.ts`, `shared/utils/fechas.util.ts`, `shared/components/motivo-dialog/` y el token `--opt-estado-ot-anulado`. `npm run build`/`lint` OK y `npm test` 77/77 — **no verificado aún en navegador contra `dbOPT_NET` con sesión autenticada** (y la API en ejecución debe reiniciarse para exponer `/api/productos` y `/api/cobranza`). Pendiente: pantallas de Inventario a medida que el backend lo implemente, consumiendo esos tokens de marca — ver `src/frontend/README.md` y `src/frontend/CLAUDE.md`. **Segunda pasada sobre la ficha/alta de OT** (sesión 2026-09-08, ADR `0010`): la ficha muestra un aviso de bloqueo (`.aviso--bloqueo`) cuando la OT está `Entregado` o anulada — la regla de dominio (`GarantizarModificable`) ya existía, faltaba comunicarla en la UI. El paso Cliente del alta pasó a tener toda la cabecera (Fecha de atención con default hoy, Fecha/Hora de entrega, Beneficiario — antes vivían repartidos entre Detalle y ninguna parte); el N° de OT lo sigue generando la base de datos, no hay campo editable. El paso Receta ahora ofrece un combo con la receta más reciente del cliente dentro de los últimos 3 meses (preseleccionada al crear) y un botón "Ver historial completo" para el `mat-radio-group` de siempre. El paso Pago se rediseñó con tres modalidades explícitas y mutuamente excluyentes (`modalidadPago`: pagar el total / abonar y financiar el resto en cuotas / pagar todo en cuotas) en vez del checkbox "Sin plan de cuotas" que quedó retirado; las cuotas siguen siendo mensuales (`AddMonths`, sin cambios en `GenerarPlanCuotas`) y el paso muestra una previsualización de la tabla de cuotas (monto y fecha de cada una) calculada en el frontend con la misma fórmula del backend, antes de guardar. Sin cambios de esquema; el único cambio de backend fue la corrección del validador de Receta (ver nota del script `007` más arriba). No se pudo compilar `OPT.sln` ni correr `ng test` en el entorno donde se hizo el cambio (`dotnet` no está instalado; Vitest no devolvió resultado) — pendiente verificar antes de desplegar.
+
+   **Mejora de UX/UI transversal** (sesión 2026-08-26, sin cambios de backend): se agregó el componente compartido `shared/components/empty-state/` (`app-empty-state`) para los estados vacío y de error de un listado — antes un fallo de red dejaba la lista en el mismo estado visual que "no hay datos", ahora se distingue con ícono/tono y un botón "Reintentar" (aplicado a los 5 listados existentes: Sucursales, Empresas, Usuarios, Roles, Clientes, y a las pestañas Anamnesis/Receta de `ClienteFicha`); el sidenav de `Shell` pasó a ser responsive (`BreakpointObserver` de `@angular/cdk/layout`, colapsa a `mode="over"` con botón de menú bajo 960px — antes no existía ningún punto de quiebre en la interfaz); y el login (`AuthLayout`) ganó un panel de marca con degradado que se oculta en pantallas angostas. Detalle de los 4 patrones en `.agents/context/branding-ux-ui.md` sección "Patrones de UI agregados" y en `src/frontend/CLAUDE.md` sección "Estados de listado: vacío y error". Verificado con `npm run lint`/`npm run build`/`npm test` (38/38) y con capturas de pantalla reales (Playwright contra el dev server, login ancho/angosto y shell con menú móvil). `Manual_Tecnico_UX_OPT.docx` actualizado en la misma sesión (secciones 11, 12, 15, 16).
+
+   **2ª pasada UX/UI** (sesión 2026-08-27, sin cambios de backend): revisión de acabado sobre la marca v2.0 recién aplicada — modo oscuro completo (servicio `Tema`, toggle en la toolbar, doble emisión de `mat.theme`), escalas de sistema en `theme-tokens.scss` (`--opt-space/radius/elevation/motion-*`), componentes compartidos `app-page-header` y `app-list-skeleton`, menú de overflow para acciones de fila, `mat-error`/`mat-hint` y toggle de clave en todos los formularios, `.opt-mono` en los listados. `npm test` 47/47. Ver `.agents/context/branding-ux-ui.md` y `.agents/progress.md` (entrada "2ª pasada UX/UI").
+
+   **Propuesta v2.1 — densidad y tipografía** (sesión 2026-08-27, sin cambios de backend): el usuario reportó que "la fuente es muy grande, en especial los input". Causa raíz: dos decisiones globales de `styles.scss`, no `font-size` sueltos — `density: 0` + escala tipográfica M3 por defecto (ambas calibración táctil). Se aplicó `density: -2` global + escala tipográfica compacta (override de tokens `--mat-sys-*` tras `mat.theme()`: input 16→14px en escritorio / 16px bajo 600px anti auto-zoom iOS, cuerpo 14→13.5, hint 12→11.5, botón 14→13, título de diálogo 22→19; H1/H2/H3 "desnudos" 27/21/16.5 → 24/19/15), ajustes de espaciado, cabecera de `mat-table` liviana, y un guiño humanista (Fraunces + terracota) acotado a `app-empty-state`. Guía HTML: `src/Guia_de_estilo/propuesta-densidad-tipografia.html`. `npm run build`/`lint`/`test` (47/47) OK. **No verificado aún en navegador real.** Ver `.agents/context/branding-ux-ui.md` sección "Densidad y escala tipográfica compacta (v2.1)" y `.agents/progress.md`.
+4. **Migración de datos desde el legacy** (`db_a25cfd_opt2`). El proyecto de consola `OPT.Migracion` (`src/backend/OPT.Migracion/`, ADO.NET directo vía Dapper + Microsoft.Data.SqlClient, sin pasar por `OPT.Domain`/`OPT.Application`/`OPT.Infrastructure` — ver justificación en `.agents/progress.md`, entrada 2026-08-21) está construido y tiene migrados a `dbOPT_NET`:
+   - Organización (sesión 2026-08-24): Sucursal (3), Empresa (491), Usuario (13), UsuarioSucursal (19), EmpresaSucursal (883). Región/Comuna/Rol no requirieron migración de filas — ya vienen sembrados y solo se mapean por nombre.
+   - Clínico (sesión 2026-08-26, requirió extender el esquema primero — ver `003_extras_cliente_receta.sql` arriba): Cliente (11.881), Anamnesis (1.261), RecetaCristales (13.183). `OPT_Atencion` del legacy quedó deliberadamente fuera de alcance — no tiene tabla equivalente en el esquema nuevo (`Anamnesis`/`RecetaCristales` se vinculan directo a `Cliente`, sin evento "Atención" intermedio; confirmado con el usuario). Detalle de las decisiones de brecha de esquema, el parseo de `RecetaCristales` y los 2 bugs reales encontrados (Dapper + `SqlTransaction`, Dapper + `DateOnly`) en `.agents/progress.md`, entrada 2026-08-26, y en `.agents/context/migracion-datos-legacy.md`.
+
+   `Program.cs` migra por **grupos independientes** (Organización / Clínico) — si un grupo ya tiene datos en destino se omite automáticamente (reutilizando el Usuario bootstrap ya migrado, buscado por RUT) en vez de abortar toda la corrida; usar `--force` para forzar la re-inserción de un grupo ya migrado. Ejecutar con `dotnet run --project OPT.Migracion` (dry-run por defecto; agregar `-- --execute` para escribir).
+
+   **Comercial (sesión 2026-08-27) — migrado con SQL, NO con `OPT.Migracion`.** El usuario acotó la sesión a "solo base de datos", así que esta fase se resolvió con `src/basedatos/migracion/M004_datos_comercial.sql` (`INSERT ... SELECT` cross-database en una sola transacción, con guardas y `@Force`), previa aplicación de `004_comercial_pagos_cuotas.sql`. Migrados y verificados fila a fila contra `dbOPT_NET`: Producto (4.018 — **solo los referenciados por algún detalle de OT**, no los 4.677), OrdenDeTrabajo (12.578), DetalleOT (20.573), BitacoraOT (31.964), Abono (3.277), Pago (3.736), Cuota (34.110). `NumeroOT` preserva el `idOT` legacy; `EstadoOTId` se deriva de la última entrada de bitácora; `BitacoraOT.EstadoAnteriorId` con `LAG(...)`; `TotalAbonado`/`Saldo` se **recalculan** como `abonos + pagos` (el legacy no descontaba `OPT_Pago` y tenía 3.472 OT con el saldo inflado). ⚠ `OPT.Migracion` **no sabe** que este módulo ya está migrado — si se le agrega una fase Comercial, debe respetar el guard "si el destino ya tiene OT, omitir".
+
+   **Backfill de la sesión 2026-08-28** — `src/basedatos/migracion/M006_backfill_receta_ot_detalle_comentario.sql`, también en SQL: vincula 12.574 recetas a su OT (`OPT_RecetaCristales.OrdenDeTrabajoId`, desde el `idOT` legacy) y carga 11.168 comentarios de línea (`OPT_DetalleOT.Comentario`). Ambos 100% de lo esperado, verificados contra las capturas del legacy.
+
+   Pendiente: `ProductoSucursal` (13.776) y los 659 productos legacy que ningún detalle de OT referencia. Y crear las entidades `Pago`/`Cuota`/`EstadoCuota` en `OPT.Domain` + las 4 propiedades nuevas de `OrdenDeTrabajo`, para volver a alinear el modelo de EF Core con la base.
+5. ~~**Agregar `PublicId` a `OrdenDeTrabajo`**~~ — hecho en la sesión 2026-08-27 (script `005`, ADR `0007`). `Abono`/`Pago`/`Cuota`/`DetalleOT` quedaron deliberadamente **sin** `PublicId`: se exponen anidados bajo la OT. Pendiente relacionado: **autorización por sucursal** en los endpoints de OT (hoy `[Authorize]` genérico) — es la medida que el ADR `0004` señala para proteger la superficie de `NumeroOT`, que es visible por diseño. También queda pendiente poder **anular un abono o un pago** ya registrado (hoy solo se anulan cuotas y la OT completa).
+6. Resolver los puntos de cumplimiento de la Ley 21.719 que quedaron explícitamente pendientes en ADR `0004` (retención/purga real, consentimiento explícito para datos de salud, DPO, notificación de brechas, portabilidad) antes de producción (obligatorio desde 01-12-2026).
+
+**Documentos técnicos** (todos en `src/documentos/` — única carpeta de documentación del proyecto, no existe `docs/` en la raíz):
+- `Manual_Tecnico_Backend_OPT.docx` — manual de Base de Datos y Backend para desarrolladores/DBA (actualizado 2026-09-08 con el ADR `0010` en §12 y la nota de §4.3 sobre la relajación de las 6 observaciones de `RecetaCristales` a opcionales; actualizado 2026-08-27 con la API del módulo Comercial: §3.2.3 entidades y flujo de estados, §4.3 casos de uso de OT/abonos/pagos/cuotas, §6.2 controllers, §7.5 `PublicId` de la OT, §7.6 deudas resueltas y vigentes, §11 gotchas nuevos, §12 ADR `0007`; actualizado 2026-08-28 con el script `006` en §7.7, la forma nueva del DTO de la OT en §6.2, el gotcha de `RecetaPublicId` en §11 y el backfill `M006` en §13.3; sección 7.7 con las 23 tablas actuales, incluidas `OPT_EstadoCuota`/`OPT_Pago`/`OPT_Cuota`; secciones 7.6, 11, 12 y 13.3 actualizadas 2026-08-27 con la deuda de EF Core, los gotchas nuevos, el ADR `0006` y el estado real de la migración; sección 13.3 actualizada 2026-08-26 con el estado real de `OPT.Migracion` — Organización + Clínico migrados; sección 4.3 y 6.2 actualizadas el mismo día con los endpoints de Clientes/Anamnesis/RecetaCristales — Fase 1 de negocio).
+- `Diccionario_Datos_OPT.docx` — diccionario de datos dedicado y exhaustivo (todas las columnas, índices, FKs y valores de catálogo sembrados) de las 23 tablas actuales. Al día con el script `006`: incluye `OPT_RecetaCristales.OrdenDeTrabajoId` (con su FK e índice) y `OPT_DetalleOT.Comentario`, además de `OPT_EstadoCuota`/`OPT_Pago`/`OPT_Cuota`, las 4 columnas de `004`, el `PublicId` de la OT y el estado `ANULADO` (actualizado 2026-08-28).
+- `Manual_Tecnico_Frontend_OPT.docx` — manual técnico del frontend (arquitectura Angular, estructura de carpetas, módulos, seguridad, convenciones; sección 5 actualizada 2026-08-26 con Clientes/Anamnesis/RecetaCristales/Regiones/Comunas y el patrón "ficha ruteada"; **sección 6 reescrita 2026-08-28**: dejó de ser "módulos placeholder" y documenta el módulo Comercial completo — ficha "Ver Orden", listado diferido, alta/edición y piezas compartidas; **§6.4 reescrita en la 2ª sesión del 2026-08-28** con el asistente de alta por pasos, el ticket imprimible y el contrato de impresión; **§6.3/§6.4 actualizadas 2026-09-08 (ADR `0010`)** con el bloqueo de edición en la ficha, la cabecera completa en el paso Cliente, el combo de receta reciente y el rediseño del paso Pago con tres modalidades y previsualización de cuotas).
+- `Manual_Tecnico_UX_OPT.docx` — propuesta de branding e identidad visual (v1.0, no validada aún con stakeholders).
+- `OPT_Propuesta_Arquitectura.docx` — análisis del legacy, comparación Angular vs. Blazor, mejoras de BD, plan de migración por fases.
+
+---
+
+## Comandos de build / test / run
+
+### Backend
+
+```bash
+# Restaurar y compilar
+cd src/backend
+dotnet restore OPT.sln
+dotnet build OPT.sln
+
+# Ejecutar tests (cuando exista el proyecto de pruebas)
+dotnet test OPT.sln
+
+# Configurar secretos de desarrollo (NUNCA en appsettings.json versionado)
+cd OPT.API
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:Default" "Server=.;Database=dbOPT;Trusted_Connection=True;"
+dotnet user-secrets set "Jwt:Key" "<clave-aleatoria-minimo-32-chars>"
+
+# Aplicar el esquema a la base de datos local (en vez de `dotnet ef database update`)
+sqlcmd -S localhost -d dbOPT_NET -E -i ../basedatos/001_esquema_inicial.sql
+
+# Levantar la API
+cd OPT.API
+dotnet run
+# Swagger UI disponible en: https://localhost:{puerto}/swagger
+```
+
+### Frontend
+
+```bash
+cd src/frontend
+npm install
+npm start           # ng serve — http://localhost:4200 (requiere OPT.API corriendo, CORS ya habilitado)
+
+npm run build       # build de producción → dist/opt-frontend
+npm test            # unit tests (Vitest)
+npm run lint        # ESLint (angular-eslint)
+npm run format      # Prettier
+```
+
+Ajustar la URL del backend en `src/frontend/src/environments/environment.development.ts` si `OPT.API` corre en un puerto distinto al fijo de `launchSettings.json` (`https://localhost:63595`).
+
+### Base de datos
+
+**El esquema se versiona como script SQL en `src/basedatos/`, no como Migrations de EF Core.** El modelo de EF Core (entidades + `IEntityTypeConfiguration<T>`) sigue siendo la fuente de verdad del diseño, pero el artefacto que se aplica a las bases de datos (desarrollo, QA, producción) es siempre el `.sql` generado — nunca `dotnet ef database update`, y la carpeta `Migrations/` de EF Core **no se versiona en git**.
+
+Cuando el modelo cambia (nueva entidad, nueva propiedad, nuevo índice), regenerar el script siguiendo estos pasos:
+
+```bash
+cd src/backend
+
+# 1. Generar una migration temporal a partir del modelo actual
+dotnet ef migrations add CambioDescriptivo --project OPT.Infrastructure --startup-project OPT.API
+
+# 2. Exportar el script idempotente (solo aplica lo que falte, seguro de re-ejecutar)
+dotnet ef migrations script --project OPT.Infrastructure --startup-project OPT.API \
+    --idempotent --output ../basedatos/00N_descripcion.sql
+
+# 3. Eliminar la migration de EF Core — el .sql exportado es el único artefacto que se conserva
+dotnet ef migrations remove --project OPT.Infrastructure --startup-project OPT.API
+```
+
+Requiere la herramienta `dotnet-ef` instalada (`dotnet tool install --global dotnet-ef`) y el paquete `Microsoft.EntityFrameworkCore.Design` en `OPT.API` (ya incluido en el `.csproj`).
+
+Los scripts van numerados secuencialmente (`001_`, `002_`, ...) y deben ser idempotentes — tanto el esquema (`001_esquema_inicial.sql`, generado así) como los datos iniciales (catálogos, seeds) que no vengan ya sembrados vía `HasData()` en las configuraciones de EF Core.
+
+### Migración de datos legacy (`OPT.Migracion`)
+
+Herramienta de consola standalone — **no** es parte del sistema en producción, ver ADR `0005` y `.agents/context/migracion-datos-legacy.md` (leer antes de escribir un migrador nuevo: ahí está la lista de gotchas de datos ya encontrados).
+
+```bash
+cd src/backend
+
+# Dry-run (por defecto) — reporta el plan, no escribe nada
+dotnet run --project OPT.Migracion
+
+# Ejecución real — todo dentro de una transacción, rollback automático ante error
+dotnet run --project OPT.Migracion -- --execute
+
+# Re-ejecutar sobre tablas de destino que ya tengan filas (solo si es intencional)
+dotnet run --project OPT.Migracion -- --execute --force
+
+# Sobrescribir las cadenas de conexión por defecto (localhost / Windows Auth)
+dotnet run --project OPT.Migracion -- --legacy="Server=...;Database=db_a25cfd_opt2;..." --destino="Server=...;Database=dbOPT_NET;..."
+```
+
+---
+
+## Arquitectura del backend (src/backend/)
+
+### Dirección de dependencia — nunca invertir
+
+```
+OPT.API → OPT.Infrastructure → OPT.Application → OPT.Domain
+```
+
+### Estructura de proyectos
+
+```
+src/backend/
+├── OPT.sln
+├── OPT.Domain/                        # Sin dependencias externas
+│   ├── Common/
+│   │   ├── AuditableEntity.cs         # Base de toda entidad transaccional: Id + auditoría + borrado lógico
+│   │   ├── CatalogEntity.cs           # Base de catálogos estáticos (Id + Nombre, sin auditoría): Region, Comuna, Rol
+│   │   ├── ParametrosPaginacion.cs    # Record base de toda query de listado paginada (pagina/tamanioPagina/busqueda/ordenarPor)
+│   │   ├── PagedResult.cs             # PagedResult<T> + PagedResultFactory — respuesta de todo endpoint paginado
+│   │   └── DomainException.cs         # Excepción semántica → HTTP 422
+│   ├── Entities/
+│   │   ├── Organizacion/              # Region, Comuna, Empresa, EmpresaSucursal, Sucursal, Rol, Usuario, UsuarioSucursal
+│   │   ├── Clinico/                   # Cliente, Anamnesis, RecetaCristales — datos sensibles (ADR 0004)
+│   │   │                              #   RecetaCristales.OrdenDeTrabajoId (nullable) la vincula a una OT
+│   │   ├── Comercial/                 # OrdenDeTrabajo (raíz del agregado), DetalleOT, Abono, Pago,
+│   │   │                              #   Cuota, BitacoraOT + catálogos EstadoOT/FormaPago/EstadoCuota
+│   │   │                              #   y las constantes EstadosOT/EstadosCuota (reglas de transición)
+│   │   └── Inventario/                # Producto, ProductoSucursal
+│   └── Interfaces/Repositories/       # IRepositorioBase<T> + interfaces específicas
+│
+│   # Cliente, Empresa, Usuario, Anamnesis, RecetaCristales tienen además `PublicId` (Guid) —
+│   # identificador no enumerable para exponer en API/URLs, nunca el Id interno (ADR 0004).
+│
+├── OPT.Application/                   # Solo ve interfaces — nunca DbContext
+│   ├── Common/
+│   │   ├── Interfaces/                # IUnitOfWork, ICurrentUserService, IPasswordService, ITokenService
+│   │   ├── Exceptions/                # NotFoundException (404), ValidationException (400)
+│   │   └── Behaviours/                # ValidationBehaviour (pipeline MediatR + FluentValidation)
+│   └── Features/
+│       ├── Auth/Commands/Login/       # LoginCommand + Handler + Validator  ← IMPLEMENTADO
+│       ├── Sucursales/                # CRUD completo, ObtenerTodos paginado (Id interno en rutas)  ← IMPLEMENTADO
+│       ├── Empresas/                  # CRUD completo, ObtenerTodos paginado (PublicId en rutas)   ← IMPLEMENTADO
+│       ├── Usuarios/                  # CRUD + CambiarClave/Activar/Desactivar/Asignar|QuitarSucursal, ObtenerTodos paginado ← IMPLEMENTADO
+│       ├── Roles/                     # Solo lectura (catálogo sembrado, lista completa)    ← IMPLEMENTADO
+│       ├── Regiones/                  # Solo lectura (catálogo sembrado, lista completa)    ← IMPLEMENTADO
+│       ├── Comunas/                   # Solo lectura, filtrado por RegionId (lista completa) ← IMPLEMENTADO
+│       ├── Clientes/                  # CRUD, ObtenerTodos paginado (PublicId)  ← IMPLEMENTADO
+│       ├── Anamnesis/                 # CRUD + ObtenerPorCliente (PublicId)     ← IMPLEMENTADO
+│       ├── RecetaCristales/           # CRUD + ObtenerPorCliente (PublicId)     ← IMPLEMENTADO
+│       ├── OrdenesDeTrabajo/          # Agregado completo: Crear/Actualizar/CambiarEstado/Anular/
+│       │                              #   RegistrarAbono/RegistrarPago/GenerarPlanCuotas/PagarCuota/
+│       │                              #   AnularCuota + ObtenerPorId y ObtenerTodos paginado (PublicId)
+│       │                              #   + OrdenDeTrabajoDtoFactory (ensambla la vista completa)  ← IMPLEMENTADO
+│       ├── EstadosOT/, FormasPago/, EstadosCuota/   # Solo lectura (catálogos)   ← IMPLEMENTADO
+│       └── Inventario/                # Stubs
+│
+├── OPT.Infrastructure/                # Implementaciones concretas
+│   ├── Persistence/
+│   │   ├── AppDbContext.cs
+│   │   ├── UnitOfWork.cs
+│   │   ├── Interceptors/AuditInterceptor.cs   # Rellena auditoría automáticamente en SaveChanges
+│   │   ├── Extensions/QueryablePaginacionExtensions.cs  # AplicarOrden (whitelist) + PaginarAsync — reutilizado por todo repo con listado
+│   │   ├── Repositories/                       # RepositorioBase<T> + implementaciones concretas
+│   │   └── Configurations/                     # IEntityTypeConfiguration<T> — completo (4 módulos)
+│   ├── Identity/
+│   │   ├── PasswordService.cs         # BCrypt work factor 12
+│   │   └── TokenService.cs            # JWT — clave desde IConfiguration (nunca hardcodeada)
+│   └── Services/CurrentUserService.cs # Lee claims del JWT en HttpContext
+│
+├── OPT.API/                           # Controllers delgados, sin try/catch, sin lógica
+│   ├── Program.cs
+│   ├── appsettings.json               # Sin credenciales reales — usar user-secrets o env vars
+│   ├── Middleware/ExceptionHandlingMiddleware.cs  # Único punto de manejo de excepciones
+│   └── Controllers/
+│       ├── AuthController.cs          # POST /api/auth/login  ← IMPLEMENTADO
+│       ├── SucursalesController.cs    # CRUD, ObtenerTodos paginado, [Authorize]      ← IMPLEMENTADO
+│       ├── EmpresasController.cs      # CRUD, ObtenerTodos paginado, [Authorize]      ← IMPLEMENTADO
+│       ├── UsuariosController.cs      # CRUD + acciones, ObtenerTodos paginado, [Authorize] ← IMPLEMENTADO
+│       ├── RolesController.cs         # Solo lectura, [Authorize]   ← IMPLEMENTADO
+│       ├── RegionesController.cs      # Solo lectura, [Authorize]   ← IMPLEMENTADO
+│       ├── ComunasController.cs       # Solo lectura, [Authorize]   ← IMPLEMENTADO
+│       ├── ClientesController.cs      # CRUD, ObtenerTodos paginado, [Authorize]  ← IMPLEMENTADO
+│       ├── AnamnesisController.cs     # CRUD + ObtenerPorCliente, [Authorize]     ← IMPLEMENTADO
+│       ├── RecetaCristalesController.cs  # CRUD + ObtenerPorCliente, [Authorize]  ← IMPLEMENTADO
+│       ├── OrdenesDeTrabajoController.cs  # CRUD + estado/anular/abonos/pagos/cuotas, [Authorize] ← IMPLEMENTADO
+│       ├── CatalogosComercialControllers.cs  # EstadosOT / FormasPago / EstadosCuota (solo lectura) ← IMPLEMENTADO
+│       └── InventarioController.cs    # Stub
+│
+└── OPT.Migracion/                     # ⚠ FUERA de la cadena de dependencia de arriba — ver ADR 0005
+    ├── ConexionOptions.cs             # Cadenas legacy/destino, sobrescribibles por --legacy=/--destino=
+    ├── Normalizacion.cs               # RUT/email/nombre — duplica a propósito lo que hace Usuario.Crear()
+    ├── CatalogoVerificador.cs         # Región/Comuna: solo confirma cobertura por nombre, nunca escribe
+    ├── RolMapper.cs                   # Mapeo legacy idRol -> nuevo RolId por NOMBRE (los ids no coinciden)
+    ├── Legacy/                        # Modelos + repositorio de SOLO LECTURA contra db_a25cfd_opt2
+    ├── Destino/                       # Modelos + repositorio de lectura/escritura contra dbOPT_NET
+    └── Program.cs                     # Orquestación: dry-run por defecto, --execute para escribir, --force para re-ejecutar
+```
+
+### Convención para agregar un nuevo caso de uso (feature)
+
+Cada nuevo caso de uso sigue siempre este patrón (ver `Auth/Commands/Login/` como ejemplo):
+
+```
+OPT.Application/Features/<Modulo>/<Commands|Queries>/<NombreAccion>/
+    <NombreAccion>Command.cs        # record : IRequest<TResult>
+    <NombreAccion>CommandHandler.cs # : IRequestHandler<TCommand, TResult>
+    <NombreAccion>CommandValidator.cs  # : AbstractValidator<TCommand>
+```
+
+El controller solo llama `await mediator.Send(command, ct)` y retorna el resultado — sin try/catch.
+
+---
+
+## Arquitectura objetivo
+
+### Capas del backend (dirección de dependencia, nunca invertir)
+
+```
+API → Infrastructure → Application → Domain
+```
+
+- **Domain** — entidades de negocio y reglas invariantes, sin dependencias externas.
+- **Application** — casos de uso (comandos/consultas), validación de entrada, *interfaces* de repositorio — nunca implementaciones concretas de acceso a datos.
+- **Infrastructure** — Entity Framework Core (DbContext, configuraciones de entidad), implementaciones de repositorio, autenticación (JWT), integraciones externas (Defontana, correo). El esquema resultante se versiona como script SQL en `src/basedatos/` (ver sección "Base de datos" en Comandos), no como Migrations de EF Core.
+- **API** — controllers delgados, sin lógica de negocio, sin try/catch (el manejo de excepciones es responsabilidad de `ExceptionHandlingMiddleware`).
+
+### Frontend (Angular)
+
+Organización por features (`src/frontend/src/app/features/`), con lazy loading (`loadComponent` / `loadChildren`). Los servicios encapsulan toda llamada HTTP — los componentes nunca llaman a la API directamente. Standalone components, zoneless (signals como mecanismo de detección de cambios), sin NgRx. Detalle completo de estructura y convenciones en `src/frontend/README.md`; usar la skill `angular-developer` del asistente al generar código nuevo.
+
+---
+
+## Reglas de generación de código
+
+Estas reglas existen porque el legacy las violaba de forma sistemática (ver `.agents/context/reglas-negocio-legado.md` y los hallazgos de seguridad de la propuesta de arquitectura). No son preferencias de estilo — son correcciones directas a problemas ya identificados.
+
+### Seguridad
+- Contraseñas: **siempre** hasheadas con `IPasswordService` (BCrypt) antes de persistir. Nunca comparar en texto plano, nunca reenviar la contraseña original por correo (el legacy lo hacía — es la causa raíz que confirma que nunca estuvo cifrada).
+- Credenciales de servicios externos (SMTP, integraciones como Defontana): nunca en la base de datos ni en archivos de configuración versionados — usar `dotnet user-secrets` en desarrollo y variables de entorno / gestor de secretos en producción.
+- Cadenas de conexión: nunca con credenciales reales en archivos versionados, ni siquiera comentadas. `appsettings.json` y `appsettings.Development.json` **siempre tienen los campos vacíos**.
+
+### Base de datos
+- Ninguna tabla de negocio usa un dato de identificación externo (RUT, número de documento) como clave primaria — usar un identificador sintético (`int IDENTITY`) y mantener el dato externo como atributo con restricción de unicidad.
+- Todo ID que deba ser único y secuencial se genera en la base de datos (identidad/secuencia), nunca calculado en la capa de aplicación.
+- Todo campo de tipo estado/categoría se modela como referencia a un catálogo, nunca como texto libre.
+- Todo campo calculado que se persiste (p. ej. un saldo) se recalcula dentro de la misma transacción que el movimiento que lo origina — nunca se actualiza de forma independiente.
+- Toda tabla transaccional hereda de `AuditableEntity` — los campos de auditoría los rellena `AuditInterceptor` automáticamente. Los catálogos estáticos (sin auditoría ni borrado lógico) heredan de `CatalogEntity` en su lugar (`Region`, `Comuna`, `Rol`).
+- El esquema y los datos iniciales se versionan como scripts SQL en `src/basedatos/`, numerados secuencialmente y son idempotentes — no se usa `dotnet ef database update` contra ningún ambiente. Ver procedimiento de regeneración del script en la sección "Base de datos" de Comandos.
+- **Dos grupos de scripts, que no se mezclan**: `src/basedatos/00N_*.sql` es **esquema** (se aplica en todos los ambientes, siempre idempotente) y `src/basedatos/migracion/M00N_*.sql` es **carga de datos desde el legacy** (no idempotente: aborta si el destino ya tiene filas, y con `@Force = 1` duplica en vez de reemplazar — nunca re-ejecutar "para probar"). Detalle y checklist en `src/basedatos/README.md`.
+- **Nombres de tabla**: prefijo `OPT_` + nombre de entidad en singular (`OPT_Cliente`, `OPT_OrdenDeTrabajo`, `OPT_Region`) — aplica a las 23 tablas actuales, incluidos los catálogos (ADR `0004`). Los nombres de índices/constraints heredados de antes de esa decisión (`UQ_Clientes_Rut`, `FK_Usuarios_Roles`) siguen en plural por convención previa — no romper esa consistencia interna al agregar índices nuevos a una tabla existente (seguir el estilo ya usado en esa `IEntityTypeConfiguration<T>`).
+- **Identificador público no enumerable**: `Cliente`, `Empresa`, `Usuario`, `Anamnesis`, `RecetaCristales` y `OrdenDeTrabajo` tienen una columna `PublicId` (`Guid`, `DEFAULT NEWID()`, único) además del `Id` interno (`int IDENTITY`). Toda ruta de API, DTO o token de recurso sobre estas 5 entidades **debe usar `PublicId`**, nunca `Id` — es una medida de seguridad contra enumeración de datos personales/sensibles bajo Ley 21.719 (ADR `0004`). El `Id` interno sigue siendo la PK y la FK en todas las relaciones — este patrón no cambia el tipo de ninguna columna existente, solo agrega una columna nueva.
+- **Cobertura de `PublicId` (cerrada 2026-08-27)**: `OrdenDeTrabajo` ya lo tiene (script `005`); `Abono`, `Pago`, `Cuota`, `DetalleOT` y `BitacoraOT` **no lo llevan por decisión** — se exponen anidados bajo `/api/ordenes-de-trabajo/{publicId}/...`, un padre ya protegido (ADR `0007`). El texto que sigue es el análisis original que llevó a esa decisión: **`OrdenDeTrabajo` era el hueco prioritario** — es recurso de primer nivel y vincula cliente↔atención clínica; agregarle `PublicId` **antes** de publicar su primer endpoint, no después (cambiarlo luego rompe URLs ya emitidas). Le siguen `Abono`, `Pago` y `Cuota` (historial financiero de una persona). `DetalleOT` se evalúa al diseñar la API. **No corresponde** en `BitacoraOT`/`ProductoSucursal` (solo se acceden anidadas bajo un padre ya protegido), `Producto`/`Sucursal` (no son datos personales) ni en catálogos y tablas de relación. Criterio y costos en ADR `0004`, sección "Revisión de cobertura de `PublicId`". Ojo: `NumeroOT` es visible por diseño (va en el ticket del cliente) — esa superficie se protege con autorización por sucursal en el endpoint, no con un identificador opaco.
+
+### Backend
+- Los controllers **no tienen try/catch** — las excepciones las traduce `ExceptionHandlingMiddleware` a `ProblemDetails` (HTTP 400/404/422/500).
+- La capa de Aplicación nunca accede al `DbContext` directamente — siempre a través de `IRepositorioBase<T>` o interfaces específicas de repositorio.
+- Nunca relanzar excepciones con `throw ex` (destruye el stack trace) — usar `throw;` o lanzar `DomainException` / `NotFoundException` / `ValidationException`.
+- Todo nuevo repositorio se registra en `OPT.Infrastructure/DependencyInjection.cs`.
+
+### Frontend
+- Los componentes nunca llaman a la API directamente — siempre a través de servicios.
+- No guardar información sensible más allá del token de sesión en almacenamiento del navegador.
+
+---
+
+## Convenciones de commits y control de versiones
+
+Rama principal siempre desplegable; ramas de feature de corta duración; validación automática (build + pruebas) antes de integrar. El detalle completo del flujo de trabajo está en `AGENTS.md`.
+
+---
+
+## Gotchas conocidos
+
+| Síntoma | Causa | Solución |
+|---------|-------|----------|
+| `dotnet ef` no encuentra el proyecto de startup | EF Tools necesita `--startup-project` | Siempre usar `--project OPT.Infrastructure --startup-project OPT.API` |
+| `JWT:Key no está configurada` al arrancar | El campo está vacío en `appsettings.json` (por diseño) | Configurar via `dotnet user-secrets set "Jwt:Key" "..."` |
+| `dotnet ef` falla con "no reconoce el comando" | Herramienta `dotnet-ef` no instalada | `dotnet tool install --global dotnet-ef` |
+| `dotnet ef migrations add` falla con "no referencia Microsoft.EntityFrameworkCore.Design" | Falta el paquete en el proyecto de startup | Ya está agregado a `OPT.API.csproj` (`PrivateAssets="all"`) — si desaparece, reinstalarlo ahí |
+| Después de generar el script SQL queda una migration en `OPT.Infrastructure/Persistence/Migrations/` | Paso 3 del procedimiento de regeneración no se ejecutó | Correr `dotnet ef migrations remove` — solo el `.sql` en `src/basedatos/` se conserva, la carpeta `Migrations/` no se versiona |
+| Al generar un `00N_*.sql` incremental, `dotnet ef migrations script --idempotent` genera un script que recrea **todas** las tablas desde cero (no solo el diff) — aplicarlo contra una BD que ya tiene el esquema previo falla con "already an object named..." | Como la carpeta `Migrations/` no se versiona entre sesiones (regla crítica 8 de `AGENTS.md`), `dotnet ef migrations add` no tiene ninguna migration previa contra la cual diffear — el `add` local captura el modelo completo como si fuera la primera migration | Antes de generar el script: (1) apartar temporalmente (`mv`/renombrar) los archivos y ediciones nuevas del modelo; (2) `dotnet ef migrations add Initial` para fijar una migration base que refleje el esquema **ya aplicado** en la BD destino; (3) restaurar los archivos/ediciones nuevas; (4) `dotnet ef migrations add <NombreReal>`; (5) `dotnet ef migrations script Initial --idempotent --output ../basedatos/00N_descripcion.sql` (pasando `Initial` como punto de partida explícito — sin este argumento vuelve a generar todo desde cero); (6) `dotnet ef migrations remove` dos veces (real y luego `Initial`) para no dejar nada versionado en `Migrations/`. Revisar siempre el script generado antes de aplicarlo. |
+| ~~`dotnet ef migrations add` genera un script que recrea `OPT_Pago`/`OPT_Cuota`/`OPT_EstadoCuota`~~ | Resuelto el 2026-08-27: las 3 entidades, sus `IEntityTypeConfiguration<T>` y las 4 propiedades de `OrdenDeTrabajo` ya están en `OPT.Domain` (ADR `0007`) | La regla general sigue vigente: **todo script de esquema escrito a mano vuelve a desalinear el modelo**. Si se escribe uno, crear la entidad y su configuración en la misma sesión |
+| `dotnet build OPT.sln` falla con `MSB3027`/`MSB3021` ("el archivo se ha bloqueado por: OPT.API") aunque el código esté correcto | Hay una instancia de `OPT.API` corriendo (VS o `dotnet run`) que tiene tomados los `.dll` de `bin/` | Detener la API, o compilar a un directorio aparte: `dotnet build OPT.sln --artifacts-path <ruta-temporal>` |
+| Editar una OT le borra la receta vinculada | `ActualizarOrdenDeTrabajoCommand.RecetaPublicId` es **estado final**, igual que `EmpresaPublicId`: si el cliente de la API no lo envía, la orden queda sin receta | Reenviar siempre la receta actual al editar (el formulario del frontend ya la preselecciona desde `orden.recetas[0]`) |
+| Un endpoint de OT devuelve 422 con "No se pueden saltar etapas" o "exige una observación" | Son las reglas de transición del dominio (`OrdenDeTrabajo.CambiarEstado`), no un error | Avanzar/retroceder de a un estado; al retroceder, enviar `observacion`. Para anular use `POST /api/ordenes-de-trabajo/{publicId}/anular`, no un cambio de estado a ANULADO |
+| Un `JOIN` o comparación de texto entre `db_a25cfd_opt2` y `dbOPT_NET` falla con `Cannot resolve the collation conflict between "SQL_Latin1_General_CP1_CI_AS" and "Modern_Spanish_CI_AS"` | Las dos bases tienen collation distinta | Agregar `COLLATE DATABASE_DEFAULT` a **todo** `=`/`<>` entre columnas de texto de ambas bases (no afecta a `OPT.Migracion`, que lee en C# con conexiones separadas) |
+| `RAISERROR('... %s', 16, 1, DB_NAME())` da `Incorrect syntax near 'DB_NAME'` | `RAISERROR` solo acepta variables o literales como argumentos de formato, no llamadas a función | Asignar a una variable primero (`DECLARE @b sysname = DB_NAME();`) y pasarla |
+| `dotnet run` en `OPT.API` arranca sin error pero **cualquier** request devuelve 500 con `IDX10703: ... key length is zero` | El host corre en `Production` por defecto cuando no se fija `ASPNETCORE_ENVIRONMENT` — en `Production` no se cargan los `user-secrets`, así que `Jwt:Key` llega vacío desde `appsettings.json` | Exportar `ASPNETCORE_ENVIRONMENT=Development` antes de `dotnet run` en desarrollo local (o usar el perfil de `launchSettings.json` en vez de `--no-launch-profile`) |
+
+---
+
+## Documentación de referencia
+
+| Documento | Contenido |
+|-----------|-----------|
+| `src/documentos/OPT_Propuesta_Arquitectura.docx` | Análisis completo del legacy, comparación Angular vs. Blazor, mejoras de BD, plan de migración. |
+| `src/documentos/Manual_Tecnico_Backend_OPT.docx` | Manual técnico de Base de Datos y Backend — esquema, arquitectura de capas, patrones de código, convenciones (sección 7.7 con las 23 tablas actuales; 7.6 con la deuda de EF Core; 13.3 con el estado real de la migración, incluido el módulo Comercial; sección 13 con el estado real de `OPT.Migracion`; sección 4.3/6.2 con los endpoints implementados, incluidos Clientes/Anamnesis/RecetaCristales). |
+| `src/documentos/Manual_Tecnico_UX_OPT.docx` | Propuesta de branding e identidad visual (v1.0, no validada aún con stakeholders): logotipo, paleta, tipografía, mockups de pantalla, accesibilidad WCAG, hoja de ruta de implementación. |
+| `src/documentos/Diccionario_Datos_OPT.docx` | Diccionario de datos dedicado — las 23 tablas actuales de `dbOPT_NET`, columna por columna, con índices, FKs y valores de catálogo sembrados. Fuente de verdad para el esquema aplicado. |
+| `src/documentos/Manual_Tecnico_Frontend_OPT.docx` | Manual técnico del Frontend — arquitectura Angular, estructura de carpetas, módulos, seguridad, convenciones (sección 5 actualizada 2026-08-26: Clientes/Anamnesis/RecetaCristales/Regiones/Comunas, Ficha del cliente). |
+| `src/documentos/README.md` | Índice de los 5 documentos de la carpeta y su relación con los ADRs de `.agents/decisions/`. |
+| `src/basedatos/README.md` | Estructura de `src/basedatos/` (esquema vs. `migracion/`), estado de los 5 scripts aplicados y la lista de **qué NO hacer** al tocar la base o escribir un migrador. |
+| `src/frontend/CLAUDE.md` | Guía prescriptiva para generar código Angular con IA — convenciones, patrones, checklist antes de un feature nuevo. |
+| `.agents/decisions/` | ADRs — el porqué de cada decisión de arquitectura (`0001`-`0010`). |
+| `.agents/context/glosario-dominio.md` | Términos de negocio del sistema OPT. |
+| `.agents/context/reglas-negocio-legado.md` | Comportamiento del legacy: qué preservar, qué mejorar, qué reconsiderar. |
+| `.agents/context/branding-ux-ui.md` | Contexto accionable de marca/UX-UI para IA — paleta, tipografía, mapeo de color a `OPT_EstadoOT`/`OPT_FormaPago`, reglas de accesibilidad, voz y tono. Resumen en texto de `Manual_Tecnico_UX_OPT.docx`. |
+| `.agents/context/migracion-datos-legacy.md` | Estado fase por fase de `OPT.Migracion`, gotchas de datos reales ya encontrados y el patrón "usuario bootstrap" para auditoría — leer antes de escribir un migrador nuevo. |
+| `.agents/progress.md` | Historial de sesiones y próximos pasos. |

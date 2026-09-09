@@ -1,0 +1,155 @@
+﻿@model OPT.Entidad.OPT_RecetaCristales
+@{
+    Layout = null;
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formFichaMedicaReceta" action="@Url.Action("Receta","Ingreso",new {area="OrdenTrabajo" })">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="CheckCristalesLaboratorio" name="CheckCristalesLaboratorio" value="0" />
+                <input type="hidden" id="CheckUrgente" name="CheckUrgente" value="0" />
+                <input type="hidden" id="CheckLejos" name="CheckLejos" value="0" />
+                <input type="hidden" id="CheckCerca" name="CheckCerca" value="0" />
+                <input type="hidden" id="RutCliente" name="RutCliente" value="@Model.RutCliente" />
+                <input type="hidden" name="FechaIngreso" value="@DateTime.Now.ToShortDateString()" />
+                <div class="modal-header alert-info">
+                    <h5 class="modal-title"><i class="fa fa-eye"></i> NUEVA RECETA LENTES CLIENTE RUT: @Model.RutCliente</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="form-group row">
+                        <div class="col-sm-4">
+                            <label>Fecha</label>
+                            <input type="text" class="form-control" value="@DateTime.Now.ToShortDateString()" readonly />
+                        </div>
+                        <div class="col-sm-4">
+                            <label> Cristales de Laboratorios</label>
+                            <input type="checkbox" id="checkCristalesLaboratorio" class="custom-checkbox" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label> Urgente</label>
+                            <input type="checkbox" id="checkUrgente" class="custom-checkbox" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label>Incluir Cristales Lejos</label>
+                            <input type="checkbox" id="checkLejos" class="custom-checkbox" />
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Incluir Cristales Cerca</label>
+                            <input type="checkbox" id="checkCerca" class="custom-checkbox" />
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr class="text-center">
+                                                <th>Lejos</th>
+                                                <th>Esferico</th>
+                                                <th>Cilindrico</th>
+                                                <th>Eje</th>
+                                                <th>Observacion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>OD</td>
+                                                <td><input type="text" id="LejosODEsferico" name="LejosODEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="LejosODCilindro" name="LejosODCilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="LejosODEje" name="LejosODEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="LejosODObservacion" name="LejosODObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>OI</td>
+                                                <td><input type="text" id="LejosOIEsferico" name="LejosOIEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="LejosOICilindro" name="LejosOICilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="LejosOIEje" name="LejosOIEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="LejosOIObservacion" name="LejosOIObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>DP</td>
+                                                <td><input type="text" id="LejosDPEsferico" name="LejosDPEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td colspan="3"><input type="text" id="LejosDPObservacion" name="LejosDPObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>ADD</td>
+                                                <td><input type="text" id="LejosADDEsfera" name="LejosADDEsfera" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="table-responsive">
+                               
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr class="text-center">
+                                                <th>Cerca</th>
+                                                <th>Esferico</th>
+                                                <th>Cilindrico</th>
+                                                <th>Eje</th>
+                                                <th>Observacion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>OD</td>
+                                                <td><input type="text" id="CercaODEsferico" name="CercaODEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="CercaODCilindro" name="CercaODCilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="CercaODEje" name="CercaODEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="CercaODObservacion" name="CercaODObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>OI</td>
+                                                <td><input type="text" id="CercaOIEsferico" name="CercaOIEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="CercaOICilindro" name="CercaOICilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="CercaOIEje" name="CercaOIEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td><input type="text" id="CercaOIObservacion" name="CercaOIObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>DP</td>
+                                                <td><input type="text" id="CercaDPEsferico" name="CercaDPEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                                <td colspan="3"><input type="text" id="CercaDPObservacion" name="CercaDPObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                               
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+

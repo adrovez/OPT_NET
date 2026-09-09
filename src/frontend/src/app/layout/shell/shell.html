@@ -1,0 +1,113 @@
+<mat-toolbar color="primary" class="barra">
+  @if (esMovil()) {
+    <button mat-icon-button [matMenuTriggerFor]="menuMovil" aria-label="Abrir menú de navegación">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menuMovil="matMenu">
+      @for (grupo of gruposNav; track grupo.etiqueta) {
+        @if (grupo.items.length === 1) {
+          <a mat-menu-item [routerLink]="grupo.items[0].ruta" routerLinkActive="activo">
+            <mat-icon>{{ grupo.items[0].icono }}</mat-icon>
+            <span>{{ grupo.items[0].etiqueta }}</span>
+          </a>
+        } @else {
+          <button mat-menu-item [matMenuTriggerFor]="subMenu">
+            <mat-icon>{{ grupo.icono }}</mat-icon>
+            <span>{{ grupo.etiqueta }}</span>
+          </button>
+          <mat-menu #subMenu="matMenu">
+            @for (item of grupo.items; track item.ruta) {
+              <a mat-menu-item [routerLink]="item.ruta" routerLinkActive="activo">
+                <mat-icon>{{ item.icono }}</mat-icon>
+                <span>{{ item.etiqueta }}</span>
+              </a>
+            }
+          </mat-menu>
+        }
+      }
+    </mat-menu>
+  }
+
+  <span class="marca">OPT</span>
+
+  @if (!esMovil()) {
+    <nav class="nav-horizontal">
+      @for (grupo of gruposNav; track grupo.etiqueta) {
+        @if (grupo.items.length === 1) {
+          <a mat-button [routerLink]="grupo.items[0].ruta" routerLinkActive="activo">
+            <mat-icon>{{ grupo.items[0].icono }}</mat-icon>
+            {{ grupo.items[0].etiqueta }}
+          </a>
+        } @else {
+          <button mat-button [matMenuTriggerFor]="menu">
+            <mat-icon>{{ grupo.icono }}</mat-icon>
+            {{ grupo.etiqueta }}
+            <mat-icon>arrow_drop_down</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            @for (item of grupo.items; track item.ruta) {
+              <a mat-menu-item [routerLink]="item.ruta" routerLinkActive="activo">
+                <mat-icon>{{ item.icono }}</mat-icon>
+                <span>{{ item.etiqueta }}</span>
+              </a>
+            }
+          </mat-menu>
+        }
+      }
+    </nav>
+  }
+
+  <span class="separador"></span>
+
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="menuTema"
+    aria-label="Cambiar tema de la interfaz"
+    matTooltip="Tema"
+  >
+    <mat-icon>{{ tema.oscuro() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+  </button>
+  <mat-menu #menuTema="matMenu">
+    <button
+      mat-menu-item
+      [class.activo]="tema.preferencia() === 'light'"
+      (click)="tema.fijar('light')"
+    >
+      <mat-icon>light_mode</mat-icon>
+      <span>Claro</span>
+    </button>
+    <button
+      mat-menu-item
+      [class.activo]="tema.preferencia() === 'dark'"
+      (click)="tema.fijar('dark')"
+    >
+      <mat-icon>dark_mode</mat-icon>
+      <span>Oscuro</span>
+    </button>
+    <button
+      mat-menu-item
+      [class.activo]="tema.preferencia() === 'system'"
+      (click)="tema.fijar('system')"
+    >
+      <mat-icon>brightness_auto</mat-icon>
+      <span>Según el sistema</span>
+    </button>
+  </mat-menu>
+
+  @if (auth.usuarioActual(); as usuario) {
+    <button mat-button [matMenuTriggerFor]="menuUsuario">
+      {{ usuario.nombreCompleto }}
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #menuUsuario="matMenu">
+      <button mat-menu-item (click)="cerrarSesion()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
+  }
+</mat-toolbar>
+
+<main class="contenido">
+  <router-outlet />
+</main>

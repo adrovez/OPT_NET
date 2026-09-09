@@ -1,0 +1,179 @@
+<app-page-header
+  title="Cuotas"
+  subtitle="Genera y administra el plan de pago de una orden de trabajo."
+/>
+
+@if (cargando()) {
+  <app-list-skeleton [rows]="5" [header]="false" />
+} @else if (orden(); as ot) {
+  <div class="cabecera">
+    <div class="cabecera__identidad">
+      <h2 class="opt-mono">OT N° {{ ot.numeroOT }}</h2>
+      <app-estado-ot-chip [estadoId]="ot.estadoOTId" [nombre]="ot.estadoOT" />
+      <span class="cabecera__cliente">
+        <span class="opt-mono">{{ ot.clienteRut }}</span> · {{ ot.clienteNombre }}
+      </span>
+    </div>
+
+    <div class="cabecera__acciones">
+      <button mat-stroked-button (click)="verOrden()">
+        <mat-icon>folder_open</mat-icon>
+        Ver orden
+      </button>
+      <button mat-button (click)="cambiarOrden()">
+        <mat-icon>swap_horiz</mat-icon>
+        Cambiar de OT
+      </button>
+    </div>
+  </div>
+
+  <app-resumen-financiero
+    [precio]="ot.precio"
+    [totalAbonado]="ot.totalAbonado"
+    [saldo]="ot.saldo"
+  />
+
+  <div class="columnas">
+    <section class="formulario">
+      <h3>Generar plan</h3>
+
+      @if (estaAnulada()) {
+        <app-empty-state
+          icon="block"
+          title="Orden anulada"
+          message="Una orden anulada no admite un plan de cuotas."
+        />
+      } @else if (hayPlanVigente()) {
+        <p class="aviso">
+          Esta orden ya tiene un plan vigente. Para rehacerlo, anula primero las cuotas pendientes
+          desde la tabla.
+        </p>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="generarPlan()">
+          <mat-form-field appearance="outline">
+            <mat-label>N° de cuotas</mat-label>
+            <input matInput type="number" min="1" max="60" formControlName="numeroCuotas" />
+            @if (form.controls.numeroCuotas.hasError('required')) {
+              <mat-error>Indica cuántas cuotas tendrá el plan.</mat-error>
+            }
+            @if (
+              form.controls.numeroCuotas.hasError('min') ||
+              form.controls.numeroCuotas.hasError('max')
+            ) {
+              <mat-error>El número de cuotas debe estar entre 1 y 60.</mat-error>
+            }
+            <mat-hint>Saldo a financiar: {{ ot.saldo | pesos }}</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Primer vencimiento</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="primerVencimiento" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker" />
+            <mat-datepicker #picker />
+            <mat-hint>Las siguientes vencen mes a mes.</mat-hint>
+            @if (form.controls.primerVencimiento.hasError('required')) {
+              <mat-error>Indica la fecha del primer vencimiento.</mat-error>
+            }
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" type="submit" [disabled]="procesando()">
+            <mat-icon>calendar_month</mat-icon>
+            Generar plan
+          </button>
+        </form>
+      }
+    </section>
+
+    <section class="historial">
+      <div class="panel__barra">
+        <h3>Plan de cuotas</h3>
+        @if (cuotas().length > 0) {
+          <span class="panel__conteo">
+            Pendiente por cobrar: <strong class="opt-mono">{{ totalPendiente() | pesos }}</strong>
+          </span>
+        }
+      </div>
+
+      @if (cuotas().length === 0) {
+        <app-empty-state
+          icon="calendar_month"
+          title="Sin plan de cuotas"
+          message="Esta orden se paga al contado. Genera un plan si el cliente lo necesita."
+        />
+      } @else {
+        <table mat-table [dataSource]="cuotas()" class="tabla">
+          <ng-container matColumnDef="numero">
+            <th mat-header-cell *matHeaderCellDef class="num">N°</th>
+            <td mat-cell *matCellDef="let cuota" class="num opt-mono">{{ cuota.numero }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="vencimiento">
+            <th mat-header-cell *matHeaderCellDef>Vencimiento</th>
+            <td mat-cell *matCellDef="let cuota" class="opt-mono">
+              {{ cuota.fechaVencimiento | date: 'dd-MM-yyyy' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="valor">
+            <th mat-header-cell *matHeaderCellDef class="num">Valor</th>
+            <td mat-cell *matCellDef="let cuota" class="num opt-mono">
+              {{ cuota.valorCuota | pesos }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let cuota">
+              <span class="estado-cuota" [class.estado-cuota--pendiente]="esPendiente(cuota)">
+                {{ cuota.estadoCuota }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="pago">
+            <th mat-header-cell *matHeaderCellDef>Pago</th>
+            <td mat-cell *matCellDef="let cuota">
+              @if (cuota.fechaPago) {
+                <span class="opt-mono">{{ cuota.fechaPago | date: 'dd-MM-yyyy' }}</span>
+                <span class="sub">{{ cuota.formaPago ?? '' }}</span>
+              } @else {
+                —
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let cuota">
+              <button
+                mat-icon-button
+                [attr.aria-label]="'Marcar la cuota ' + cuota.numero + ' como pagada'"
+                matTooltip="Marcar pagada"
+                [disabled]="!esPendiente(cuota) || estaAnulada() || procesando()"
+                (click)="pagarCuota(cuota)"
+              >
+                <mat-icon>task_alt</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                class="opt-accion-destructiva"
+                [attr.aria-label]="'Anular la cuota ' + cuota.numero"
+                matTooltip="Anular cuota"
+                [disabled]="!esPendiente(cuota) || estaAnulada() || procesando()"
+                (click)="anularCuota(cuota)"
+              >
+                <mat-icon>block</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+        </table>
+      }
+    </section>
+  </div>
+} @else {
+  <p class="instruccion">Elige la orden de trabajo cuyo plan de cuotas quieres administrar.</p>
+  <app-selector-orden (seleccionar)="seleccionar($event)" />
+}

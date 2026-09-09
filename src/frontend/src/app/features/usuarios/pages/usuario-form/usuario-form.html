@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>RUT</mat-label>
+      <input matInput formControlName="rut" autocomplete="off" />
+      @if (form.controls.rut.hasError('required')) {
+        <mat-error>El RUT es obligatorio.</mat-error>
+      }
+      @if (form.controls.rut.hasError('maxlength')) {
+        <mat-error>Máximo 12 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>El nombre es obligatorio.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Apellido</mat-label>
+      <input matInput formControlName="apellido" />
+      @if (form.controls.apellido.hasError('required')) {
+        <mat-error>El apellido es obligatorio.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" />
+      @if (form.controls.email.hasError('email')) {
+        <mat-error>El correo no tiene un formato válido.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Rol</mat-label>
+      <mat-select formControlName="rolId">
+        @for (rol of roles(); track rol.id) {
+          <mat-option [value]="rol.id">{{ rol.nombre }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.rolId.hasError('min')) {
+        <mat-error>Selecciona un rol.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (!esEdicion) {
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Clave</mat-label>
+        <input
+          matInput
+          [type]="ocultarClave() ? 'password' : 'text'"
+          formControlName="clave"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          [attr.aria-label]="ocultarClave() ? 'Mostrar clave' : 'Ocultar clave'"
+          [attr.aria-pressed]="!ocultarClave()"
+          (click)="ocultarClave.set(!ocultarClave())"
+        >
+          <mat-icon>{{ ocultarClave() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        <mat-hint>Mínimo 6 caracteres.</mat-hint>
+        @if (form.controls.clave.hasError('required')) {
+          <mat-error>La clave es obligatoria.</mat-error>
+        }
+        @if (form.controls.clave.hasError('minlength')) {
+          <mat-error>La clave debe tener al menos 6 caracteres.</mat-error>
+        }
+      </mat-form-field>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
+      @if (guardando()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

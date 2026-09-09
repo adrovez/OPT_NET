@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>
+  Nueva anamnesis
+  <span class="opt-badge-clinico">Información clínica</span>
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <div class="fila-checks">
+      <mat-checkbox formControlName="hipertension">Hipertensión (HTA)</mat-checkbox>
+      <mat-checkbox formControlName="diabetes">Diabetes (DM)</mat-checkbox>
+      <mat-checkbox formControlName="alergias">Alergias</mat-checkbox>
+      <mat-checkbox formControlName="usaLentesPrevio">Usa lentes actualmente</mat-checkbox>
+    </div>
+
+    @if (form.controls.alergias.value) {
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Detalle de alergias</mat-label>
+        <textarea matInput formControlName="detalleAlergias" rows="2"></textarea>
+        @if (form.controls.detalleAlergias.hasError('maxlength')) {
+          <mat-error>Máximo 500 caracteres.</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Observaciones</mat-label>
+      <textarea matInput formControlName="observaciones" rows="3"></textarea>
+      @if (form.controls.observaciones.hasError('maxlength')) {
+        <mat-error>Máximo 500 caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
+      @if (guardando()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

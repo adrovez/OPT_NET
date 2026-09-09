@@ -1,0 +1,210 @@
+﻿@model OPT.Web.Areas.Clientes.Models.FichaMedicaResponse
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Ficha Paciente</h2>
+
+<div class="form-group row">
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>Datos del Paciente</h5>
+                <div class="form-group row">
+                    <div class="col-sm-12 text-right">
+                        <a class="btn btn-sm btn-success" href="@Url.Action("Edit","Cliente",new {area="Clientes", id=Model.Cliente.RutCliente })" name="Editar" title="Editar..."><i class="fa fa-edit"></i> Editar</a>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th>Rut</th>
+                                    <td>@Model.Cliente.RutCliente</td>
+                                </tr>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <td>@Model.Cliente.Nombre</td>
+                                </tr>
+                                <tr>
+                                    <th>Edad</th>
+                                    <td>@Model.EdadCliente</td>
+                                </tr>
+                                <tr>
+                                    <th>Prevision</th>
+                                    <td>@Model.Cliente.TipoPrevision</td>
+                                </tr>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <td>@Model.Cliente.OPT_Empresa.Empresa</td>
+                                </tr>
+                                <tr>
+                                    <th>Dirección</th>
+                                    <td>@Model.Cliente.Direccion</td>
+                                </tr>
+                                <tr>
+                                    <th>Región</th>
+                                    <td>@Model.Cliente.OPT_Comuna.OPT_Region.Region</td>
+                                </tr>
+                                <tr>
+                                    <th>Comuna</th>
+                                    <td>@Model.Cliente.OPT_Comuna.Comuna</td>
+                                </tr>
+                                <tr>
+                                    <th>Mail</th>
+                                    <td>@Model.Cliente.Mail</td>
+                                </tr>
+                                <tr>
+                                    <th>Telefono</th>
+                                    <td>@Model.Cliente.Celular</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="Anamnesis-tab" data-toggle="tab" href="#Anamnesis" role="tab" aria-controls="Anamnesis" aria-selected="true">Anamnesis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="Recetas-tab" data-toggle="tab" href="#Recetas" role="tab" aria-controls="Recetas" aria-selected="false">Recetas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="OrdenTrabajo-tab" data-toggle="tab" href="#OrdenTrabajo" role="tab" aria-controls="OrdenTrabajo" aria-selected="false">Orden de Trabajo</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="Anamnesis" role="tabpanel" aria-labelledby="Anamnesis-tab">
+                        <h5>Anamnesis del Cliente</h5>
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-right">
+                                <a href="@Url.Action("Create","Anamnesi",new {area="Anamnesis", id=Model.Cliente.RutCliente })" class="btn btn-sm btn-success" id="NuevaAnamnesis"><i class="fa fa-plus"></i> Nueva Anamnesis</a>
+                            </div>
+                        </div>
+                        <div class="form-group row ">
+                            <div class="col-sm-12">
+                                <table class="table table-sm table-hover" id="TableAnamnesis">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>Fecha</th>
+                                            <th>Empresa</th>
+                                            <th>Sucursal</th>
+                                            <th>Accion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Anamnesis)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@item.FechaIngreso.ToShortDateString()</td>
+                                                <td>@item.OPT_Empresa.Empresa</td>
+                                                <td>@item.OPT_Sucursal.Nombre</td>
+                                                <td class="text-center"><a href="@Url.Action("Details","Anamnesi",new {area="Anamnesis", id=item.idAnamnesis })" name="VerDetalleAnamnesis" title="Ver Detalle..." class="btn btn-sm btn-outline-primary"><i class="fa fa-eye"></i></a></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="Recetas" role="tabpanel" aria-labelledby="Recetas-tab">
+                        <h5>Recetas del Cliente</h5>
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-right">
+                                <a href="@Url.Action("ModalCreateReceta","FichaMedica",new {area="Clientes", id=Model.Cliente.RutCliente })" class="btn btn-sm btn-success" id="NuevaReceta"><i class="fa fa-plus"></i> Nueva Receta</a>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <table class="table table-sm table-hover" id="TableReceta">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>Fecha</th>
+                                            <th>OT</th>
+                                            <th>Laboratorio</th>
+                                            <th>Cerca</th>
+                                            <th>Lejos</th>
+                                            <th>Accion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Recetas)
+                                        {
+                                        <tr class="text-center">
+                                            <td>@(DateTime.Parse(item.FechaIngreso.ToString()).ToShortDateString())</td>
+                                            <td>@item.idOT</td>
+                                            <td>@(item.CheckCristalesLaboratorio == true ? "SI" : "NO")</td>
+                                            <td>@(item.CheckCerca == true ? "SI" : "NO")</td>
+                                            <td>@(item.CheckLejos == true ? "SI" : "NO")</td>
+                                            <td><a href="@Url.Action("ModalReceta","FichaMedica",new {area="Clientes", id=item.idRecetaCristales })" name="VerDetalleCristales" title="Detalle..." class="btn btn-sm btn-outline-primary"><i class="fa fa-eye"></i></a></td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="OrdenTrabajo" role="tabpanel" aria-labelledby="OrdenTrabajo-tab">
+                        <h5>Ordenes de Trabajos del Cliente</h5>
+                        <div class="form-group row ">
+                            <div class="col-sm-12 text-right">
+                                <a href="@Url.Action("Create","Ingreso",new {area="OrdenTrabajo", id=Model.Cliente.RutCliente })" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Nueva Orden de Trabajo</a>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <table class="table table-sm table-hover" id="TableOT">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>N° OT</th>
+                                            <th>Fecha</th>
+                                            <th>Empresa</th>
+                                            <th>Estado</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.OrdenTrabajos)
+                                        {
+                                            var idBitacora = item.OPT_BitacoraOT.Count > 0 ? item.OPT_BitacoraOT.Max(y => y.idBitacoraOT) : 0;
+                                            <tr>
+                                                <td class="text-center">@item.idOT</td>
+                                                <td class="text-center">@(DateTime.Parse(item.FechaAtencion.ToString()).ToShortDateString())</td>
+                                                <td>@item.OPT_Empresa.Empresa</td>
+                                                <td>@(Model.Estados.FirstOrDefault(x => x.idEstadoOT == item.OPT_BitacoraOT.FirstOrDefault(y => y.idBitacoraOT == idBitacora).idEstado).Estado)</td>
+                                                <td class="text-center"><a href="@Url.Action("Details","Ingreso",new {area="OrdenTrabajo", id=item.idOT })" name="VerDetalleOT" title="Detalle..." class="btn btn-sm btn-outline-primary"><i class="fa fa-eye"></i></a></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script type="text/javascript" src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Areas/Clientes/Scripts/FichaMedica.js?v=3"></script>
+    <script src="~/Areas/Anamnesis/Scripts/Preguntas.js?v=3"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/Receta.js?v=5"></script>
+}

@@ -1,0 +1,108 @@
+<app-page-header title="Empresas">
+  <button mat-flat-button color="primary" (click)="nueva()">
+    <mat-icon>add</mat-icon>
+    Nueva empresa
+  </button>
+</app-page-header>
+
+<app-search-box
+  class="filtro"
+  etiqueta="Buscar por nombre, RUT o razón social"
+  [valorInicial]="estado.busqueda()"
+  (buscar)="estado.buscar($event)"
+/>
+
+@if (estado.cargando()) {
+  <app-list-skeleton [rows]="6" />
+} @else if (estado.error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudieron cargar las empresas"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="estado.refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (estado.items().length === 0 && estado.hayBusqueda()) {
+  <app-empty-state
+    icon="search_off"
+    title="Sin resultados"
+    message="Ninguna empresa coincide con el texto buscado."
+  />
+} @else if (estado.items().length === 0) {
+  <app-empty-state
+    icon="business"
+    title="Aún no hay empresas"
+    message="Registra convenios de empresas para asociarlos a la previsión de tus clientes."
+  >
+    <button mat-flat-button color="primary" (click)="nueva()">
+      <mat-icon>add</mat-icon>
+      Nueva empresa
+    </button>
+  </app-empty-state>
+} @else {
+  <table
+    mat-table
+    matSort
+    [dataSource]="estado.items()"
+    class="tabla"
+    (matSortChange)="estado.ordenar($event)"
+  >
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let empresa">{{ empresa.nombre }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="rut">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>RUT</th>
+      <td mat-cell *matCellDef="let empresa" class="opt-mono">{{ empresa.rut }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="razonSocial">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="razonSocial">Razón social</th>
+      <td mat-cell *matCellDef="let empresa">{{ empresa.razonSocial || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+      <td mat-cell *matCellDef="let empresa">{{ empresa.telefono || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let empresa">
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Editar la empresa ' + empresa.nombre"
+          matTooltip="Editar"
+          (click)="editar(empresa)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          class="opt-accion-destructiva"
+          [attr.aria-label]="'Eliminar la empresa ' + empresa.nombre"
+          matTooltip="Eliminar"
+          (click)="eliminar(empresa)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  <mat-paginator
+    [length]="estado.total()"
+    [pageSize]="estado.tamanioPagina()"
+    [pageIndex]="estado.pagina() - 1"
+    [pageSizeOptions]="opcionesTamanioPagina"
+    (page)="estado.cambiarPagina($event)"
+  />
+}

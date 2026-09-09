@@ -1,0 +1,68 @@
+﻿@model OPT.Entidad.OPT_Producto
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string ControlSI = Model.ControlStock == true ? "selected" : "";
+    string ControlNO = Model.ControlStock == false ? "selected" : "";
+
+}
+
+<form id="formCreate" name="formCreate" method="post" action="@Url.Action("Edit","Producto",new {area="Productos" })">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="idProducto" value="@Model.idProducto" />
+    <div class="card  border-primary">
+        <h4 class="card-header alert-primary"><i class="fa fa-edit"></i> Editar Producto</h4>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <label>Fecha Ingreso</label>
+                    <input type="text" value="@Model.FechaIngreso.ToShortDateString()" class="form-control form-control-sm" readonly>
+                </div>
+                <div class="col-sm-4">
+                    <label>Codigo</label>
+                    <input type="text" value="@Model.Codigo" class="form-control form-control-sm mayusculas" readonly>
+                </div>
+                <div class="col-sm-4">
+                    <label>Producto</label>
+                    <input type="text" id="Producto" name="Producto" value="@Model.Producto" class="form-control form-control-sm mayusculas" data-tipo="AlfaNumeric" maxlength="50" placeholder="Marca-Producto-Color" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <label>Stock</label>
+                    <input type="text" value="@Model.Stock" class="form-control form-control-sm text-right" data-tipo="Numeric" maxlength="9" readonly>
+                </div>
+                <div class="col-sm-4">
+                    <label>Stock Minimo</label>
+                    <input type="text" id="StockMinimo" name="StockMinimo" value="@Model.StockMinimo" class="form-control form-control-sm text-right" data-tipo="Numeric" maxlength="9" required>
+                </div>
+                <div class="col-sm-4">
+                    <label>Stock Maximo</label>
+                    <input type="text" id="StockMaximo" name="StockMaximo" value="@Model.StockMaximo" class="form-control form-control-sm text-right" data-tipo="Numeric" maxlength="9" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <label>Control Stock</label>
+                    <select class="form-control" name="ControlStock">
+                        <option value="true" @ControlSI>SI</option>
+                        <option value="false" @ControlNO> NO </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="form-group">
+                <div class="col-sm-12 text-right">
+                    <a href="@Url.Action("Index","Producto",new {area="Productos" })" class="btn btn-sm btn-danger"><i class="fa fa-arrow-left"></i> Volver</a>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+

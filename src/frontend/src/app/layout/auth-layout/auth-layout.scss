@@ -1,0 +1,64 @@
+.auth-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-shell__marca {
+  position: relative;
+  flex: 1 1 42%;
+  display: flex;
+  align-items: flex-end;
+  padding: 48px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--mat-sys-primary) 0%, var(--opt-primary-dark) 100%);
+  color: var(--mat-sys-on-primary);
+
+  @media (max-width: 899.98px) {
+    display: none;
+  }
+}
+
+.auth-shell__decoracion {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 85% 8%, rgba(255, 255, 255, 0.22) 0, transparent 35%),
+    radial-gradient(circle at 100% 100%, var(--opt-accent) 0, transparent 30%);
+  opacity: 0.35;
+}
+
+.auth-shell__marca-contenido {
+  position: relative;
+  z-index: 1;
+  max-width: 380px;
+}
+
+.auth-shell__nombre {
+  margin: 0;
+  font-size: 40px;
+  letter-spacing: 0.5px;
+}
+
+.auth-shell__tagline {
+  margin: 8px 0 16px;
+  font-size: 16px;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.auth-shell__descripcion {
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+  opacity: 0.85;
+}
+
+.auth-shell__formulario {
+  flex: 1 1 58%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background-color: var(--mat-sys-surface-container-low);
+}

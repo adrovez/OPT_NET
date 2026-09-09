@@ -1,0 +1,49 @@
+﻿@model PagedList.IPagedList<OPT.Entidad.OPT_Sucursal>
+@using PagedList.Mvc;
+
+@{
+    Layout = null;
+}
+
+<table class="table table-sm table-hover">
+    <thead>
+        <tr class="text-center">
+            <th>Nombre</th>
+            <th>Telefono</th>
+            <th>Dirección</th>
+            <th>Casa Matriz</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Item in Model)
+        {
+        <tr>
+            <td>@Item.Nombre</td>
+            <td class="text-right">@Item.Telefono</td>
+            <td>@Item.Direccion</td>
+            <td class="text-center">
+                @if (Item.Matriz)
+                {
+                    @Html.Raw("SI") }
+                else
+                {
+                    @Html.Raw("NO")}
+            </td>
+            <td class="text-center">
+                <a href="@Url.Action("Details","Sucursal",new {area="Administrar", id=Item.idSucursal })" name="Ver" class="btn btn-sm btn-outline-primary" title="Detalle..."><i class="fa fa-eye"></i></a>
+                <a href="@Url.Action("Edit","Sucursal",new {area="Administrar", id=Item.idSucursal })" name="Editar" class="btn btn-sm btn-outline-warning" title="Editar..."><i class="fa fa-edit"></i></a>
+            </td>
+        </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr class="text-center">
+            <td colspan="7">
+                Página @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) de @Model.PageCount
+                @Html.PagedListPager(Model, pPageNumber => Url.Action("Paginar", "Sucursal", new { pPageNumber }), new PagedListRenderOptions { FunctionToTransformEachPageLink = (liTag, aTag) => { aTag.Attributes.Add("name", "paginar"); liTag.InnerHtml = aTag.ToString(); return liTag; } })
+            </td>
+        </tr>
+    </tfoot>
+</table>
+

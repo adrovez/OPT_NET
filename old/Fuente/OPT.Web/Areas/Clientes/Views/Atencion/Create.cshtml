@@ -1,0 +1,235 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Ficha Atencion</h2>
+<form id="formAtencion" action="@Url.Action("Create","Atencion",new {area="Clientes" })">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="idAnamnesis" value="0" />
+    <input type="hidden" id="idEmpresa" name="cliente.idEmpresa" value="" />
+    <input type="hidden" id="idComuna" name="cliente.idComuna" value="" />
+    <input type="hidden" id="Direccion" name="cliente.Direccion" value="" />
+    <input type="hidden" id="TipoPrevision" name="cliente.TipoPrevision" value="" />
+    <input type="hidden" id="FechaIngreso" name="cliente.FechaIngreso" value="@DateTime.Now.ToShortDateString()" />
+
+    <div class="form-group row">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Datos del Paciente</h5>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Rut</label>
+                            <input type="text" id="RutCliente" name="cliente.RutCliente" value="" class="form-control form-control-sm" data-tipo="RUT" maxlength="12" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Nombre</label>
+                            <input type="text" id="Nombre" name="cliente.Nombre" value="" class="form-control form-control-sm" data-tipo="Alfa" maxlength="100" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Fecha Nacimiento</label>
+                            <input type="text" id="FechaNacimiento" name="cliente.FechaNacimiento" value="" class="form-control form-control-sm" maxlength="10" autocomplete="off" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Celular</label>
+                            <input type="text" id="Celular" name="cliente.Celular" value="" class="form-control form-control-sm" data-tipo="SoloNumero" maxlength="10">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Mail</label>
+                            <input type="text" id="Mail" name="cliente.Mail" value="" class="form-control form-control-sm" data-tipo="Email" maxlength="50">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Receta</h5>
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>Lejos</th>
+                                            <th>Esferico</th>
+                                            <th>Cilindrico</th>
+                                            <th>Eje</th>
+                                            <th>Observacion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>OD</td>
+                                            <td><input type="text" id="LejosODEsferico" name="receta.LejosODEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="LejosODCilindro" name="receta.LejosODCilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="LejosODEje" name="receta.LejosODEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="LejosODObservacion" name="receta.LejosODObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>OI</td>
+                                            <td><input type="text" id="LejosOIEsferico" name="receta.LejosOIEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="LejosOICilindro" name="receta.LejosOICilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="LejosOIEje" name="receta.LejosOIEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="LejosOIObservacion" name="receta.LejosOIObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>DP</td>
+                                            <td><input type="text" id="LejosDPEsferico" name="receta.LejosDPEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td colspan="3"><input type="text" id="LejosDPObservacion" name="receta.LejosDPObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>ADD</td>
+                                            <td><input type="text" id="LejosADDEsfera" name="receta.LejosADDEsfera" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>Cerca</th>
+                                            <th>Esferico</th>
+                                            <th>Cilindrico</th>
+                                            <th>Eje</th>
+                                            <th>Observacion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>OD</td>
+                                            <td><input type="text" id="CercaODEsferico" name="receta.CercaODEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="CercaODCilindro" name="receta.CercaODCilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="CercaODEje" name="receta.CercaODEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="CercaODObservacion" name="receta.CercaODObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>OI</td>
+                                            <td><input type="text" id="CercaOIEsferico" name="receta.CercaOIEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="CercaOICilindro" name="receta.CercaOICilindro" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="CercaOIEje" name="receta.CercaOIEje" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" id="CercaOIObservacion" name="receta.CercaOIObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>DP</td>
+                                            <td><input type="text" id="CercaDPEsferico" name="receta.CercaDPEsferico" class="form-control form-control-sm" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td colspan="3"><input type="text" id="CercaDPObservacion" name="receta.CercaDPObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <h5>Anamnesis</h5>
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <label>Hipertensión (HTA)</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.hipertension" id="hipertension0" value="0" checked>
+                                <label class="form-check-label" for="hipertension0">
+                                    NO
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.hipertension" id="hipertension1" value="1">
+                                <label class="form-check-label" for="hipertension1">
+                                    SI
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Diabetes (DM)</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.Diabetes" id="Diabetes0" value="0" checked>
+                                <label class="form-check-label" for="Diabetes0">
+                                    NO
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.Diabetes" id="Diabetes1" value="1">
+                                <label class="form-check-label" for="Diabetes1">
+                                    SI
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Alergias</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.Alergias" id="Alergias0" value="0" checked>
+                                <label class="form-check-label" for="Alergias0">
+                                    NO
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.Alergias" id="Alergias1" value="1">
+                                <label class="form-check-label" for="Alergias1">
+                                    SI
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Usa Lente</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.Lentes" id="Lentes0" value="0" checked>
+                                <label class="form-check-label" for="Lentes0">
+                                    NO
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="anamnesis.Lentes" id="Lentes1" value="1">
+                                <label class="form-check-label" for="Lentes1">
+                                    SI
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Observación</label>
+                            <textarea name="anamnesis.Observacion" maxlength="500" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>                    
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-sm btn-success pull-right"><i class="fa fa-save"></i> Guardar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    <script type="text/javascript" src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/Receta.js?v=5"></script>
+    <script src="~/Areas/Clientes/Scripts/Atencion.Create.js"></script>
+    <script>
+        ObjAtencion.UrlDatoCliente = "@Url.Action("DatoCliente", "Ingreso", new {area="OrdenTrabajo" })";
+        ObjAtencion.UrlIndex = "@Url.Action("Index", "Atencion", new { area = "Clientes" })"
+    </script>
+}
+

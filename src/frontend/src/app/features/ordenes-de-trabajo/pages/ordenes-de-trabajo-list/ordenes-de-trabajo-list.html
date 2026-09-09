@@ -1,0 +1,198 @@
+<app-page-header title="Órdenes de trabajo">
+  <button mat-flat-button color="primary" (click)="nueva()">
+    <mat-icon>add</mat-icon>
+    Nueva OT
+  </button>
+</app-page-header>
+
+@if (hayContexto()) {
+  <div class="contexto">
+    <mat-icon>filter_alt</mat-icon>
+    <span>
+      Mostrando solo las órdenes
+      {{ empresaPublicId() ? 'de la empresa seleccionada' : 'del cliente seleccionado' }}.
+    </span>
+    <button mat-button (click)="limpiarContexto()">Quitar filtro</button>
+  </div>
+}
+
+<div class="filtros">
+  <app-search-box
+    class="filtros__busqueda"
+    etiqueta="Buscar por N° de OT, RUT o nombre del cliente"
+    [valorInicial]="estado.busqueda()"
+    (buscar)="buscar($event)"
+  />
+
+  <mat-form-field appearance="outline" class="filtros__estado">
+    <mat-label>Estado</mat-label>
+    <mat-select
+      [ngModel]="filtroEstadoId()"
+      (ngModelChange)="filtroEstadoId.set($event); aplicarFiltros()"
+    >
+      <mat-option [value]="null">Todos</mat-option>
+      @for (estadoOT of estadosOT(); track estadoOT.id) {
+        <mat-option [value]="estadoOT.id">{{ estadoOT.nombre }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-checkbox
+    class="filtros__saldo"
+    [ngModel]="filtroSoloConSaldo()"
+    (ngModelChange)="filtroSoloConSaldo.set($event); aplicarFiltros()"
+  >
+    Solo con saldo
+  </mat-checkbox>
+</div>
+
+<!-- El listado arranca vacío a propósito: ver el comentario de clase en el .ts. -->
+@if (!consultado()) {
+  <app-empty-state
+    icon="search"
+    title="Busca una orden de trabajo"
+    message="Ingresa el N° de OT, el RUT o el nombre del cliente, o filtra por estado. El listado no se carga completo: son más de 12.000 órdenes."
+  >
+    <button mat-flat-button color="primary" (click)="nueva()">
+      <mat-icon>add</mat-icon>
+      Nueva OT
+    </button>
+  </app-empty-state>
+} @else if (estado.cargando()) {
+  <app-list-skeleton [rows]="estado.tamanioPagina() > 10 ? 8 : estado.tamanioPagina()" />
+} @else if (estado.error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudieron cargar las órdenes de trabajo"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="estado.refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (estado.items().length === 0 && estado.hayBusqueda()) {
+  <app-empty-state
+    icon="search_off"
+    title="Sin resultados"
+    message="Ninguna orden de trabajo coincide con el texto buscado."
+  />
+} @else if (estado.items().length === 0) {
+  <app-empty-state
+    icon="receipt_long"
+    title="No hay órdenes que mostrar"
+    message="Ninguna orden coincide con los filtros aplicados. Ajústalos o crea una nueva orden."
+  >
+    <button mat-flat-button color="primary" (click)="nueva()">
+      <mat-icon>add</mat-icon>
+      Nueva OT
+    </button>
+  </app-empty-state>
+} @else {
+  <table
+    mat-table
+    matSort
+    [dataSource]="estado.items()"
+    class="tabla"
+    (matSortChange)="estado.ordenar($event)"
+  >
+    <ng-container matColumnDef="numeroOT">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>N° OT</th>
+      <td mat-cell *matCellDef="let orden" class="opt-mono">{{ orden.numeroOT }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="fechaEntrega">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Entrega</th>
+      <td mat-cell *matCellDef="let orden" class="opt-mono">
+        {{ orden.fechaEntrega | date: 'dd-MM-yyyy' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="cliente">
+      <th mat-header-cell *matHeaderCellDef>Cliente</th>
+      <td mat-cell *matCellDef="let orden">
+        <span class="opt-mono">{{ orden.clienteRut }}</span>
+        <span class="cliente__nombre">{{ orden.clienteNombre }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="sucursal">
+      <th mat-header-cell *matHeaderCellDef>Sucursal</th>
+      <td mat-cell *matCellDef="let orden">{{ orden.sucursalNombre }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+      <td mat-cell *matCellDef="let orden">
+        <app-estado-ot-chip [estadoId]="orden.estadoOTId" [nombre]="orden.estadoOT" />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="precio">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="num">Total</th>
+      <td mat-cell *matCellDef="let orden" class="num opt-mono">{{ orden.precio | pesos }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="saldo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="num">Saldo</th>
+      <td mat-cell *matCellDef="let orden" class="num opt-mono">{{ orden.saldo | pesos }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let orden">
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Ver la OT N° ' + orden.numeroOT"
+          matTooltip="Ver orden"
+          (click)="verFicha(orden)"
+        >
+          <mat-icon>folder_open</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Más acciones para la OT N° ' + orden.numeroOT"
+          matTooltip="Más acciones"
+          [matMenuTriggerFor]="menuAcciones"
+          [matMenuTriggerData]="{ orden }"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  <mat-menu #menuAcciones="matMenu">
+    <ng-template matMenuContent let-orden="orden">
+      <button mat-menu-item [disabled]="!esModificable(orden)" (click)="editar(orden)">
+        <mat-icon>edit</mat-icon>
+        <span>Editar</span>
+      </button>
+      <button mat-menu-item (click)="verCliente(orden)">
+        <mat-icon>person</mat-icon>
+        <span>Ficha del cliente</span>
+      </button>
+      <button
+        mat-menu-item
+        class="opt-accion-destructiva"
+        [disabled]="!sePuedeAnular(orden)"
+        (click)="anular(orden)"
+      >
+        <mat-icon>block</mat-icon>
+        <span>Anular</span>
+      </button>
+    </ng-template>
+  </mat-menu>
+
+  <mat-paginator
+    [length]="estado.total()"
+    [pageSize]="estado.tamanioPagina()"
+    [pageIndex]="estado.pagina() - 1"
+    [pageSizeOptions]="opcionesTamanioPagina"
+    (page)="estado.cambiarPagina($event)"
+  />
+}

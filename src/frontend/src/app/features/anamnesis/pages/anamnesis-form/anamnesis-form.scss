@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  min-width: 420px;
+}
+
+.campo {
+  width: 100%;
+  display: block;
+}
+
+.fila-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-bottom: 16px;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

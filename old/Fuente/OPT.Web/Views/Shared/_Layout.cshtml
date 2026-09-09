@@ -1,0 +1,125 @@
+﻿@{
+    ViewBag.Minuto = Session.Timeout.ToString();
+    ViewBag.Segundos = "0";    
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta Http-Equiv="Cache-Control" Content="no-cache" />
+    <meta Http-Equiv="Pragma" Content="no-cache" />
+    <meta Http-Equiv="Expires" Content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <title>OPTICA</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @RenderSection("CustomHeadContent", required: false)
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="@Url.Action("Index","Home",new {area=""})">OPT</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto" id="MenuNav">
+            </ul>
+
+            <ul class="navbar-nav ml-auto nav-flex-icons">
+                <li class="nav-item dropdown">
+                    <select id="SucursalSelected" class="form-control form-control-sm" data-url="@Url.Action("SelectSucursal","Util",new {area="" })">
+                    </select>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-333" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user"></i> <small id="usuarioId"></small>
+
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-default" aria-labelledby="navbarDropdownMenuLink-333">
+                        <a href="@Url.Action("Index","MisDatos",new { area = "Administrar" })" class="nav-link"><span class="fa fa-address-card"></span> Mis Datos</a>
+                        <a href="@Url.Action("LogOut","Login",new { area = "" })" class="nav-link"><span class="fa fa-sign-out-alt"></span> Salir</a>
+                    </div>
+                </li>
+                <li style="display:none">
+                    <label id="lblMinutes">@ViewBag.Minuto</label>
+                    <label id="lblSeconds">@ViewBag.Session</label>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="container-fluid">
+        <br />
+        @RenderBody()
+    </div>
+
+    <div id="my-modal-cont"></div>
+
+    <div class="modal fade" id="modalAlert" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titulo"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="mensaje"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script type="text/javascript" src="~/Scripts/js/Layout.js?v=3"></script>
+    <script>
+        $(document).ready(function () {
+
+            $.CreaMenu("@Url.Action("Menu","Util",new {area=""})");
+
+            $.DatosSession("@Url.Action("DatosSession", "Util", new { area = "" })");
+        });
+    </script>
+    <script>
+        const pUrl = "@Url.Action("KeepActiveSession", "Home",new {area="" })";
+        function countdown() {
+
+            $.ajax({
+                url: pUrl,
+                cache: false,
+                type: "POST",
+                dataType: "JSON"
+            })
+             .done(function (result) {
+                    if (result.ok == false) {
+                        swal("Sesion Terminada", "La sesion a terminado, debe Logearse nuevamente a la pagina.", "error");
+                        window.location.replace("@Url.Action("Index","Login",new {area="" })", 3000);
+                    }
+                })
+             .fail(function (jqXHR, textStatus, error) {
+                    if (jqXHR.status == 401) {
+                        swal("Sesion Terminada", "La sesion a terminado, debe Logearse nuevamente a la pagina.", "error");
+                    }
+                    else {
+                        swal("Error", jqXHR.responseText, "error");
+                    }
+                });
+        }
+        setInterval(countdown, 900000);
+
+    </script>
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

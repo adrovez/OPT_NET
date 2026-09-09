@@ -1,0 +1,116 @@
+<app-page-header title="Sucursales">
+  <button mat-flat-button color="primary" (click)="nueva()">
+    <mat-icon>add</mat-icon>
+    Nueva sucursal
+  </button>
+</app-page-header>
+
+<app-search-box
+  class="filtro"
+  etiqueta="Buscar por nombre o dirección"
+  [valorInicial]="estado.busqueda()"
+  (buscar)="estado.buscar($event)"
+/>
+
+@if (estado.cargando()) {
+  <app-list-skeleton [rows]="5" />
+} @else if (estado.error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudieron cargar las sucursales"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="estado.refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (estado.items().length === 0 && estado.hayBusqueda()) {
+  <app-empty-state
+    icon="search_off"
+    title="Sin resultados"
+    message="Ninguna sucursal coincide con el texto buscado."
+  />
+} @else if (estado.items().length === 0) {
+  <app-empty-state
+    icon="storefront"
+    title="Aún no hay sucursales"
+    message="Crea la primera sucursal para empezar a asignar usuarios y stock."
+  >
+    <button mat-flat-button color="primary" (click)="nueva()">
+      <mat-icon>add</mat-icon>
+      Nueva sucursal
+    </button>
+  </app-empty-state>
+} @else {
+  <table
+    mat-table
+    matSort
+    [dataSource]="estado.items()"
+    class="tabla"
+    (matSortChange)="estado.ordenar($event)"
+  >
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let sucursal">{{ sucursal.nombre }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="direccion">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Dirección</th>
+      <td mat-cell *matCellDef="let sucursal">{{ sucursal.direccion ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+      <td mat-cell *matCellDef="let sucursal">{{ sucursal.telefono ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="esMatriz">
+      <th mat-header-cell *matHeaderCellDef>Matriz</th>
+      <td mat-cell *matCellDef="let sucursal">
+        @if (sucursal.esMatriz) {
+          <mat-chip-set>
+            <mat-chip>Matriz</mat-chip>
+          </mat-chip-set>
+        } @else {
+          <span class="dato-secundario">Sucursal</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let sucursal">
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Editar la sucursal ' + sucursal.nombre"
+          matTooltip="Editar"
+          (click)="editar(sucursal)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          class="opt-accion-destructiva"
+          [attr.aria-label]="'Eliminar la sucursal ' + sucursal.nombre"
+          matTooltip="Eliminar"
+          (click)="eliminar(sucursal)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  <mat-paginator
+    [length]="estado.total()"
+    [pageSize]="estado.tamanioPagina()"
+    [pageIndex]="estado.pagina() - 1"
+    [pageSizeOptions]="opcionesTamanioPagina"
+    (page)="estado.cambiarPagina($event)"
+  />
+}

@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-store-alt"></i> Listado Sucursal</h4>
+    <div class="card-body">
+        <form id="formIndex" action="@Url.Action("Index","Sucursal",new {area="Administrar" })">
+            @Html.AntiForgeryToken()
+            <div class="form-group row">
+                <div class="col-sm-8">
+                    <label>Busqueda</label>
+                    <input type="text" id="Filtro" name="Filtro" class="form-control form-control-sm" data-tipo="Alfa" maxlength="100">
+                </div>
+                <div class="col-sm-4 text-right">
+                    <br />
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                    <a href="@Url.Action("Create","Sucursal",new {area="Administrar" })" id="Nuevo" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Nuevo</a>
+                    <a href="@Url.Action("Reporte","Sucursal",new {area="Administrar" })" id="Reporte" class="btn btn-sm btn-primary"><i class="fa fa-print"></i> Imprimir</a>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <div class="table-responsive" id="TablaDatos">
+                        @Html.Partial("_ParcialBusqueda")
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+    <link href="~/Content/component-chosen.min.css" rel="stylesheet" />
+    <script src="~/Scripts/chosen.jquery.min.js"></script>
+    <script src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Areas/Administrar/Scripts/Sucursal.js?v=3"></script>
+}

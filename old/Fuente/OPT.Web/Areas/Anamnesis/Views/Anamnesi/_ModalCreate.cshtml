@@ -1,0 +1,126 @@
+﻿@model OPT.Web.Areas.Anamnesis.Models.Ingresar.AnamnesisCreateResponse
+@{
+    Layout = null;
+}
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formPreguntas" action="@Url.Action("Preguntas","Anamnesi",new {area="Anamnesis" })">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idAnamnesis"  value="0" />
+                <input type="hidden" name="RutCliente" value="@Model.Cliente.RutCliente" />
+                <input type="hidden" name="idEmpresa" value="@Model.Cliente.idEmpresa" />
+                <div class="modal-header alert-info">
+                    <h4 class="card-header alert-primary"><i class="fa fa-newspaper"></i> NUEVA ANAMNESIS</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="card-body">
+
+                        <div class="form-group row">
+                            <div class="col-sm-2">
+                                <label>Rut</label>
+                                <input type="text" class="form-control form-control-sm" value="@Model.Cliente.RutCliente" data-tipo="RUT" readonly>
+                            </div>
+                            <div class="col-sm-5">
+                                <label>Nombre</label>
+                                <input type="text" class="form-control form-control-sm" value="@Model.Cliente.Nombre" readonly>
+                            </div>
+                            <div class="col-sm-5">
+                                <label>Empresa</label>
+                                <input type="text" class="form-control form-control-sm" value="@Model.Cliente.OPT_Empresa.Empresa" readonly>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">                        
+                            <div class="col-sm-3">
+                                <label>Hipertensión (HTA)</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="hipertension" id="hipertension0" value="0" checked>
+                                    <label class="form-check-label" for="hipertension0">
+                                       NO
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="hipertension" id="hipertension1" value="1" >
+                                    <label class="form-check-label" for="hipertension1">
+                                        SI
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label>Diabetes (DM)</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Diabetes" id="Diabetes0" value="0" checked>
+                                    <label class="form-check-label" for="Diabetes0">
+                                        NO
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Diabetes" id="Diabetes1" value="1" >
+                                    <label class="form-check-label" for="Diabetes1">
+                                        SI
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label>Alergias</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Alergias" id="Alergias0" value="0" checked>
+                                    <label class="form-check-label" for="Alergias0">
+                                        NO
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Alergias" id="Alergias1" value="1" >
+                                    <label class="form-check-label" for="Alergias1">
+                                        SI
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label>Usa Lente</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Lentes" id="Lentes0" value="0" checked>
+                                    <label class="form-check-label" for="Lentes0">
+                                        NO
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Lentes" id="Lentes1" value="1" >
+                                    <label class="form-check-label" for="Lentes1">
+                                        SI
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label>Observación</label>
+                                <textarea name="Observacion" maxlength="500" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

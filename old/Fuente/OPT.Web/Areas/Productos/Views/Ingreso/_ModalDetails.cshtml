@@ -1,0 +1,68 @@
+﻿@model OPT.Web.Areas.Productos.Models.DocumentoResponse 
+@{ 
+    Layout = null;
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-info">
+                <h5 class="modal-title"><i class="fa fa-eye"></i> DETALLE DOCUMENTO INGRESO</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label>N° Documento</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.NumDocumento" readonly>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Tipo Documento</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.TipoDocumento" readonly>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Fecha Documento</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.FechaDocumento.ToShortDateString()" readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label>Proveedor</label>
+                        <input type="text" class="form-control form-control-sm" value="@Model.Proveedor" readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Productos)
+                                    {
+                                        <tr>
+                                            <td>@item.Producto</td>
+                                            <td class="text-right">@item.Cantidad.ToString("N0")</td>
+                                            <td class="text-right">@item.ValorUnitario.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

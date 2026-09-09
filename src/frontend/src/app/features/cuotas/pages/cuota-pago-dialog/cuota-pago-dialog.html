@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Marcar la cuota {{ data.numero }} como pagada</h2>
+
+<mat-dialog-content>
+  <p class="aviso">
+    Esto solo cambia el estado de la cuota: no registra un pago ni descuenta el saldo de la orden.
+    Úsalo para regularizar un cobro hecho fuera del sistema; si el cliente está pagando ahora, hazlo
+    desde Pagos.
+  </p>
+
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Forma de pago (opcional)</mat-label>
+      <mat-select formControlName="formaPagoId">
+        <mat-option [value]="null">Sin especificar</mat-option>
+        @for (forma of data.formasPago; track forma.id) {
+          <mat-option [value]="forma.id">{{ forma.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha del pago</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="fechaPago" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirmar()">Marcar pagada</button>
+</mat-dialog-actions>

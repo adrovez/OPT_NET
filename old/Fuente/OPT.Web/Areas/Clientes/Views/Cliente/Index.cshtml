@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-user"></i> Busqueda Cliente</h4>
+    <div class="card-body">
+        <form id="formIndex">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label>Empresa</label>
+                    @Html.DropDownList("idEmpresa", (SelectList)ViewBag.Empresa, "--- TODOS ---", new { @class = "form-control form-control-sm"})
+                </div>
+                <div class="col-sm-3">
+                    <label>Rut</label>
+                    <input type="text" id="RutCliente" name="RutCliente" class="form-control form-control-sm" data-tipo="RUT" maxlength="12">
+                </div>
+                <div class="col-sm-3">
+                    <label>Nombre</label>
+                    <input type="text" id="Nombre" name="Nombre" class="form-control form-control-sm" data-tipo="Alfa" maxlength="100">
+                </div>
+
+                <div class="col-sm-3 text-right">
+                    <br />
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                    <a href="@Url.Action("Create","Cliente",new {area="Clientes" })" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Nuevo</a>
+                    <a href="@Url.Action("Reporte","Cliente",new {area="Clientes" })" class="btn btn-sm btn-primary"><i class="fa fa-print"></i> Imprimir</a>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <div class="table-responsive" id="TableListaCliente">
+                        @Html.Partial("_ParcialListaCliente")
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+
+    <script src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Areas/Clientes/Scripts/Cliente.Index.js?v=3"></script>
+    <script type="text/javascript">
+        ObjCliente.UrlPaginar = "@Url.Action("Paginar","Cliente",new {area="Clientes" })";
+    </script>
+
+}

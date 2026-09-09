@@ -1,0 +1,52 @@
+.barra {
+  gap: 4px;
+}
+
+.marca {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-right: 16px;
+}
+
+.nav-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+
+  a,
+  button {
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+// Ítem de navegación activo en la barra horizontal — subrayado en accent sobre el fondo
+// primary, siguiendo la regla de "accent uso deliberadamente escaso" del branding doc
+// (un único trazo, no relleno).
+.nav-horizontal .activo {
+  border-bottom: 3px solid var(--opt-accent);
+}
+
+// Ítem activo dentro de un dropdown (desktop) o del menú de hamburguesa (móvil) — mismo
+// tinte primary-container que el resto de listados en modo "moderado", ver
+// .agents/context/branding-ux-ui.md "Aplicación de color en listados y formularios".
+::ng-deep .mat-mdc-menu-item.activo {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.separador {
+  flex: 1 1 auto;
+}
+
+.contenido {
+  // 24 → 20 (Propuesta v2.1 §5): menos "aire" perimetral, más contenido visible por
+  // pantalla. En móvil se mantiene en 16.
+  padding: 20px;
+  overflow-x: auto;
+
+  @media (max-width: 599.98px) {
+    padding: 16px;
+  }
+}

@@ -1,0 +1,13 @@
+<div class="empty-state">
+  <mat-icon class="empty-state__icono" [class.empty-state__icono--error]="tone() === 'error'">
+    {{ icon() }}
+  </mat-icon>
+
+  @if (title()) {
+    <p class="empty-state__titulo">{{ title() }}</p>
+  }
+
+  <p class="empty-state__mensaje">{{ message() }}</p>
+
+  <ng-content />
+</div>

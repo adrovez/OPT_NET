@@ -1,0 +1,245 @@
+@if (cargando()) {
+  <app-list-skeleton [rows]="5" [header]="false" />
+} @else if (cliente(); as datosCliente) {
+  <app-page-header
+    [title]="datosCliente.nombre + ' ' + datosCliente.apellido"
+    backTo="/clientes"
+    backLabel="Volver a clientes"
+  />
+
+  <div class="ficha">
+    <!-- ───────── Panel de identidad del paciente (fijo) ───────── -->
+    <aside class="paciente">
+      <span class="opt-badge-clinico">
+        <mat-icon>lock</mat-icon>
+        Información clínica
+      </span>
+
+      <p class="paciente__rut opt-mono">{{ datosCliente.rut }}</p>
+
+      <dl class="paciente__datos">
+        <dt>Edad</dt>
+        <dd>
+          @if (edad() !== null) {
+            {{ edad() }} años
+          } @else {
+            —
+          }
+          @if (datosCliente.fechaNacimiento) {
+            <span class="paciente__sub">
+              · nac. {{ datosCliente.fechaNacimiento | date: 'dd-MM-yyyy' }}
+            </span>
+          }
+        </dd>
+
+        <dt>Previsión</dt>
+        <dd>
+          @if (datosCliente.tipoPrevision) {
+            <span class="opt-chip opt-chip--info">{{ datosCliente.tipoPrevision }}</span>
+          } @else {
+            —
+          }
+        </dd>
+
+        <dt>Teléfono</dt>
+        <dd class="opt-mono">{{ datosCliente.telefono ?? '—' }}</dd>
+
+        <dt>Email</dt>
+        <dd>{{ datosCliente.email ?? '—' }}</dd>
+
+        <dt>Dirección</dt>
+        <dd>{{ datosCliente.direccion ?? '—' }}</dd>
+      </dl>
+
+      <div class="paciente__resumen">
+        {{ anamnesisLista().length }} anamnesis · {{ recetasLista().length }} recetas
+      </div>
+
+      <button mat-stroked-button class="paciente__editar" (click)="editarCliente()">
+        <mat-icon>edit</mat-icon>
+        Editar datos
+      </button>
+    </aside>
+
+    <!-- ───────── Historial clínico ───────── -->
+    <section class="historial">
+      <mat-tab-group>
+        <!-- Anamnesis -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            Anamnesis
+            <span class="tab-contador">{{ anamnesisLista().length }}</span>
+          </ng-template>
+
+          <div class="panel">
+            <div class="panel__barra">
+              <span class="panel__conteo">
+                {{ anamnesisLista().length }}
+                {{ anamnesisLista().length === 1 ? 'registro' : 'registros' }}
+              </span>
+              <button mat-flat-button color="primary" (click)="nuevaAnamnesis()">
+                <mat-icon>add</mat-icon>
+                Nueva anamnesis
+              </button>
+            </div>
+
+            @if (errorAnamnesis()) {
+              <app-empty-state
+                icon="error_outline"
+                tone="error"
+                title="No se pudo cargar el historial de anamnesis"
+                message="Hubo un problema de conexión. Inténtalo nuevamente."
+              >
+                <button mat-stroked-button (click)="cargarAnamnesis()">
+                  <mat-icon>refresh</mat-icon>
+                  Reintentar
+                </button>
+              </app-empty-state>
+            } @else if (anamnesisOrdenada().length === 0) {
+              <app-empty-state
+                icon="fact_check"
+                message="Este cliente no tiene fichas de anamnesis registradas."
+              />
+            } @else {
+              @for (anamnesis of anamnesisOrdenada(); track anamnesis.publicId) {
+                <article class="registro">
+                  <header class="registro__cab">
+                    <time class="registro__fecha opt-mono">
+                      {{ anamnesis.fechaRegistro | date: 'dd-MM-yyyy' }}
+                    </time>
+                    <div class="registro__acciones">
+                      <button
+                        mat-icon-button
+                        class="opt-accion-destructiva"
+                        aria-label="Eliminar esta anamnesis"
+                        matTooltip="Eliminar"
+                        (click)="eliminarAnamnesis(anamnesis)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </header>
+
+                  <div class="antecedentes">
+                    <span class="opt-chip" [class.chip--si]="anamnesis.hipertension">
+                      HTA {{ anamnesis.hipertension ? 'Sí' : 'No' }}
+                    </span>
+                    <span class="opt-chip" [class.chip--si]="anamnesis.diabetes">
+                      Diabetes {{ anamnesis.diabetes ? 'Sí' : 'No' }}
+                    </span>
+                    <span class="opt-chip" [class.chip--si]="anamnesis.alergias">
+                      Alergias {{ anamnesis.alergias ? 'Sí' : 'No' }}
+                    </span>
+                    <span class="opt-chip" [class.chip--si]="anamnesis.usaLentesPrevio">
+                      Usa lentes {{ anamnesis.usaLentesPrevio ? 'Sí' : 'No' }}
+                    </span>
+                  </div>
+
+                  @if (anamnesis.alergias && anamnesis.detalleAlergias) {
+                    <p class="registro__nota">
+                      <strong>Alergias:</strong> {{ anamnesis.detalleAlergias }}
+                    </p>
+                  }
+                  @if (anamnesis.observaciones) {
+                    <p class="registro__nota">{{ anamnesis.observaciones }}</p>
+                  }
+                </article>
+              }
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Receta de cristales -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            Receta de cristales
+            <span class="tab-contador">{{ recetasLista().length }}</span>
+          </ng-template>
+
+          <div class="panel">
+            <div class="panel__barra">
+              <span class="panel__conteo">
+                {{ recetasLista().length }}
+                {{ recetasLista().length === 1 ? 'registro' : 'registros' }}
+              </span>
+              <button mat-flat-button color="primary" (click)="nuevaReceta()">
+                <mat-icon>add</mat-icon>
+                Nueva receta
+              </button>
+            </div>
+
+            @if (errorRecetas()) {
+              <app-empty-state
+                icon="error_outline"
+                tone="error"
+                title="No se pudo cargar el historial de recetas"
+                message="Hubo un problema de conexión. Inténtalo nuevamente."
+              >
+                <button mat-stroked-button (click)="cargarRecetas()">
+                  <mat-icon>refresh</mat-icon>
+                  Reintentar
+                </button>
+              </app-empty-state>
+            } @else if (recetasOrdenadas().length === 0) {
+              <app-empty-state
+                icon="visibility"
+                message="Este cliente no tiene recetas de cristales registradas."
+              />
+            } @else {
+              @for (receta of recetasOrdenadas(); track receta.publicId) {
+                <article class="registro">
+                  <header class="registro__cab">
+                    <time class="registro__fecha opt-mono">
+                      {{ receta.fechaRegistro | date: 'dd-MM-yyyy' }}
+                    </time>
+                    <div class="registro__flags">
+                      @if (receta.urgente) {
+                        <span class="opt-chip opt-chip--alerta">Urgente</span>
+                      }
+                      @if (receta.requiereLab) {
+                        <span class="opt-chip opt-chip--si">Laboratorio</span>
+                      }
+                    </div>
+                    <div class="registro__acciones">
+                      <button
+                        mat-icon-button
+                        aria-label="Editar esta receta"
+                        matTooltip="Editar"
+                        (click)="editarReceta(receta)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        class="opt-accion-destructiva"
+                        aria-label="Eliminar esta receta"
+                        matTooltip="Eliminar"
+                        (click)="eliminarReceta(receta)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </header>
+
+                  <app-receta-graduacion [receta]="receta" />
+                </article>
+              }
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </section>
+  </div>
+} @else {
+  <app-empty-state
+    icon="person_off"
+    tone="error"
+    title="No se pudo cargar la ficha"
+    message="No encontramos este cliente o hubo un problema de conexión."
+  >
+    <a mat-stroked-button routerLink="/clientes">
+      <mat-icon>arrow_back</mat-icon>
+      Volver a clientes
+    </a>
+  </app-empty-state>
+}

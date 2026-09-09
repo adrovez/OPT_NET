@@ -1,0 +1,6 @@
+:host {
+  display: block;
+  // Un sí/no no necesita el ancho de un formulario — se acota para que el mensaje se lea
+  // en una medida cómoda.
+  max-width: 420px;
+}

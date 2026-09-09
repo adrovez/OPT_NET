@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPT — Propuesta v2.1: densidad y tipografía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary-dark:#1B3A66;
+    --primary:#2F5D8A;
+    --primary-light:#5B87B3;
+    --primary-container:#DCE8F5;
+    --accent:#E2703B;
+    --accent-dark:#A8471E;
+    --accent-container:#FCE3D2;
+    --surface:#F7F9FB;
+    --surface-2:#FFFFFF;
+    --surface-dim:#E8ECF1;
+    --outline:#C7CFD9;
+    --on-surface:#1A2230;
+    --on-surface-variant:#55606F;
+    --ok:#1F8A4C;
+    --warn:#A8471E;
+
+    --font-display:'Fraunces', Georgia, serif;
+    --font-ui:'IBM Plex Sans','Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono','Consolas',monospace;
+
+    --shadow-sm:0 1px 2px rgba(26,34,48,.06),0 1px 1px rgba(26,34,48,.04);
+    --shadow-md:0 4px 14px rgba(26,34,48,.08);
+    --radius:12px;
+    --sidebar-w:270px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --primary-dark:#9DCAFF;
+      --primary:#6CB0F6;
+      --primary-light:#9DCAFF;
+      --primary-container:#1D3555;
+      --accent:#FF9E6E;
+      --accent-dark:#FFDBCA;
+      --accent-container:#4A2312;
+      --surface:#111721;
+      --surface-2:#1A2230;
+      --surface-dim:#232C3A;
+      --outline:#3A4553;
+      --on-surface:#E6EBF2;
+      --on-surface-variant:#A9B4C2;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+      --shadow-md:0 6px 18px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --primary-dark:#9DCAFF;--primary:#6CB0F6;--primary-light:#9DCAFF;--primary-container:#1D3555;
+    --accent:#FF9E6E;--accent-dark:#FFDBCA;--accent-container:#4A2312;
+    --surface:#111721;--surface-2:#1A2230;--surface-dim:#232C3A;--outline:#3A4553;
+    --on-surface:#E6EBF2;--on-surface-variant:#A9B4C2;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);--shadow-md:0 6px 18px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;font-family:var(--font-ui);color:var(--on-surface);
+    background:var(--surface);line-height:1.55;font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--primary);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code,.mono{font-family:var(--font-mono);font-size:.92em;}
+
+  /* ---------- Layout ---------- */
+  .shell{display:flex;min-height:100vh;}
+  nav.side{
+    width:var(--sidebar-w);flex-shrink:0;background:var(--primary-dark);
+    color:#EAF1F8;position:sticky;top:0;height:100vh;overflow-y:auto;padding:26px 0 40px;
+  }
+  nav.side .brand{display:flex;align-items:center;gap:11px;padding:0 22px 20px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:12px;}
+  nav.side .brand .ring{width:32px;height:32px;border:4px solid #EAF1F8;border-radius:50%;position:relative;flex-shrink:0;}
+  nav.side .brand .ring::after{content:"";position:absolute;width:6px;height:6px;background:var(--accent);border-radius:50%;top:1px;right:1px;}
+  nav.side .brand b{font-family:var(--font-display);font-weight:600;font-size:16px;letter-spacing:.3px;display:block;}
+  nav.side .brand small{display:block;font-weight:400;font-size:10px;letter-spacing:.7px;opacity:.7;text-transform:uppercase;}
+  nav.side .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;opacity:.5;padding:16px 22px 5px;}
+  nav.side a{display:block;color:#CBDCEC;padding:7px 22px;font-size:13px;border-left:3px solid transparent;}
+  nav.side a:hover{background:rgba(255,255,255,.06);color:#fff;text-decoration:none;}
+  nav.side a.active{border-left-color:var(--accent);color:#fff;background:rgba(255,255,255,.09);font-weight:500;}
+
+  main{flex:1;min-width:0;}
+  header.hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;padding:56px 52px 46px;position:relative;overflow:hidden;}
+  header.hero::after{content:'';position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(226,112,59,.33),transparent 70%);}
+  header.hero .eyebrow{display:inline-block;font-size:11.5px;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.15);padding:5px 12px;border-radius:999px;margin-bottom:16px;}
+  header.hero h1{font-family:var(--font-display);font-weight:600;font-size:40px;margin:0 0 12px;max-width:760px;line-height:1.15;}
+  header.hero p{font-size:16px;max-width:660px;opacity:.93;margin:0;}
+  .theme-toggle{position:absolute;top:20px;right:24px;display:flex;gap:4px;background:rgba(255,255,255,.13);border-radius:999px;padding:4px;z-index:2;}
+  .theme-toggle button{border:0;background:transparent;color:#fff;font-family:inherit;font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;}
+  .theme-toggle button.on{background:#fff;color:var(--primary-dark);font-weight:600;}
+
+  .banner{background:var(--accent-container);border-left:4px solid var(--accent-dark);color:var(--on-surface);padding:15px 20px;margin:-24px 52px 0;position:relative;z-index:1;border-radius:8px;font-size:13px;box-shadow:var(--shadow-md);}
+  .banner strong{color:var(--accent-dark);}
+  :root[data-theme="dark"] .banner strong{color:var(--accent-dark);}
+
+  section{padding:48px 52px 8px;max-width:1060px;}
+  section>h2{font-family:var(--font-display);font-weight:600;font-size:26px;margin:0 0 4px;scroll-margin-top:20px;}
+  section>h2 .n{color:var(--primary-light);font-family:var(--font-mono);font-size:17px;margin-right:10px;font-weight:400;}
+  section>.sub{color:var(--on-surface-variant);font-size:14px;margin:0 0 22px;max-width:70ch;}
+  h3{font-size:16.5px;font-weight:600;margin:30px 0 10px;}
+  h4{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--on-surface-variant);margin:22px 0 8px;}
+  p{margin:0 0 12px;max-width:74ch;}
+
+  .card{background:var(--surface-2);border:1px solid var(--outline);border-radius:var(--radius);padding:22px 24px;margin:16px 0;box-shadow:var(--shadow-sm);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:860px){.grid2{grid-template-columns:1fr;}}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--outline);vertical-align:top;}
+  thead th{background:var(--primary-container);color:var(--primary-dark);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--primary-light);}
+  tbody tr:hover{background:var(--primary-container);}
+  td.was{color:var(--on-surface-variant);text-decoration:line-through;}
+  td.now{color:var(--ok);font-weight:600;}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;}
+  .pill.crit{background:var(--accent-container);color:var(--accent-dark);}
+  .pill.med{background:var(--primary-container);color:var(--primary-dark);}
+  .pill.ok{background:#d7f0e0;color:#0f5e33;}
+  :root[data-theme="dark"] .pill.ok{background:#173d29;color:#7fe0a6;}
+
+  pre{background:var(--primary-dark);color:#E7F0FA;padding:16px 18px;border-radius:10px;overflow-x:auto;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;}
+  pre .c{color:#8FB4DA;}
+  pre .k{color:#FF9E6E;}
+  pre .s{color:#9EE7B8;}
+
+  /* ---------- Mockup comparativo ---------- */
+  .demo-wrap{margin:18px 0;}
+  .demo-tabs{display:flex;gap:6px;margin-bottom:0;}
+  .demo-tabs button{border:1px solid var(--outline);border-bottom:0;background:var(--surface-dim);color:var(--on-surface-variant);font-family:inherit;font-size:12px;font-weight:600;padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;}
+  .demo-tabs button.on{background:var(--surface-2);color:var(--primary);border-color:var(--outline);}
+  .demo-stage{border:1px solid var(--outline);border-radius:0 10px 10px 10px;padding:24px;background:var(--surface-2);}
+
+  /* ==== simulación "ANTES" (Material density 0, escala M3 stock) ==== */
+  .sim{--f-input:16px;--f-label:16px;--f-hint:12px;--f-th:14px;--f-td:14px;--h-input:56px;--pad-page:24px;--row-h:52px;--gap:20px;--h1:28px;}
+  .sim.after{--f-input:14px;--f-label:13px;--f-hint:11.5px;--f-th:11.5px;--f-td:13px;--h-input:44px;--pad-page:20px;--row-h:40px;--gap:14px;--h1:24px;}
+  .sim .page{background:var(--surface);border-radius:10px;padding:var(--pad-page);}
+  .sim .ph{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--gap);}
+  .sim .ph h5{margin:0;font-size:var(--h1);font-weight:600;letter-spacing:-.01em;}
+  .sim .ph .btn{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:0 18px;height:calc(var(--h-input) - 8px);font-family:inherit;font-size:13px;font-weight:600;cursor:default;}
+  .sim .field{margin-bottom:12px;}
+  .sim .field label{display:block;font-size:var(--f-label);color:var(--on-surface-variant);margin-bottom:4px;}
+  .sim .field .inp{height:var(--h-input);border:1px solid var(--outline);border-radius:8px;background:var(--surface-2);display:flex;align-items:center;padding:0 14px;font-size:var(--f-input);color:var(--on-surface);}
+  .sim .field .hint{font-size:var(--f-hint);color:var(--on-surface-variant);margin-top:3px;}
+  .sim table{margin:0;}
+  .sim thead th{font-size:var(--f-th);padding:10px 12px;}
+  .sim tbody td{font-size:var(--f-td);height:var(--row-h);padding:0 12px;}
+  .sim .metrics{display:flex;gap:22px;margin-top:14px;font-size:12px;color:var(--on-surface-variant);flex-wrap:wrap;}
+  .sim .metrics b{color:var(--on-surface);font-family:var(--font-mono);}
+
+  .legend{font-size:12px;color:var(--on-surface-variant);margin-top:8px;}
+  ul.clean{margin:8px 0 14px;padding-left:20px;}
+  ul.clean li{margin:5px 0;}
+  .verdict{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:10px;background:var(--primary-container);margin:14px 0;}
+  .verdict .dot{width:10px;height:10px;border-radius:50%;background:var(--primary);margin-top:6px;flex-shrink:0;}
+  .foot{padding:40px 52px 60px;color:var(--on-surface-variant);font-size:12px;max-width:1060px;}
+  .foot hr{border:0;border-top:1px solid var(--outline);margin:0 0 18px;}
+
+  @media (max-width:960px){
+    nav.side{display:none;}
+    section,header.hero,.foot{padding-left:22px;padding-right:22px;}
+    .banner{margin-left:22px;margin-right:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">
+      <div class="ring"></div>
+      <div><b>OPT</b><small>Gestión de ópticas</small></div>
+    </div>
+    <div class="lbl">Propuesta v2.1</div>
+    <a href="#resumen" class="active">Resumen ejecutivo</a>
+    <a href="#diagnostico">1 · Diagnóstico</a>
+    <a href="#densidad">2 · Densidad de Material</a>
+    <a href="#tipografia">3 · Escala tipográfica</a>
+    <a href="#inputs">4 · Inputs y formularios</a>
+    <a href="#espaciado">5 · Espaciado y ritmo</a>
+    <div class="lbl">Marca</div>
+    <a href="#branding">6 · ¿Amigable, sencillo, robusto?</a>
+    <div class="lbl">Solución</div>
+    <a href="#tokens">7 · Tokens propuestos</a>
+    <a href="#comparativa">8 · Antes / Después</a>
+    <a href="#accesibilidad">9 · Accesibilidad</a>
+    <a href="#plan">10 · Plan de aplicación</a>
+    <a href="#checklist">11 · Checklist</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="theme-toggle" id="tt">
+        <button data-t="light">Claro</button>
+        <button data-t="dark">Oscuro</button>
+        <button data-t="system" class="on">Sistema</button>
+      </div>
+      <span class="eyebrow">Guía de estilo · Propuesta de mejora</span>
+      <h1>Bajar el volumen de la interfaz</h1>
+      <p>Análisis del frontend actual (Angular 21 + Material 3) y propuesta v2.1 centrada en un problema concreto: la tipografía y los campos de formulario se ven demasiado grandes para un sistema de trabajo diario. La marca (paleta, tono, tipos) no se cuestiona: se afina para que respire mejor.</p>
+    </header>
+    <div class="banner">
+      <strong>Alcance:</strong> este documento es solo una propuesta. No se modificó ningún archivo de <code>src/frontend</code>. Los bloques de código son referencia para una futura sesión de implementación. Complementa —no reemplaza— a <code>src/Guia_de_estilo/index.html</code> (guía v2.0 vigente).
+    </div>
+
+    <!-- ============ RESUMEN ============ -->
+    <section id="resumen">
+      <h2><span class="n">00</span>Resumen ejecutivo</h2>
+      <p class="sub">Qué está pasando, por qué, y qué se propone hacer.</p>
+
+      <div class="card">
+        <h4>El síntoma</h4>
+        <p>Todo el chrome de la aplicación —campos de texto sobre todo, pero también filas de tabla, botones y encabezados— ocupa más espacio del que un usuario de mesón espera. En una pantalla de listado con búsqueda apenas entran 6–8 filas antes de hacer scroll; un formulario de alta de cliente (11 campos) no cabe en un alto de viewport estándar.</p>
+        <h4>La causa raíz (no es el <code>font-size</code> suelto)</h4>
+        <p>El tema declara <code>density: 0</code> y usa la <strong>escala tipográfica M3 por defecto</strong> (<code>typography: 'IBM Plex Sans'</code> sin sobrescribir roles). Ambas cosas están calibradas por Google para experiencias <em>táctiles / mobile-first</em>: texto de input de 16&nbsp;px, campos de 56&nbsp;px de alto, filas de tabla de 52–56&nbsp;px. En un back-office de escritorio, denso en datos, eso se percibe como "inflado".</p>
+        <h4>La propuesta en una línea</h4>
+        <p>Adoptar <strong>densidad negativa</strong> (<code>-2</code> global, <code>-3</code> en tablas) + una <strong>escala tipográfica compacta</strong> (input 14&nbsp;px en escritorio / 16&nbsp;px en móvil, cuerpo 14, H1 24) mediante overrides de tokens en <code>styles.scss</code> / <code>theme-tokens.scss</code>. Cero cambios de color, familia tipográfica o tono. Cero cambios feature por feature.</p>
+      </div>
+
+      <table>
+        <thead><tr><th>#</th><th>Cambio</th><th>Dónde</th><th>Impacto</th><th>Prioridad</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>density: 0</code> → <code>-2</code> (y <code>-3</code> en <code>mat-table</code>)</td><td><code>styles.scss</code> (<code>mat.theme</code> + mixins de densidad)</td><td>Inputs ~56→44&nbsp;px, filas ~52→40&nbsp;px, botones ~40→32&nbsp;px</td><td><span class="pill crit">Alta</span></td></tr>
+          <tr><td>2</td><td>Escala tipográfica compacta (override de roles <code>--mat-sys-*</code>)</td><td><code>styles.scss</code></td><td>Texto de input/cuerpo 16→14&nbsp;px en escritorio; jerarquía más contenida</td><td><span class="pill crit">Alta</span></td></tr>
+          <tr><td>3</td><td>Excepción móvil: input a 16&nbsp;px bajo 600&nbsp;px</td><td><code>styles.scss</code> (<code>@media</code>)</td><td>Evita el auto-zoom de iOS al enfocar un campo</td><td><span class="pill crit">Alta</span></td></tr>
+          <tr><td>4</td><td>H1 27→24, H2 21→19, H3 16.5→15</td><td><code>styles.scss</code> §4, <code>page-header.scss</code></td><td>Encabezados proporcionados a la nueva densidad</td><td><span class="pill med">Media</span></td></tr>
+          <tr><td>5</td><td>Padding de página 24→20, <code>page-header</code> margen 24→16</td><td><code>shell.scss</code>, <code>page-header.scss</code></td><td>Menos "aire" perimetral, más contenido visible</td><td><span class="pill med">Media</span></td></tr>
+          <tr><td>6</td><td>Encabezado de tabla: banda <code>primary-container</code> plena → sutil</td><td><code>styles.scss</code> <code>.mat-mdc-table</code></td><td>Tabla menos "pesada"; refuerza "sencillo"</td><td><span class="pill med">Media</span></td></tr>
+          <tr><td>7</td><td>Dejar respirar el <code>accent</code> y un toque humanista (Fraunces) fuera del login</td><td>Componentes puntuales</td><td>Sube el registro "amigable" sin ruido</td><td><span class="pill ok">Baja</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ DIAGNÓSTICO ============ -->
+    <section id="diagnostico">
+      <h2><span class="n">01</span>Diagnóstico</h2>
+      <p class="sub">Lo que se encontró leyendo <code>styles.scss</code>, <code>theme-tokens.scss</code>, <code>index.html</code> y los <code>.scss</code> de features.</p>
+
+      <h3>Lo que ya está bien resuelto</h3>
+      <ul class="clean">
+        <li>Sistema de tokens ordenado: <code>--mat-sys-*</code> para roles M3, <code>--opt-*</code> para color con significado, escalas de espaciado/radio/elevación/movimiento.</li>
+        <li>Modo claro/oscuro completo, con <code>prefers-reduced-motion</code> respetado.</li>
+        <li>Familias tipográficas con buen soporte de tildes/ñ y fallback de sistema (IBM&nbsp;Plex&nbsp;Sans / Mono, Fraunces).</li>
+        <li>Contrastes WCAG ya calculados y documentados; estado nunca comunicado solo por color.</li>
+        <li>Componentes compartidos (<code>app-page-header</code>, <code>app-empty-state</code>, <code>app-list-skeleton</code>) — un solo lugar donde ajustar.</li>
+      </ul>
+
+      <h3>Lo que causa la sensación de "todo grande"</h3>
+      <div class="grid2">
+        <div class="card">
+          <h4>A · Densidad Material sin tocar</h4>
+          <p><code>mat.theme((… density: 0 …))</code>. La escala de densidad de Material va de <code>0</code> a <code>-5</code>. <code>0</code> es el máximo confort táctil. Un ERP de escritorio suele vivir en <code>-1</code> a <code>-3</code>.</p>
+          <p class="legend">Efecto en <code>density: 0</code>: <span class="mono">form-field ≈ 56px</span>, <span class="mono">botón ≈ 40px</span>, <span class="mono">fila de tabla ≈ 52–56px</span>.</p>
+        </div>
+        <div class="card">
+          <h4>B · Escala tipográfica M3 stock</h4>
+          <p>Sin overrides de roles, el texto dentro de un <code>mat-form-field</code> es <code>body-large</code> = <span class="mono">16px / 24 / +0.5 tracking</span>. La etiqueta flotante arranca también en 16&nbsp;px. Las celdas de tabla usan <code>body-medium</code> 14&nbsp;px, correcto, pero conviven con inputs de 16.</p>
+        </div>
+        <div class="card">
+          <h4>C · Alto fijo del campo + padding interno</h4>
+          <p>El alto de 56&nbsp;px viene de densidad + <code>body-large</code>. Con etiqueta flotante + <code>mat-hint</code> + <code>mat-error</code>, cada campo reserva ~84&nbsp;px de alto total. En un formulario de 11 campos son ~920&nbsp;px solo de campos.</p>
+        </div>
+        <div class="card">
+          <h4>D · Ritmo vertical generoso</h4>
+          <p><code>.contenido { padding: 24px }</code>, <code>page-header</code> con <code>margin-bottom: var(--opt-space-lg)</code> (24), H1 a 27&nbsp;px con su propio <code>margin</code>. Sumado, el contenido útil empieza ~110&nbsp;px por debajo del borde de la toolbar.</p>
+        </div>
+      </div>
+
+      <div class="verdict">
+        <span class="dot"></span>
+        <div><strong>Conclusión del diagnóstico:</strong> no hay <code>font-size</code> "mal puestos" que corregir uno por uno. El tamaño percibido es una consecuencia sistémica de dos decisiones globales (densidad + escala M3 por defecto). Se corrige en el mismo lugar donde se originó: el <code>mat.theme()</code> y un puñado de tokens en <code>styles.scss</code>.</div>
+      </div>
+    </section>
+
+    <!-- ============ DENSIDAD ============ -->
+    <section id="densidad">
+      <h2><span class="n">02</span>Densidad de Material</h2>
+      <p class="sub">El interruptor más eficaz: un solo parámetro que reescala inputs, botones, tablas, chips y menús a la vez.</p>
+
+      <table>
+        <thead><tr><th>Componente</th><th><code>density: 0</code> (hoy)</th><th><code>density: -2</code></th><th><code>density: -3</code></th><th>Recomendado OPT</th></tr></thead>
+        <tbody>
+          <tr><td>Form field (alto)</td><td class="was">56 px</td><td>44 px</td><td>40 px</td><td class="now">-2 (44 px)</td></tr>
+          <tr><td>Botón (alto)</td><td class="was">40 px</td><td>32 px</td><td>28 px</td><td class="now">-2 (32 px)</td></tr>
+          <tr><td>Fila de tabla</td><td class="was">52 px</td><td>44 px</td><td>40 px</td><td class="now">-3 en tabla (40 px)</td></tr>
+          <tr><td>Ítem de lista / menú</td><td class="was">48 px</td><td>40 px</td><td>36 px</td><td class="now">-2 (40 px)</td></tr>
+          <tr><td>Chip</td><td class="was">32 px</td><td>28 px</td><td>24 px</td><td class="now">-2 (28 px)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Estrategia recomendada: densidad mixta</h3>
+      <ul class="clean">
+        <li><strong>Global <code>-2</code></strong> en <code>mat.theme()</code>: buen equilibrio entre compacto y cómodo para formularios de mesón, sin llegar a lo "apretado". Mantiene el área de toque de los <code>mat-icon-button</code> en ≥40&nbsp;px si se conserva su <code>hit area</code>.</li>
+        <li><strong><code>-3</code> localizado en <code>mat-table</code></strong> vía <code>mat.table-density(-3)</code>: las tablas son la vista más densa en datos y las que más se benefician de filas de 40&nbsp;px. No afecta a los formularios.</li>
+        <li>No pasar de <code>-3</code> en ninguna zona: por debajo se compromete el área de toque en tablets y el confort de lectura prolongada.</li>
+      </ul>
+
+      <pre><span class="c">// styles.scss — dentro del bloque html { @include mat.theme( … ) }</span>
+<span class="k">density</span>: -2,   <span class="c">// hoy: 0</span>
+
+<span class="c">// …y, fuera del mat.theme(), densidad extra solo para tablas:</span>
+.mat-mdc-table {
+  <span class="k">@include</span> mat.table-density(-3);
+}</pre>
+      <p class="legend">Nota: verificar la firma exacta del mixin de densidad para la versión de Angular Material del proyecto (21). En algunas versiones es <code>mat.table-density(...)</code>, en otras se aplica vía <code>mat.table-overrides</code> o un <code>mat.theme</code> anidado con solo <code>density</code>.</p>
+    </section>
+
+    <!-- ============ TIPOGRAFÍA ============ -->
+    <section id="tipografia">
+      <h2><span class="n">03</span>Escala tipográfica compacta (v2.1)</h2>
+      <p class="sub">Se conservan IBM&nbsp;Plex&nbsp;Sans / Mono y Fraunces. Solo cambian tamaños, interlineados y <em>tracking</em> de los roles M3 y de los encabezados "desnudos".</p>
+
+      <h3>Roles de Material (override de <code>--mat-sys-*</code>)</h3>
+      <table>
+        <thead><tr><th>Rol M3</th><th>Uso principal</th><th>Hoy (M3 stock)</th><th>Propuesto v2.1</th></tr></thead>
+        <tbody>
+          <tr><td><code>body-large</code></td><td>Texto dentro de inputs</td><td class="was">16 / 24 / +0.5</td><td class="now">14 / 20 / +0.15</td></tr>
+          <tr><td><code>body-medium</code></td><td>Cuerpo, celdas de tabla</td><td class="was">14 / 20 / +0.25</td><td class="now">13.5 / 19 / +0.1</td></tr>
+          <tr><td><code>body-small</code></td><td><code>mat-hint</code>, <code>mat-error</code>, metadatos</td><td class="was">12 / 16 / +0.4</td><td class="now">11.5 / 16 / +0.2</td></tr>
+          <tr><td><code>label-large</code></td><td>Texto de botón, etiqueta de campo</td><td class="was">14 / 20 / +0.1</td><td class="now">13 / 18 / +0.1</td></tr>
+          <tr><td><code>title-medium</code></td><td>Título de <code>app-empty-state</code>, cabeceras de card</td><td class="was">16 / 24 / +0.15</td><td class="now">15 / 22 / 0</td></tr>
+          <tr><td><code>title-large</code></td><td>Título de diálogo</td><td class="was">22 / 28 / 0</td><td class="now">19 / 26 / 0</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Encabezados "desnudos" del contenido (<code>styles.scss</code> §4 + <code>page-header.scss</code>)</h3>
+      <table>
+        <thead><tr><th>Elemento</th><th>Hoy</th><th>Propuesto v2.1</th><th>Motivo</th></tr></thead>
+        <tbody>
+          <tr><td><code>h1:not([class])</code> / <code>.page-header__titulo</code></td><td class="was">27 px / 600</td><td class="now">24 px / 600 / line-height 1.2</td><td>Un listado no necesita un titular de portada; 24&nbsp;px sigue dominando la jerarquía con la nueva densidad.</td></tr>
+          <tr><td><code>h2:not([class])</code></td><td class="was">21 px / 600</td><td class="now">19 px / 600</td><td>Escalón proporcional (ratio ~1.2).</td></tr>
+          <tr><td><code>h3:not([class])</code></td><td class="was">16.5 px / 600</td><td class="now">15 px / 600</td><td>Se distingue del cuerpo por peso, no por tamaño.</td></tr>
+        </tbody>
+      </table>
+      <p class="legend">Escala resultante (px): <span class="mono">11.5 · 13 · 13.5 · 14 · 15 · 19 · 24</span> — ratio medio ≈ 1.2 (segunda mayor), coherente y sobria.</p>
+
+      <pre><span class="c">// styles.scss — tras el @include mat.theme(...). Override de la escala M3.</span>
+<span class="c">// Solo tamaño/interlineado/tracking; la familia sigue saliendo del tema.</span>
+html {
+  <span class="k">--mat-sys-body-large</span>:   400 14px/20px 'IBM Plex Sans';
+  <span class="k">--mat-sys-body-medium</span>:  400 13.5px/19px 'IBM Plex Sans';
+  <span class="k">--mat-sys-body-small</span>:   400 11.5px/16px 'IBM Plex Sans';
+  <span class="k">--mat-sys-label-large</span>:  500 13px/18px 'IBM Plex Sans';
+  <span class="k">--mat-sys-title-medium</span>: 600 15px/22px 'IBM Plex Sans';
+  <span class="k">--mat-sys-title-large</span>:  600 19px/26px 'IBM Plex Sans';
+}</pre>
+      <p class="legend">Verificar el nombre real de cada custom property emitida por <code>mat.theme()</code> en la build (varía por versión: <code>--mat-sys-*</code> vs. <code>--sys-*</code>). Si el proyecto prefiere el enfoque idiomático, se puede pasar un mapa <code>typography</code> completo con <code>mat.define-typography-*</code> en vez de sobrescribir variables.</p>
+    </section>
+
+    <!-- ============ INPUTS ============ -->
+    <section id="inputs">
+      <h2><span class="n">04</span>Inputs y formularios</h2>
+      <p class="sub">El punto que motivó esta revisión. Combina lo de §2 y §3, más ajustes propios del <code>mat-form-field</code>.</p>
+
+      <div class="grid2">
+        <div class="card">
+          <h4>Antes (por campo)</h4>
+          <ul class="clean">
+            <li>Alto del control: <b class="mono">56 px</b></li>
+            <li>Texto: <b class="mono">16 px</b></li>
+            <li>Etiqueta flotante: 16 → 12 px</li>
+            <li>Reserva total con hint/error: <b class="mono">~84 px</b></li>
+            <li>Formulario de 11 campos: <b class="mono">~920 px</b></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Después (por campo)</h4>
+          <ul class="clean">
+            <li>Alto del control: <b class="mono">44 px</b> (density -2)</li>
+            <li>Texto: <b class="mono">14 px</b> escritorio / 16 px móvil</li>
+            <li>Etiqueta flotante: 13 → 11.5 px</li>
+            <li>Reserva total con hint/error: <b class="mono">~64 px</b></li>
+            <li>Formulario de 11 campos: <b class="mono">~700 px</b> (−24 %)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Ajustes finos del <code>mat-form-field</code></h3>
+      <ul class="clean">
+        <li><strong>Subscript sizing:</strong> reservar una sola línea de <code>subscript</code> (hint/error) y no dos — <code>subscriptSizing="dynamic"</code> por defecto en los formularios, salvo donde el salto de layout moleste.</li>
+        <li><strong>Halo de foco:</strong> el <code>box-shadow: 0 0 0 3px var(--mat-sys-primary-container)</code> actual se mantiene — sigue siendo válido y necesario ("mesón con luz variable"). Con campos más bajos gana protagonismo relativo, lo cual es deseable.</li>
+        <li><strong>Densidad de <code>appearance="outline"</code>:</strong> confirmar que el borde no se recorta con density -2 (bug histórico de Material en densidades bajas con <code>outline</code>). Si aparece, usar <code>appearance="fill"</code> o un <code>padding</code> mínimo de override.</li>
+        <li><strong>Grilla de 2 columnas</strong> (<code>.opt-form-grid</code>): con campos de 44&nbsp;px, el formulario de cliente (11 campos) entra en ~1 viewport sin scroll en escritorio. Mantener el colapso a 1 columna bajo 600&nbsp;px.</li>
+      </ul>
+    </section>
+
+    <!-- ============ ESPACIADO ============ -->
+    <section id="espaciado">
+      <h2><span class="n">05</span>Espaciado y ritmo vertical</h2>
+      <p class="sub">Ajuste menor pero acumulativo. No se toca la escala <code>--opt-space-*</code>; solo dónde se aplica.</p>
+      <table>
+        <thead><tr><th>Lugar</th><th>Hoy</th><th>Propuesto</th></tr></thead>
+        <tbody>
+          <tr><td><code>.contenido</code> padding (desktop)</td><td class="was">24 px</td><td class="now">20 px</td></tr>
+          <tr><td><code>.contenido</code> padding (&lt;600 px)</td><td>16 px</td><td>16 px <span class="legend">(sin cambio)</span></td></tr>
+          <tr><td><code>.page-header</code> <code>margin-bottom</code></td><td class="was">24 px (<code>--opt-space-lg</code>)</td><td class="now">16 px (<code>--opt-space-md</code>)</td></tr>
+          <tr><td><code>.filtro</code> <code>margin-bottom</code> (listas con búsqueda)</td><td class="was">16 px</td><td class="now">12 px</td></tr>
+          <tr><td><code>app-empty-state</code> padding</td><td class="was">48 / 24 px</td><td class="now">36 / 24 px</td></tr>
+          <tr><td>Card de esta guía / de features</td><td>22–24 px</td><td>18–20 px</td></tr>
+        </tbody>
+      </table>
+      <p>Resultado combinado con §2–§4: el contenido útil de un listado empieza ~80&nbsp;px bajo la toolbar (hoy ~110), y se ven ~4–5 filas más sin scroll.</p>
+    </section>
+
+    <!-- ============ BRANDING ============ -->
+    <section id="branding">
+      <h2><span class="n">06</span>¿La marca da sensación de "amigable, sencillo pero robusto"?</h2>
+      <p class="sub">Evaluación de la identidad v2.0 aplicada, contra los tres atributos pedidos.</p>
+
+      <table>
+        <thead><tr><th>Atributo</th><th>Qué lo sostiene hoy</th><th>Qué lo debilita hoy</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Robusto</strong></td>
+            <td>Añil profundo (#1B3A66/#2F5D8A) = serio, confiable, "de sistema". IBM&nbsp;Plex (diseñada para producto técnico). Monoespaciado para RUT/folios/montos. Rampa de estado semántica de un solo matiz. Contrastes AA/AAA verificados.</td>
+            <td>Nada relevante. Es el atributo mejor cubierto.</td>
+            <td><span class="pill ok">Logrado</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sencillo</strong></td>
+            <td>Paleta corta y disciplinada. Un solo botón primario por vista. Estados vacíos/de error con componente único. Navbar horizontal claro.</td>
+            <td>La <strong>densidad y el tamaño</strong> (todo §2–§5). La banda <code>primary-container</code> plena en cada cabecera de tabla añade peso visual. Encabezados a 27&nbsp;px en pantallas de trabajo.</td>
+            <td><span class="pill med">Parcial — lo arregla esta propuesta</span></td>
+          </tr>
+          <tr>
+            <td><strong>Amigable</strong></td>
+            <td>Radios <code>pill</code> en botones/chips. Tono de voz cercano (tuteo interno). Terracota cálido en la paleta. Fraunces (serif humanista) en el login.</td>
+            <td>El <code>accent</code> terracota se usa tan poco que en la práctica la interfaz de trabajo es <strong>azul-gris monocroma</strong>. Fraunces no aparece nunca fuera del login: la "calidez" no viaja al resto de la app. Mucho gris neutro en textos secundarios.</td>
+            <td><span class="pill med">Subrepresentado</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="verdict">
+        <span class="dot"></span>
+        <div><strong>Síntesis:</strong> la base de marca es sólida y comunica bien "robusto + confiable". "Sencillo" no falla por la paleta sino por el tamaño/densidad — se resuelve con §2–§5. "Amigable" está diseñado pero apenas se expresa: el acento cálido casi no se ve y el gesto humanista está encerrado en el login.</div>
+      </div>
+
+      <h3>Recomendaciones de marca (bajas, no urgentes)</h3>
+      <ul class="clean">
+        <li><strong>Cabecera de tabla más liviana:</strong> en lugar de fondo <code>primary-container</code> pleno, usar <code>surface</code> con un borde inferior de 2&nbsp;px en <code>primary-light</code> y el texto en <code>primary-dark</code>. Mantiene la marca, quita peso. (Alternativa conservadora: <code>primary-container</code> al 50&nbsp;% de opacidad.)</li>
+        <li><strong>Dejar respirar el terracota</strong> en 2–3 puntos más, siempre "un trazo, no un relleno": el <code>mat-hint</code> de campos obligatorios pendientes, el ícono de la acción primaria de cada listado, el borde de foco de la fila seleccionada. Nunca como fondo de superficie.</li>
+        <li><strong>Un toque de Fraunces fuera del login:</strong> solo en el título de <code>app-empty-state</code> y en la pantalla 404 / sin-permiso. Un guiño humanista en momentos "de pausa", nunca en tablas ni formularios.</li>
+        <li><strong>Estados vacíos con voz:</strong> "Todavía no hay clientes cargados" en vez de "Sin datos". Ya está el componente; es solo copy.</li>
+        <li>No tocar: paleta, familias tipográficas, tagline, logo, tono de voz, rampa de <code>OPT_EstadoOT</code>. Están bien y ya validados internamente.</li>
+      </ul>
+    </section>
+
+    <!-- ============ TOKENS ============ -->
+    <section id="tokens">
+      <h2><span class="n">07</span>Tokens y overrides propuestos</h2>
+      <p class="sub">Todo concentrado en 2 archivos. Ningún <code>.scss</code> de feature cambia (mismo patrón que el halo de foco y <code>.opt-badge-clinico</code> ya existentes).</p>
+
+      <h4>styles.scss</h4>
+      <pre><span class="c">// 1) Densidad global en el mat.theme()</span>
+html {
+  <span class="k">@include</span> mat.theme((
+    color: ( theme-type: light, primary: theme.$primary-palette, tertiary: theme.$tertiary-palette ),
+    typography: 'IBM Plex Sans',
+    <span class="k">density</span>: -2,        <span class="c">// era 0</span>
+  ));
+
+  <span class="c">// 2) Escala tipográfica compacta v2.1 (roles M3)</span>
+  <span class="k">--mat-sys-body-large</span>:   400 14px/20px 'IBM Plex Sans';
+  <span class="k">--mat-sys-body-medium</span>:  400 13.5px/19px 'IBM Plex Sans';
+  <span class="k">--mat-sys-body-small</span>:   400 11.5px/16px 'IBM Plex Sans';
+  <span class="k">--mat-sys-label-large</span>:  500 13px/18px 'IBM Plex Sans';
+  <span class="k">--mat-sys-title-medium</span>: 600 15px/22px 'IBM Plex Sans';
+  <span class="k">--mat-sys-title-large</span>:  600 19px/26px 'IBM Plex Sans';
+}
+
+<span class="c">// 3) Densidad extra solo en tablas</span>
+.mat-mdc-table { <span class="k">@include</span> mat.table-density(-3); }
+
+<span class="c">// 4) Excepción móvil: input a 16px para evitar auto-zoom de iOS</span>
+<span class="k">@media</span> (max-width: 599.98px) {
+  .mat-mdc-form-field { <span class="k">--mat-sys-body-large</span>: 400 16px/22px 'IBM Plex Sans'; }
+}
+
+<span class="c">// 5) Encabezados "desnudos" §4 — bajar un escalón</span>
+h1:not([class]) { <span class="k">font-size</span>: 1.5rem;  } <span class="c">// 27 → 24</span>
+h2:not([class]) { <span class="k">font-size</span>: 1.1875rem; } <span class="c">// 21 → 19</span>
+h3:not([class]) { <span class="k">font-size</span>: 0.9375rem; } <span class="c">// 16.5 → 15</span>
+
+<span class="c">// 6) Cabecera de tabla más liviana (opcional, recomendación de marca)</span>
+.mat-mdc-table .mat-mdc-header-row { <span class="k">background</span>: var(--mat-sys-surface); }
+.mat-mdc-table .mat-mdc-header-cell {
+  <span class="k">color</span>: var(--mat-sys-primary);
+  <span class="k">border-bottom</span>: 2px solid var(--mat-sys-primary);
+}</pre>
+
+      <h4>page-header.scss</h4>
+      <pre>.page-header        { <span class="k">margin-bottom</span>: var(--opt-space-md); } <span class="c">// era --opt-space-lg (24 → 16)</span>
+.page-header__titulo{ <span class="k">font-size</span>: 1.5rem; }              <span class="c">// era 1.6875rem (27 → 24)</span></pre>
+
+      <h4>shell.scss</h4>
+      <pre>.contenido { <span class="k">padding</span>: 20px; } <span class="c">// era 24px; el @media &lt;600px queda en 16px</span></pre>
+
+      <p class="legend">Los valores de <code>font</code> shorthand y los nombres de custom properties deben confirmarse contra la salida real de <code>mat.theme()</code> en Angular Material 21 antes de aplicar. Si el proyecto ya usa <code>sass</code> aislado para verificar (como en la sesión v2.0), ese mismo método sirve para validar esta escala.</p>
+    </section>
+
+    <!-- ============ COMPARATIVA ============ -->
+    <section id="comparativa">
+      <h2><span class="n">08</span>Antes / Después (simulación)</h2>
+      <p class="sub">Reproducción aproximada de un listado + formulario con las métricas de cada escenario. No usa Angular Material real; simula alturas y tamaños.</p>
+
+      <div class="demo-wrap">
+        <div class="demo-tabs">
+          <button id="btn-before" class="on">Antes — density 0 · M3 stock</button>
+          <button id="btn-after">Después — density -2 · escala v2.1</button>
+        </div>
+        <div class="demo-stage">
+          <div class="sim" id="sim">
+            <div class="page">
+              <div class="ph">
+                <h5>Clientes</h5>
+                <button class="btn">Nuevo cliente</button>
+              </div>
+              <div class="field">
+                <label>Buscar por RUT o nombre</label>
+                <div class="inp">12.345.678-9</div>
+                <div class="hint">Escribe al menos 3 caracteres</div>
+              </div>
+              <table>
+                <thead><tr><th>RUT</th><th>Nombre</th><th>Comuna</th><th>Previsión</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">11.111.111-1</td><td>Ana Bravo Díaz</td><td>Providencia</td><td>Fonasa</td></tr>
+                  <tr><td class="mono">22.222.222-2</td><td>Carlos Elgueta</td><td>Ñuñoa</td><td>Isapre</td></tr>
+                  <tr><td class="mono">33.333.333-3</td><td>Rosa Fuentes M.</td><td>La Florida</td><td>Fonasa</td></tr>
+                  <tr><td class="mono">44.444.444-4</td><td>Diego Hurtado</td><td>Maipú</td><td>Particular</td></tr>
+                  <tr><td class="mono">55.555.555-5</td><td>Elena Jara Soto</td><td>Santiago</td><td>Fonasa</td></tr>
+                </tbody>
+              </table>
+              <div class="metrics" id="metrics"></div>
+            </div>
+          </div>
+        </div>
+        <p class="legend">Cambia de pestaña para ver el mismo contenido con cada configuración. El alto total del bloque y las filas visibles se recalculan.</p>
+      </div>
+    </section>
+
+    <!-- ============ ACCESIBILIDAD ============ -->
+    <section id="accesibilidad">
+      <h2><span class="n">09</span>Impacto en accesibilidad</h2>
+      <p class="sub">La reducción de tamaño no puede romper lo que la guía v2.0 ya garantiza.</p>
+      <table>
+        <thead><tr><th>Regla</th><th>Requisito</th><th>Con la propuesta</th></tr></thead>
+        <tbody>
+          <tr><td>Texto de cuerpo mínimo</td><td>≥ 14 px recomendado; 16 px en móvil para no disparar auto-zoom en iOS</td><td><span class="pill ok">OK</span> — cuerpo 13.5–14 px en escritorio; input vuelve a 16 px bajo 600 px (override §7·4)</td></tr>
+          <tr><td>Texto pequeño (hint/error)</td><td>≥ 11–12 px, uso acotado</td><td><span class="pill ok">OK</span> — 11.5 px, solo en subscript de campos y metadatos</td></tr>
+          <tr><td>Área de toque</td><td>≥ 44×44 px táctil / ≥ 32–36 px puntero de escritorio con <code>hit area</code></td><td><span class="pill med">Verificar</span> — botón a 32 px necesita mantener el <code>hitSlop</code>/padding de Material; <code>mat-icon-button</code> conserva 40 px de caja</td></tr>
+          <tr><td>Contraste de texto</td><td>4.5:1 normal / 3:1 grande</td><td><span class="pill ok">Sin cambio</span> — no se toca ningún color; los pares ya verificados siguen válidos</td></tr>
+          <tr><td>Foco visible</td><td>Halo + color, no solo borde 1 px</td><td><span class="pill ok">Sin cambio</span> — el <code>box-shadow</code> de 3 px se conserva</td></tr>
+          <tr><td><code>prefers-reduced-motion</code></td><td>Respetado globalmente</td><td><span class="pill ok">Sin cambio</span></td></tr>
+          <tr><td>Zoom del navegador</td><td>Layout usable al 200 %</td><td><span class="pill med">Probar</span> — grilla de 2 columnas debe colapsar bien; ya lo hace a 600 px</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Único punto de atención real:</strong> botones a 32 px de alto. Material mantiene el área interactiva accesible con su propio <code>touch target</code> interno aunque el visual sea más chico; conviene confirmarlo en dispositivo y, si molesta en tablet, subir solo los botones a density -1.</p>
+    </section>
+
+    <!-- ============ PLAN ============ -->
+    <section id="plan">
+      <h2><span class="n">10</span>Plan de aplicación</h2>
+      <p class="sub">Para una futura sesión de implementación. Incremental y verificable en cada paso.</p>
+      <table>
+        <thead><tr><th>Paso</th><th>Acción</th><th>Archivo(s)</th><th>Verificación</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Confirmar nombres de custom properties y firma del mixin de densidad para Angular Material 21</td><td>—</td><td><code>sass</code> aislado o build; inspeccionar CSS emitido</td></tr>
+          <tr><td>2</td><td><code>density: -2</code> en <code>mat.theme()</code></td><td><code>styles.scss</code></td><td><code>npm run build</code>; revisar altura de inputs/botones en dev server</td></tr>
+          <tr><td>3</td><td>Escala tipográfica v2.1 (overrides de roles)</td><td><code>styles.scss</code></td><td>Comparar login + <code>clientes-list</code> + <code>cliente-form</code></td></tr>
+          <tr><td>4</td><td>Excepción móvil 16 px + <code>mat.table-density(-3)</code></td><td><code>styles.scss</code></td><td>DevTools responsive 375 px: enfocar un campo, no debe hacer zoom</td></tr>
+          <tr><td>5</td><td>Encabezados §4 y <code>page-header</code></td><td><code>styles.scss</code>, <code>page-header.scss</code></td><td>Jerarquía visual coherente en 3 pantallas</td></tr>
+          <tr><td>6</td><td>Espaciado (<code>.contenido</code>, <code>.filtro</code>, <code>empty-state</code>)</td><td><code>shell.scss</code>, <code>empty-state.scss</code>, <code>clientes-list.scss</code></td><td>Filas visibles sin scroll; sin solapes</td></tr>
+          <tr><td>7</td><td>(Opcional marca) cabecera de tabla liviana + acentos cálidos puntuales</td><td><code>styles.scss</code>, componentes puntuales</td><td>Revisión visual claro/oscuro</td></tr>
+          <tr><td>8</td><td><code>npm run lint</code> + <code>npm test</code> + <code>npm run build</code> sin warnings de budget nuevos</td><td>—</td><td>Todo en verde</td></tr>
+          <tr><td>9</td><td>Actualizar <code>.agents/context/branding-ux-ui.md</code>, <code>src/Guia_de_estilo/index.html</code> y <code>Manual_Tecnico_UX_OPT.docx</code> en la misma sesión</td><td>docs</td><td>Coherencia doc ↔ código</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Riesgos y mitigaciones</h3>
+      <ul class="clean">
+        <li><strong>Bug de <code>appearance="outline"</code> en densidades bajas</strong> (borde/label recortados) → si aparece, <code>appearance="fill"</code> o density -1 solo en form fields.</li>
+        <li><strong>Budget de <code>angular.json</code></strong> — esta propuesta no agrega un tercer set de tokens (solo sobrescribe valores), el impacto en tamaño de CSS es marginal.</li>
+        <li><strong>Regresión visual en <code>.spec.ts</code></strong> — los tests actuales no asertan sobre tamaños; no deberían romperse. Confirmar igual.</li>
+        <li><strong>Percepción del equipo</strong> — cambio notorio. Mostrar el antes/después (esta página, §8) antes de mergear.</li>
+      </ul>
+    </section>
+
+    <!-- ============ CHECKLIST ============ -->
+    <section id="checklist">
+      <h2><span class="n">11</span>Checklist de la propuesta</h2>
+      <div class="card">
+        <ul class="clean">
+          <li>✔ Causa raíz identificada: densidad <code>0</code> + escala M3 stock, no <code>font-size</code> sueltos.</li>
+          <li>✔ Solución centralizada en <code>styles.scss</code> + 2 archivos de layout; cero cambios feature por feature.</li>
+          <li>✔ <code>density: -2</code> global, <code>-3</code> en tablas.</li>
+          <li>✔ Escala tipográfica compacta v2.1 (input 14 px escritorio / 16 px móvil, cuerpo 13.5–14, H1 24).</li>
+          <li>✔ Sin cambios de paleta, familias tipográficas, tagline, logo ni tono.</li>
+          <li>✔ Accesibilidad revisada: excepción móvil 16 px, contraste intacto, foco intacto.</li>
+          <li>✔ Evaluación de marca: "robusto" logrado, "sencillo" lo arregla la densidad, "amigable" subrepresentado → 4 ajustes de baja prioridad.</li>
+          <li>✔ Plan de 9 pasos con verificación por paso.</li>
+          <li>▢ Pendiente: confirmar API de densidad/tokens de Angular Material 21 y validar con el equipo.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="foot">
+      <hr>
+      <p>OPT · Propuesta v2.1 — densidad y tipografía · documento de análisis, no implementado · complementa <code>src/Guia_de_estilo/index.html</code> (guía v2.0 vigente) y <code>.agents/context/branding-ux-ui.md</code>. Generado siguiendo la skill <code>.agents/skills/ui-ux-pro-max</code> (categorías 5 Layout, 6 Typography &amp; Color, 8 Forms).</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  // Theme toggle
+  var tt = document.getElementById('tt');
+  tt.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    tt.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    var t = b.dataset.t;
+    if(t === 'system'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', t); }
+  });
+
+  // Sidebar active on scroll
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.side a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 120, idx = 0;
+    secs.forEach(function(s,i){ if(s && s.offsetTop <= y) idx = i; });
+    links.forEach(function(a,i){ a.classList.toggle('active', i === idx); });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // Before/After demo
+  var sim = document.getElementById('sim');
+  var metrics = document.getElementById('metrics');
+  var bBefore = document.getElementById('btn-before');
+  var bAfter = document.getElementById('btn-after');
+  var data = {
+    before: { label:'Antes', inp:'16 px', h:'56 px', row:'52 px', h1:'28 px', form:'~920 px', rows:'≈ 6 filas / viewport' },
+    after:  { label:'Después', inp:'14 px (16 móvil)', h:'44 px', row:'40 px', h1:'24 px', form:'~700 px  (−24%)', rows:'≈ 10 filas / viewport' }
+  };
+  function render(mode){
+    sim.classList.toggle('after', mode === 'after');
+    bBefore.classList.toggle('on', mode === 'before');
+    bAfter.classList.toggle('on', mode === 'after');
+    var d = data[mode];
+    metrics.innerHTML =
+      'Texto de input: <b>'+d.inp+'</b>' +
+      '<span>Alto de campo: <b>'+d.h+'</b></span>' +
+      '<span>Fila de tabla: <b>'+d.row+'</b></span>' +
+      '<span>H1: <b>'+d.h1+'</b></span>' +
+      '<span>Form 11 campos: <b>'+d.form+'</b></span>' +
+      '<span>'+d.rows+'</span>';
+  }
+  bBefore.addEventListener('click', function(){ render('before'); });
+  bAfter.addEventListener('click', function(){ render('after'); });
+  render('before');
+})();
+</script>
+</body>
+</html>

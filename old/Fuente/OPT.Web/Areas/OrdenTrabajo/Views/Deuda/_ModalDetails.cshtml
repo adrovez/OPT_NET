@@ -1,0 +1,83 @@
+﻿@model IEnumerable<OPT.Entidad.sp_DetalleDeudores_Result>
+@{
+    Layout = null;
+    decimal TotalPrecio = 0;
+    decimal TotalAbono = 0;
+    decimal TotalSaldo = 0;
+    int Cont = 0;
+
+}
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-info">
+                <h5 class="modal-title"><i class="fa fa-money-bill"></i> DETALLE LISTA DEUDORES</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>EMPRESA: @ViewBag.Empresa.Empresa</h4>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>N° OT</th>
+                                        <th>Rut</th>
+                                        <th>Nombre</th>
+                                        <th>Celular</th>
+                                        <th>Precio</th>
+                                        <th>Abono</th>
+                                        <th>Saldo</th>
+                                        <th>Cuota</th>
+                                        <th>Valor Cuota</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var Item in Model)
+                                    {
+                                        <tr>
+                                            <td>@Item.idOT</td>
+                                            <td>@Item.RutCliente</td>
+                                            <td>@Item.Nombre</td>
+                                            <td>@Item.Celular</td>
+                                            <td class="text-right number">@Item.Precio</td>
+                                            <td class="text-right number">@Item.Abono</td>
+                                            <td class="text-right number">@Item.Saldo</td>
+                                            <td class="text-right number">@Item.NumeroCuota</td>
+                                            <td class="text-right number">@Item.ValorCuota</td>
+                                        </tr>
+
+                                        TotalPrecio += Convert.ToDecimal(Item.Precio.ToString());
+                                        TotalAbono += Convert.ToDecimal(Item.Abono.ToString());
+                                        TotalSaldo += Convert.ToDecimal(Item.Saldo.ToString());
+                                        Cont++;
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="text-right badge-dark">Total</td>
+                                        <td class="text-right badge-dark number">@TotalPrecio</td>
+                                        <td class="text-right badge-dark number">@TotalAbono </td>
+                                        <td class="text-right badge-dark number">@TotalSaldo </td>
+                                        <td colspan="2" class="text-right badge-dark"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                <a href="@Url.Action("ReporteDetalleDeudores", "Deuda",new {area="OrdenTrabajo",id=ViewBag.Empresa.idEmpresa  })" class="btn btn-sm btn-primary"><i class="fa fa-print"></i> Imprimir</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

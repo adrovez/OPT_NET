@@ -1,0 +1,26 @@
+<header class="page-header">
+  @if (backTo(); as ruta) {
+    <a
+      mat-icon-button
+      class="page-header__volver"
+      [routerLink]="ruta"
+      [attr.aria-label]="backLabel()"
+      [matTooltip]="backLabel()"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+  }
+
+  <div class="page-header__texto">
+    <h1 class="page-header__titulo">{{ title() }}</h1>
+    @if (subtitle(); as sub) {
+      <p class="page-header__subtitulo">{{ sub }}</p>
+    }
+  </div>
+
+  <span class="page-header__espaciador"></span>
+
+  <div class="page-header__acciones">
+    <ng-content />
+  </div>
+</header>

@@ -1,0 +1,15 @@
+============================ 18-04-2023 21:07:21 ============================
+Microsoft.ReportViewer.WebForms
+Void EnsureExecutionSession()
+No se ha especificado el origen de la definición de informe
+   en Microsoft.Reporting.WebForms.LocalReport.EnsureExecutionSession()
+   en Microsoft.Reporting.WebForms.LocalReport.SetParameters(IEnumerable`1 parameters)
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 239
+
+============================ 18-04-2023 21:07:21 ============================
+Microsoft.ReportViewer.WebForms
+Void EnsureExecutionSession()
+No se ha especificado el origen de la definición de informe
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 268
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.Reporte(FormCollection myForm) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 68
+

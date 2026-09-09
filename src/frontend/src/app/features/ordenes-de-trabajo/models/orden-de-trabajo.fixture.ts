@@ -1,0 +1,83 @@
+import { OrdenDeTrabajo } from './orden-de-trabajo.model';
+
+/**
+ * OT de ejemplo para los tests del módulo Comercial. Vive fuera de un `.spec.ts` porque más de
+ * un spec la usa y una constante exportada desde un spec deja a Vitest sin suite que ejecutar
+ * en el archivo que la publica.
+ */
+export const ORDEN_TICKET: OrdenDeTrabajo = {
+  publicId: '33333333-3333-3333-3333-333333333333',
+  numeroOT: 17067,
+  clientePublicId: '22222222-2222-2222-2222-222222222222',
+  clienteRut: '12345678-9',
+  clienteNombre: 'JUANA PEREZ',
+  sucursalId: 1,
+  sucursalNombre: 'Casa Matriz',
+  estadoOTId: 1,
+  estadoOT: 'INGRESADO',
+  precio: 45000,
+  totalAbonado: 20000,
+  saldo: 25000,
+  fechaEntrega: '2026-09-10T00:00:00-04:00',
+  creadoEn: '2026-08-28T10:00:00-04:00',
+  empresaPublicId: null,
+  empresaNombre: null,
+  observaciones: null,
+  beneficiario: null,
+  fechaAtencion: '2026-08-28',
+  horaEntrega: '12:00:00',
+  numeroCuotas: 2,
+  cliente: {
+    publicId: '22222222-2222-2222-2222-222222222222',
+    rut: '12345678-9',
+    nombre: 'JUANA PEREZ',
+    email: null,
+    telefono: '987654321',
+    direccion: null,
+    comunaId: null,
+    comunaNombre: null,
+    regionNombre: null,
+    fechaNacimiento: null,
+    tipoPrevision: 'FONASA',
+  },
+  recetas: [],
+  detalles: [
+    {
+      id: 1,
+      productoId: 5,
+      productoCodigo: 'ARM-01',
+      productoDescripcion: 'Armazón',
+      cantidad: 1,
+      valorUnitario: 45000,
+      total: 45000,
+      comentario: 'FORMOSA F4 C2',
+    },
+  ],
+  abonos: [],
+  pagos: [],
+  cuotas: [
+    {
+      id: 1,
+      numero: 1,
+      valorCuota: 12500,
+      fechaVencimiento: '2026-09-30T00:00:00-04:00',
+      fechaPago: null,
+      formaPagoId: null,
+      formaPago: null,
+      estadoCuotaId: 1,
+      estadoCuota: 'PENDIENTE',
+    },
+    {
+      id: 2,
+      numero: 2,
+      valorCuota: 12500,
+      fechaVencimiento: '2026-10-30T00:00:00-04:00',
+      fechaPago: null,
+      formaPagoId: null,
+      formaPago: null,
+      estadoCuotaId: 3,
+      estadoCuota: 'ANULADA',
+    },
+  ],
+  bitacora: [],
+};

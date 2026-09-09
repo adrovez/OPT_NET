@@ -1,0 +1,68 @@
+﻿@model OPT.Web.Areas.Flujo.Models.EnviarFlujoResponse
+@{
+    Layout = null;
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formEnviarOT" action="@Url.Action("EnviarFlujo","Enviar",new {area="Flujo" })">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idOT" value="@Model.idOt" />
+                <div class="modal-header alert-info">
+                    <h5 class="modal-title"><i class="fa fa-paper-plane"></i> ENVIAR OT N° @Model.idOt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-sm-4">
+                            <label>N° OT</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.idOt" readonly>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Fecha</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.FechaAntencion" readonly>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Estado Actual</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.Estado" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4">
+                            <label>Rut</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.RutCliente" data-tipo="RUT" readonly>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.NombreCliente" readonly>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Empresa</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.Empresa" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-4">
+                            <label>Enviar OT a Flujo</label>
+                            @Html.DropDownList("idEstado", Model.ListEstados as IEnumerable<SelectListItem>, new { @class = "form-control", @required = "required" })
+                        </div>
+                        <div class="col-sm-8">
+                            <label>Observación</label>
+                            <input type="text" id="Observacion" name="Observacion" class="form-control form-control-sm" value="" maxlength="100">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-paper-plane"></i> Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

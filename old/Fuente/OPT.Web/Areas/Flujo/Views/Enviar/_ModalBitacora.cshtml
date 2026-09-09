@@ -1,0 +1,35 @@
+﻿@model IEnumerable<OPT.Web.Areas.Flujo.Models.BitacoraResponse>
+@{
+    Layout = null;
+    var IdOT = Model.First().idOT;
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-info">
+                <h5 class="modal-title"><i class="fa fa-history"></i> BITACORA OT N° @IdOT </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @foreach (var item in Model)
+                {                   
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@item.Estado</h6>
+                            <small class="text-muted">@item.Fecha</small>
+                        </div>
+                        <p class="mb-1">Observacion: @item.Observacion</p>
+                        <small class="text-muted">Responsable: @item.Responsable</small>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

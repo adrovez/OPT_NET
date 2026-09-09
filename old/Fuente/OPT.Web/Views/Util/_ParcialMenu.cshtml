@@ -1,0 +1,76 @@
+﻿@{
+    OPT.Entidad.DTO.SessionDTO mySession = new OPT.Entidad.DTO.SessionDTO();
+    OPT.Web.Libreria.UsuarioConectado.ValidaSession(ref mySession);
+    Layout = null;
+}
+
+@if (mySession.idRol == 1)
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-cogs"></span> Administrar</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a href="@Url.Action("Index","Sucursal",new { area = "Administrar" })" class="dropdown-item"><span class="fa fa-store-alt"></span> Sucursal</a>
+            <a href="@Url.Action("Index","Empleado",new { area = "Administrar" })" class="dropdown-item"><span class="fa fa-users"></span> Empleado</a>
+            <a href="@Url.Action("Index", "Empresa", new { area = "Empresas" })" class="dropdown-item"><span class="fa fa-building "></span> Empresa</a>
+            <a href="@Url.Action("Index", "Deuda", new { area = "OrdenTrabajo" })" class="dropdown-item"><span class="fa fa-money-check"></span> Deudores</a>
+        </div>
+    </li>
+}
+
+@if (mySession.idRol == 1 || mySession.idRol == 4)
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-stethoscope"></span> Atencion</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a href="@Url.Action("Index", "Atencion", new { area = "Clientes" })" class="dropdown-item"><span class="fa fa-search"></span> Lista Atención</a>
+            <a href="@Url.Action("Create", "Atencion", new { area = "Clientes" })" class="dropdown-item"><span class="fa fa-plus"></span> Ingreso Atención</a>
+        </div>
+    </li>
+}
+
+@if (mySession.idRol == 1 || mySession.idRol == 2)
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span> Clientes</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a href="@Url.Action("Index", "Cliente", new { area = "Clientes" })" class="dropdown-item"><span class="fa fa-search"></span> Buscar Cliente</a>
+            <a href="@Url.Action("Create", "Cliente", new { area = "Clientes" })" class="dropdown-item"><span class="fa fa-plus"></span> Nuevo Cliente</a>
+        </div>
+    </li>
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-glasses"></span> Producto</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a href="@Url.Action("Index", "Producto", new { area = "Productos" })" class="dropdown-item"><span class="fa fa-search"></span> Buscar Producto</a>
+            <a href="@Url.Action("Index", "Ingreso", new { area = "Productos" })" class="dropdown-item"><span class="fa fa-plus"></span> Ingreso Compra</a>
+        </div>
+    </li>
+}
+
+@if (mySession.idRol !=4)
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-clipboard"></span> OT</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            @*<a href="@Url.Action("Index","OT",new { area = "OrdenTrabajo" })" class="dropdown-item"><span class="fa fa-list"></span> Lista OT</a>*@
+            <a href="@Url.Action("Index", "Ingreso", new { area = "OrdenTrabajo" })" class="dropdown-item"><span class="fa fa-search"></span> Buscar OT</a>
+            <a href="@Url.Action("Create", "Ingreso", new { area = "OrdenTrabajo" })" class="dropdown-item"><span class="fa fa-plus"></span> Nueva OT</a>
+        </div>
+    </li>
+}
+
+    @if (mySession.idRol == 1)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-clipboard"></span> Reportes</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a href="@Url.Action("Atencion", "Reporte", new { area = "Reportes" })" class="dropdown-item"><span class="fa fa-print"></span> Atención</a>
+                <a href="@Url.Action("Index", "PagoDiario", new { area = "Reportes" })" class="dropdown-item"><span class="fa fa-print"></span> Pagos Diarios</a>
+                <a href="@Url.Action("Index", "VentaDiaria", new { area = "Reportes" })" class="dropdown-item"><span class="fa fa-print"></span> Ventas Diarias</a>
+                <a href="@Url.Action("Index", "Reporte", new { area = "Reportes" })" class="dropdown-item"><span class="fa fa-print"></span> Varios</a>
+
+
+            </div>
+        </li>
+
+    }

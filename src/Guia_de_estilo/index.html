@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPT — Guía de Estilo v2.0 (Propuesta)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ===== Paleta propuesta v2.0 ===== */
+    --opt-primary-dark:#1B3A66;
+    --opt-primary:#2F5D8A;
+    --opt-primary-light:#5B87B3;
+    --opt-primary-container:#DCE8F5;
+
+    --opt-accent:#E2703B;
+    --opt-accent-dark:#A8471E;
+    --opt-accent-container:#FCE3D2;
+
+    --opt-surface:#F7F9FB;
+    --opt-surface-dim:#E8ECF1;
+    --opt-outline:#C7CFD9;
+    --opt-on-surface:#1A2230;
+    --opt-on-surface-variant:#55606F;
+
+    --opt-estado-0:#DCE8F5; --opt-estado-0-fg:var(--opt-on-surface);
+    --opt-estado-1:#B7D0EA; --opt-estado-1-fg:var(--opt-on-surface);
+    --opt-estado-2:#8FB4DA; --opt-estado-2-fg:var(--opt-on-surface);
+    --opt-estado-3:#5F8FC0; --opt-estado-3-fg:var(--opt-on-surface);
+    --opt-estado-4:#3A6EA0; --opt-estado-4-fg:#FFFFFF;
+    --opt-estado-5:#1E4A78; --opt-estado-5-fg:#FFFFFF;
+    --opt-estado-6:#1F8A4C; --opt-estado-6-fg:#FFFFFF;
+
+    --font-display:'Fraunces', Georgia, serif;
+    --font-ui:'IBM Plex Sans', 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', 'Consolas', monospace;
+
+    --sidebar-w: 264px;
+    --shadow-sm: 0 1px 2px rgba(26,34,48,.06), 0 1px 1px rgba(26,34,48,.04);
+    --shadow-md: 0 4px 14px rgba(26,34,48,.08);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-ui);
+    color:var(--opt-on-surface);
+    background:var(--opt-surface);
+    line-height:1.55;
+    font-size:15px;
+  }
+  a{color:var(--opt-primary);}
+  code, .mono{font-family:var(--font-mono);}
+
+  /* ---------- Layout ---------- */
+  .shell{display:flex; min-height:100vh;}
+  nav.sidebar{
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    background:var(--opt-primary-dark);
+    color:#EAF1F8;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    padding:28px 0 40px;
+  }
+  nav.sidebar .brand{
+    display:flex; align-items:center; gap:10px;
+    padding:0 24px 22px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+    margin-bottom:14px;
+  }
+  nav.sidebar .brand svg{width:34px;height:34px;flex-shrink:0;}
+  nav.sidebar .brand div{font-family:var(--font-display); font-weight:600; font-size:17px; letter-spacing:.3px;}
+  nav.sidebar .brand small{display:block; font-family:var(--font-ui); font-weight:400; font-size:10.5px; letter-spacing:.6px; opacity:.65; text-transform:uppercase;}
+  nav.sidebar .group-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.8px; opacity:.5;
+    padding:16px 24px 6px;
+  }
+  nav.sidebar a{
+    display:block; color:#CBDCEC; text-decoration:none;
+    padding:8px 24px; font-size:13.5px; border-left:3px solid transparent;
+  }
+  nav.sidebar a:hover{background:rgba(255,255,255,.06); color:#fff;}
+  nav.sidebar a.active{border-left-color:var(--opt-accent); color:#fff; background:rgba(255,255,255,.08); font-weight:500;}
+
+  main{flex:1; min-width:0;}
+
+  header.hero{
+    background:linear-gradient(135deg, var(--opt-primary) 0%, var(--opt-primary-dark) 100%);
+    color:#fff; padding:64px 56px 56px; position:relative; overflow:hidden;
+  }
+  header.hero::after{
+    content:''; position:absolute; right:-80px; top:-80px; width:340px; height:340px;
+    border-radius:50%; background:radial-gradient(circle at 35% 35%, rgba(226,112,59,.35), transparent 70%);
+  }
+  header.hero .eyebrow{
+    display:inline-block; font-size:12px; letter-spacing:1px; text-transform:uppercase;
+    background:rgba(255,255,255,.14); padding:5px 12px; border-radius:999px; margin-bottom:18px;
+  }
+  header.hero h1{font-family:var(--font-display); font-weight:600; font-size:44px; margin:0 0 12px; max-width:720px;}
+  header.hero p.lead{font-size:17px; max-width:640px; opacity:.92; margin:0 0 22px;}
+  header.hero .tagline{font-family:var(--font-display); font-style:italic; font-size:20px; opacity:.95;}
+
+  .status-banner{
+    background:var(--opt-accent-container); border-left:4px solid var(--opt-accent-dark);
+    color:var(--opt-on-surface); padding:16px 22px; margin:-28px 56px 0; position:relative; z-index:1;
+    border-radius:8px; font-size:13.5px; box-shadow:var(--shadow-md);
+  }
+  .status-banner strong{color:var(--opt-accent-dark);}
+
+  section{padding:56px 56px 8px; max-width:1040px;}
+  section h2{
+    font-family:var(--font-display); font-weight:600; font-size:28px; margin:0 0 6px;
+    display:flex; align-items:center; gap:10px;
+  }
+  section .section-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:30px; height:30px; border-radius:8px; background:var(--opt-primary-container);
+    color:var(--opt-primary-dark); font-family:var(--font-mono); font-size:13px; font-weight:600;
+  }
+  section > p.section-intro{color:var(--opt-on-surface-variant); max-width:680px; margin:0 0 28px; font-size:14.5px;}
+  section h3{font-size:16.5px; margin:32px 0 12px; font-weight:600;}
+  section h4{font-size:14px; margin:20px 0 8px; font-weight:600; color:var(--opt-on-surface-variant); text-transform:uppercase; letter-spacing:.4px;}
+
+  hr.divider{border:none; border-top:1px solid var(--opt-outline); margin:0;}
+
+  /* ---------- Cards / grids ---------- */
+  .card{
+    background:#fff; border:1px solid var(--opt-outline); border-radius:12px; padding:20px;
+    box-shadow:var(--shadow-sm);
+  }
+  .grid{display:grid; gap:16px;}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-4{grid-template-columns:repeat(4,1fr);}
+  @media (max-width:820px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr;}}
+
+  /* ---------- Swatches ---------- */
+  .swatch{
+    border-radius:12px; overflow:hidden; border:1px solid var(--opt-outline); cursor:pointer;
+    position:relative; box-shadow:var(--shadow-sm); transition:transform .12s ease;
+  }
+  .swatch:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+  .swatch .fill{height:78px; display:flex; align-items:flex-end; padding:8px;}
+  .swatch .fill .copy-hint{font-size:10px; color:inherit; opacity:.75; font-family:var(--font-mono);}
+  .swatch .meta{background:#fff; padding:10px 12px;}
+  .swatch .meta .name{font-weight:600; font-size:13px;}
+  .swatch .meta .hex{font-family:var(--font-mono); font-size:12px; color:var(--opt-on-surface-variant);}
+  .swatch .meta .role{font-size:11.5px; color:var(--opt-on-surface-variant); margin-top:4px; line-height:1.4;}
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--opt-on-surface); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px;
+    opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* ---------- Tables ---------- */
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:14px 0 6px;}
+  th, td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--opt-outline); vertical-align:top;}
+  th{background:var(--opt-primary-container); color:var(--opt-primary-dark); font-weight:600; font-size:12.5px; text-transform:uppercase; letter-spacing:.3px;}
+  tr:hover td{background:var(--opt-surface-dim);}
+
+  .ratio-pill{display:inline-block; padding:2px 9px; border-radius:999px; font-size:11.5px; font-weight:600; font-family:var(--font-mono);}
+  .ratio-aaa{background:#DCF3E4; color:#166534;}
+  .ratio-aa{background:#DCE8F5; color:var(--opt-primary-dark);}
+  .ratio-large{background:var(--opt-accent-container); color:var(--opt-accent-dark);}
+
+  /* ---------- Type specimens ---------- */
+  .specimen{border:1px solid var(--opt-outline); border-radius:12px; padding:22px; background:#fff; margin-bottom:14px;}
+  .specimen .label{font-size:11.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--opt-on-surface-variant); margin-bottom:10px; display:flex; justify-content:space-between;}
+  .specimen .sample-display{font-family:var(--font-display); font-weight:600; font-size:38px; line-height:1.15;}
+  .specimen .sample-h1{font-family:var(--font-ui); font-weight:600; font-size:27px;}
+  .specimen .sample-h2{font-family:var(--font-ui); font-weight:600; font-size:21px;}
+  .specimen .sample-body{font-family:var(--font-ui); font-weight:400; font-size:15px;}
+  .specimen .sample-mono{font-family:var(--font-mono); font-weight:500; font-size:15px;}
+
+  /* ---------- Buttons / chips demo ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--font-ui); font-weight:600;
+    font-size:13.5px; padding:9px 20px; border-radius:999px; border:none; cursor:default;
+  }
+  .btn-primary{background:var(--opt-primary); color:#fff;}
+  .btn-outline{background:transparent; color:var(--opt-primary); border:1.5px solid var(--opt-primary);}
+  .btn-text{background:transparent; color:var(--opt-primary); padding-left:8px; padding-right:8px;}
+  .btn-accent{background:var(--opt-accent); color:var(--opt-on-surface);}
+
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
+    padding:5px 13px; border-radius:999px;
+  }
+
+  .badge-clinico{
+    display:inline-flex; align-items:center; gap:5px; padding:3px 12px; border-radius:999px;
+    background:var(--opt-primary-dark); color:#fff; font-size:11.5px; font-weight:500;
+  }
+
+  .empty-state-demo{
+    border:1.5px dashed var(--opt-outline); border-radius:12px; padding:36px 20px; text-align:center;
+    color:var(--opt-on-surface-variant); font-size:13.5px;
+  }
+  .empty-state-demo .material-symbols-rounded{font-size:32px; color:var(--opt-primary); display:block; margin:0 auto 10px;}
+
+  table.demo-table{background:#fff; border:1px solid var(--opt-outline); border-radius:10px; overflow:hidden;}
+  table.demo-table th{background:var(--opt-primary-container); color:var(--opt-primary-dark);}
+  table.demo-table tr:hover td{background:var(--opt-primary-container);}
+
+  .mockup-dialog{border:1px solid var(--opt-outline); border-radius:10px; background:#fff; overflow:hidden; box-shadow:var(--shadow-md);}
+  .mockup-dialog .dialog-title{color:var(--opt-primary); font-weight:600; padding:16px 18px 8px; font-size:15px;}
+  .mockup-dialog .dialog-body{padding:0 18px 18px; font-size:13px; color:var(--opt-on-surface-variant);}
+
+  /* ---------- Voice/tone ---------- */
+  .tone-example{background:var(--opt-surface-dim); border-radius:10px; padding:12px 16px; font-size:13.5px; margin-top:8px;}
+  .tone-example .quote{font-style:italic;}
+
+  /* ---------- Token mapping ---------- */
+  .token-map td:first-child{font-family:var(--font-mono); font-size:12.5px; color:var(--opt-primary-dark);}
+
+  /* ---------- Compare before/after ---------- */
+  .compare{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:760px){.compare{grid-template-columns:1fr;}}
+  .compare .col{border-radius:12px; padding:18px; border:1px solid var(--opt-outline);}
+  .compare .col.before{background:#F5F2ED;}
+  .compare .col.after{background:var(--opt-primary-container);}
+  .compare .col h4{margin-top:0; color:inherit; text-transform:none; letter-spacing:0; font-size:13px; opacity:.7;}
+  .compare .swatchrow{display:flex; gap:8px; margin:10px 0;}
+  .compare .swatchrow div{width:34px; height:34px; border-radius:8px; border:1px solid rgba(0,0,0,.08);}
+
+  .pending-list li{margin-bottom:10px; font-size:13.5px;}
+  .pending-list li strong{color:var(--opt-accent-dark);}
+
+  footer{padding:40px 56px 60px; color:var(--opt-on-surface-variant); font-size:12.5px; border-top:1px solid var(--opt-outline); margin-top:24px;}
+
+  @media (max-width:900px){
+    nav.sidebar{display:none;}
+    section, header.hero, footer{padding-left:24px; padding-right:24px;}
+    .status-banner{margin-left:24px; margin-right:24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="brand">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="18" stroke="#EAF1F8" stroke-width="5"/>
+        <circle cx="31" cy="17" r="3.4" fill="#E2703B"/>
+      </svg>
+      <div>OPT<small>Guía de estilo</small></div>
+    </div>
+    <div class="group-label">Marca</div>
+    <a href="#principios">1. Principios</a>
+    <a href="#logotipo">2. Logotipo</a>
+    <a href="#color">3. Color</a>
+    <a href="#tipografia">4. Tipografía</a>
+    <a href="#voz-tono">5. Voz y tono</a>
+    <div class="group-label">Interfaz</div>
+    <a href="#componentes">6. Componentes</a>
+    <a href="#iconografia">7. Iconografía</a>
+    <a href="#accesibilidad">8. Accesibilidad</a>
+    <div class="group-label">Implementación</div>
+    <a href="#angular">9. Angular Material</a>
+    <a href="#comparativa">10. Antes / después</a>
+    <a href="#pendientes">11. Pendientes</a>
+    <div class="group-label">Sistema (2ª pasada)</div>
+    <a href="#espaciado">12. Espaciado y ritmo</a>
+    <a href="#elevacion">13. Elevación y forma</a>
+    <a href="#movimiento">14. Movimiento</a>
+    <a href="#modo-oscuro">15. Modo oscuro</a>
+    <a href="#formularios">16. Layout de formularios</a>
+    <a href="#tablas">17. Tablas y listados</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">v2.0 · aplicada al código · pendiente validación con stakeholders</span>
+      <h1>Guía de estilo OPT</h1>
+      <p class="lead">Sistema visual y de contenido para la migración del frontend a Angular. Reemplaza la paleta, tipografía y tono de la propuesta v1.0 — mantiene el isotipo, la lógica de estados por catálogo y las reglas de accesibilidad ya verificadas.</p>
+      <p class="tagline">"Todo en foco."</p>
+    </header>
+
+    <div class="status-banner">
+      <strong>Estado (act. 2026-08-27):</strong> la dirección v2.0 (añil + terracota, Fraunces / IBM Plex, "Todo en foco") <strong>ya está aplicada</strong> en <code>src/frontend</code> — <code>theme-colors.scss</code>, <code>theme-tokens.scss</code> y <code>styles.scss</code> reflejan esta guía. Lo que sigue pendiente es la <strong>validación con stakeholders reales</strong> (dueños de óptica, equipo de atención) y el <strong>vector final del isotipo</strong> — ver sección 11. Una 2ª pasada de UX/UI (misma fecha) agregó las secciones 12–17 (espaciado, elevación, movimiento, modo oscuro, formularios, tablas) sin cambiar color, tipografía ni tono. <strong>Propuesta v2.1 (misma fecha), también aplicada:</strong> <code>density: -2</code> + escala tipográfica compacta (input 16→14px en escritorio / 16px en móvil, cuerpo 14→13.5, H1 27→24, título de diálogo 22→19), cabecera de tabla liviana y un guiño humanista (Fraunces + terracota) en <code>app-empty-state</code>. Detalle y comparativa antes/después en <a href="propuesta-densidad-tipografia.html">propuesta-densidad-tipografia.html</a> — los tamaños indicados en las secciones de tipografía de abajo son los de v2.0 (pre-v2.1).
+    </div>
+
+    <!-- 1. PRINCIPIOS -->
+    <section id="principios">
+      <h2><span class="section-num">01</span> Principios de diseño</h2>
+      <p class="section-intro">Cuatro ideas que deben poder explicar cualquier decisión visual de este documento — si una pantalla nueva no encaja en ninguna, algo está mal planteado, no el principio.</p>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">Precisión antes que decoración</h3>
+          <p style="font-size:13.5px; color:var(--opt-on-surface-variant); margin:0;">OPT gestiona recetas, stock y dinero. El color comunica estado y jerarquía, nunca es ornamento — cada uso de <code>accent</code> debe poder justificarse como "esto es lo único que quiero que mires primero".</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">En foco, no clínico</h3>
+          <p style="font-size:13.5px; color:var(--opt-on-surface-variant); margin:0;">Se maneja información de salud (recetas, anamnesis), pero la interfaz de trabajo diario no debe sentirse como una ficha médica fría. Calidez controlada: azul profundo con un acento cálido, tipografía con carácter en los titulares.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">Diferenciarse del teal genérico</h3>
+          <p style="font-size:13.5px; color:var(--opt-on-surface-variant); margin:0;">El teal + Inter/Roboto es el default de casi todo SaaS de salud. Un azul añil más profundo y una tipografía menos vista (IBM Plex, Fraunces) dan identidad propia sin sacrificar legibilidad ni el ecosistema Material.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">Accesible por cálculo, no por ojo</h3>
+          <p style="font-size:13.5px; color:var(--opt-on-surface-variant); margin:0;">Se hereda la regla más importante de la v1.0: ningún par texto/fondo se aprueba sin calcular el ratio WCAG. Esta guía trae los cálculos ya hechos — ver sección 8.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 2. LOGOTIPO -->
+    <section id="logotipo">
+      <h2><span class="section-num">02</span> Logotipo</h2>
+      <p class="section-intro">El concepto se mantiene — es sólido y no fue objetado. Cambia únicamente su color, alineado a la paleta nueva. <strong>No existe vector final</strong>; lo de abajo es una representación de referencia para diseño, no el archivo de producción.</p>
+
+      <div class="grid grid-3">
+        <div class="card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:32px;">
+          <svg viewBox="0 0 96 96" width="72" height="72">
+            <circle cx="48" cy="48" r="36" stroke="var(--opt-primary)" stroke-width="9" fill="none"/>
+            <circle cx="63" cy="34" r="6.5" fill="var(--opt-accent)"/>
+          </svg>
+          <span style="font-size:12px; color:var(--opt-on-surface-variant);">Isotipo — uso mínimo 24px</span>
+        </div>
+        <div class="card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:32px;">
+          <svg viewBox="0 0 96 96" width="52" height="52">
+            <circle cx="48" cy="48" r="36" stroke="var(--opt-primary)" stroke-width="9" fill="none"/>
+            <circle cx="63" cy="34" r="6.5" fill="var(--opt-accent)"/>
+          </svg>
+          <div style="font-family:var(--font-display); font-weight:600; font-size:22px; letter-spacing:.5px;">OPT</div>
+          <div style="font-size:10px; letter-spacing:1.2px; color:var(--opt-on-surface-variant); text-transform:uppercase;">Gestión de ópticas</div>
+        </div>
+        <div class="card" style="background:var(--opt-primary-dark); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:32px;">
+          <svg viewBox="0 0 96 96" width="52" height="52">
+            <circle cx="48" cy="48" r="36" stroke="#EAF1F8" stroke-width="9" fill="none"/>
+            <circle cx="63" cy="34" r="6.5" fill="var(--opt-accent)"/>
+          </svg>
+          <div style="font-family:var(--font-display); font-weight:600; font-size:22px; color:#fff; letter-spacing:.5px;">OPT</div>
+          <div style="font-size:10px; letter-spacing:1.2px; color:#CBDCEC; text-transform:uppercase;">Sobre fondo oscuro</div>
+        </div>
+      </div>
+
+      <h4>Reglas duras (heredadas de v1.0, sin cambios)</h4>
+      <table>
+        <tr><th>Regla</th><th>Detalle</th></tr>
+        <tr><td>Forma</td><td>Círculo perfecto, nunca deformado, escalado no-uniforme ni rotado.</td></tr>
+        <tr><td>Color</td><td>Solo colores de la paleta de la sección 3 — nunca un hex fuera de tabla.</td></tr>
+        <tr><td>Área de protección</td><td>Mínimo un radio del anillo alrededor del isotipo, libre de otros elementos.</td></tr>
+        <tr><td>Tamaño mínimo</td><td>120px de ancho para el lockup completo; 24px para el isotipo solo.</td></tr>
+      </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 3. COLOR -->
+    <section id="color">
+      <h2><span class="section-num">03</span> Color</h2>
+      <p class="section-intro">Roles, no nombres libres — pensados para cargar como tema Angular Material 3. Click en cualquier swatch para copiar el hex.</p>
+
+      <h4>Primario — "Añil"</h4>
+      <div class="grid grid-4">
+        <div class="swatch" data-hex="#1B3A66" onclick="copyHex(this)">
+          <div class="fill" style="background:#1B3A66;"><span class="copy-hint" style="color:#fff;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">primary-dark</div><div class="hex">#1B3A66</div><div class="role">Headers, texto sobre fondos claros, estado pressed</div></div>
+        </div>
+        <div class="swatch" data-hex="#2F5D8A" onclick="copyHex(this)">
+          <div class="fill" style="background:#2F5D8A;"><span class="copy-hint" style="color:#fff;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">primary</div><div class="hex">#2F5D8A</div><div class="role">Color de marca — botones primarios, links, foco, navegación</div></div>
+        </div>
+        <div class="swatch" data-hex="#5B87B3" onclick="copyHex(this)">
+          <div class="fill" style="background:#5B87B3;"><span class="copy-hint" style="color:#fff;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">primary-light</div><div class="hex">#5B87B3</div><div class="role">Hover, iconografía activa</div></div>
+        </div>
+        <div class="swatch" data-hex="#DCE8F5" onclick="copyHex(this)">
+          <div class="fill" style="background:#DCE8F5;"><span class="copy-hint" style="color:#1A2230;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">primary-container</div><div class="hex">#DCE8F5</div><div class="role">Fondos suaves, chips claros</div></div>
+        </div>
+      </div>
+
+      <h4>Acento — "Terracota" (uso deliberadamente escaso)</h4>
+      <div class="grid grid-3">
+        <div class="swatch" data-hex="#E2703B" onclick="copyHex(this)">
+          <div class="fill" style="background:#E2703B;"><span class="copy-hint" style="color:#1A2230;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">accent</div><div class="hex">#E2703B</div><div class="role">CTA secundario puntual (ej. "Nueva OT"). Se pierde valor si se satura la interfaz.</div></div>
+        </div>
+        <div class="swatch" data-hex="#A8471E" onclick="copyHex(this)">
+          <div class="fill" style="background:#A8471E;"><span class="copy-hint" style="color:#fff;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">accent-dark</div><div class="hex">#A8471E</div><div class="role">Texto/ícono sobre fondos con acento claro</div></div>
+        </div>
+        <div class="swatch" data-hex="#FCE3D2" onclick="copyHex(this)">
+          <div class="fill" style="background:#FCE3D2;"><span class="copy-hint" style="color:#1A2230;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">accent-container</div><div class="hex">#FCE3D2</div><div class="role">Fondos de alerta suave</div></div>
+        </div>
+      </div>
+
+      <h4>Neutrales</h4>
+      <div class="grid grid-4">
+        <div class="swatch" data-hex="#F7F9FB" onclick="copyHex(this)">
+          <div class="fill" style="background:#F7F9FB; border-bottom:1px solid var(--opt-outline);"><span class="copy-hint" style="color:#1A2230;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">surface</div><div class="hex">#F7F9FB</div><div class="role">Fondo de aplicación</div></div>
+        </div>
+        <div class="swatch" data-hex="#E8ECF1" onclick="copyHex(this)">
+          <div class="fill" style="background:#E8ECF1;"><span class="copy-hint" style="color:#1A2230;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">surface-dim</div><div class="hex">#E8ECF1</div><div class="role">Fondos alternos, franjas de tabla</div></div>
+        </div>
+        <div class="swatch" data-hex="#C7CFD9" onclick="copyHex(this)">
+          <div class="fill" style="background:#C7CFD9;"><span class="copy-hint" style="color:#1A2230;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">outline</div><div class="hex">#C7CFD9</div><div class="role">Bordes, separadores</div></div>
+        </div>
+        <div class="swatch" data-hex="#1A2230" onclick="copyHex(this)">
+          <div class="fill" style="background:#1A2230;"><span class="copy-hint" style="color:#fff;">click ↦ copiar</span></div>
+          <div class="meta"><div class="name">on-surface</div><div class="hex">#1A2230</div><div class="role">Texto principal</div></div>
+        </div>
+      </div>
+
+      <h4>Color con significado — <code>OPT_EstadoOT</code> (7 valores, proceso lineal)</h4>
+      <p style="font-size:13px; color:var(--opt-on-surface-variant);">Se mantiene la lógica de v1.0: rampa de un solo matiz que se intensifica con el avance, verde reservado exclusivamente para el cierre exitoso. Recalculada para el nuevo azul — el punto de corte oscuro/blanco se mueve un escalón antes (ver sección 8).</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;">
+        <span class="chip" style="background:#DCE8F5; color:#1A2230;">0 · INGRESADO</span>
+        <span class="chip" style="background:#B7D0EA; color:#1A2230;">1 · EN PROCESO</span>
+        <span class="chip" style="background:#8FB4DA; color:#1A2230;">2 · MONTAJE</span>
+        <span class="chip" style="background:#5F8FC0; color:#1A2230;">3 · LABORATORIO</span>
+        <span class="chip" style="background:#3A6EA0; color:#fff;">4 · CALIDAD</span>
+        <span class="chip" style="background:#1E4A78; color:#fff;">5 · DESPACHO</span>
+        <span class="chip" style="background:#1F8A4C; color:#fff;">6 · ENTREGADO</span>
+      </div>
+
+      <h4><code>OPT_FormaPago</code> (5 valores) — chips neutros, sin jerarquía</h4>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;">
+        <span class="chip" style="background:var(--opt-primary-container); color:var(--opt-primary-dark);">EFECTIVO</span>
+        <span class="chip" style="background:var(--opt-primary-container); color:var(--opt-primary-dark);">TARJETA CRÉDITO</span>
+        <span class="chip" style="background:var(--opt-primary-container); color:var(--opt-primary-dark);">TARJETA DÉBITO</span>
+        <span class="chip" style="background:var(--opt-primary-container); color:var(--opt-primary-dark);">TRANSFERENCIA</span>
+        <span class="chip" style="background:var(--opt-surface-dim); color:var(--opt-on-surface-variant);">SIN INFORMACIÓN</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 4. TIPOGRAFIA -->
+    <section id="tipografia">
+      <h2><span class="section-num">04</span> Tipografía</h2>
+      <p class="section-intro">Se reemplaza Manrope/Poppins + Inter/Roboto por un par menos genérico y con más carácter, manteniendo compatibilidad total con la tipografía por defecto de Angular Material.</p>
+
+      <div class="specimen">
+        <div class="label"><span>Fraunces · 600 — Titulares y marca</span><span>Login, portada, marketing</span></div>
+        <div class="sample-display">Todo en foco.</div>
+      </div>
+      <div class="specimen">
+        <div class="label"><span>IBM Plex Sans · 600 — Título de página / diálogo</span><span>27px</span></div>
+        <div class="sample-h1">Órdenes de trabajo</div>
+      </div>
+      <div class="specimen">
+        <div class="label"><span>IBM Plex Sans · 600 — Encabezado de sección</span><span>21px</span></div>
+        <div class="sample-h2">Datos de la receta</div>
+      </div>
+      <div class="specimen">
+        <div class="label"><span>IBM Plex Sans · 400 — Cuerpo / interfaz</span><span>15px</span></div>
+        <div class="sample-body">Reemplaza a Roboto en toda la aplicación. Buen soporte de tildes y ñ, óptico a tamaños chicos de tabla.</div>
+      </div>
+      <div class="specimen">
+        <div class="label"><span>IBM Plex Mono · 500 — Folios, RUT, montos</span><span>15px</span></div>
+        <div class="sample-mono">OT-2026-004821 · 12.345.678-9 · $84.900</div>
+      </div>
+
+      <h4>Reglas de uso</h4>
+      <table>
+        <tr><th>Rol</th><th>Familia</th><th>Fallback de sistema</th><th>Uso</th></tr>
+        <tr><td>Titulares / marca</td><td>Fraunces (500/600)</td><td>Georgia, serif</td><td>Portada, login, material de marketing — nunca en la interfaz de trabajo diario</td></tr>
+        <tr><td>Interfaz y cuerpo</td><td>IBM Plex Sans (400/500/600)</td><td>Segoe UI, sans-serif</td><td>Toda la aplicación — reemplaza el default Roboto de Angular Material</td></tr>
+        <tr><td>Datos / código</td><td>IBM Plex Mono (400/500)</td><td>Consolas, monospace</td><td>Folios de OT, RUT, montos, fechas en tablas densas</td></tr>
+      </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 5. VOZ Y TONO -->
+    <section id="voz-tono">
+      <h2><span class="section-num">05</span> Voz y tono</h2>
+      <p class="section-intro">Se mantiene el nombre <strong>OPT</strong> (ya es prefijo de tablas y nombre de proyecto). Cambia el tagline — "Visión clara, gestión clara" se sentía genérico de rubro salud; <strong>"Todo en foco"</strong> juega con el lente óptico y con tener el negocio bajo control, y es más corto para lockups chicos.</p>
+
+      <table>
+        <tr><th>Contexto</th><th>Tono</th><th>Ejemplo</th></tr>
+        <tr><td>Interfaz interna (staff)</td><td>Directo, cercano, tuteo</td><td class="tone-example"><span class="quote">"Guarda los cambios antes de salir"</span></td></tr>
+        <tr><td>Comunicación al cliente</td><td>Formal, cordial, usted</td><td class="tone-example"><span class="quote">"Su orden de trabajo está lista para retiro"</span></td></tr>
+        <tr><td>Mensajes de error</td><td>Sin culpar al usuario, con salida clara</td><td class="tone-example"><span class="quote">"No pudimos guardar la receta. Intenta de nuevo"</span></td></tr>
+        <tr><td>Datos clínicos/sensibles</td><td>Explícito sobre privacidad</td><td class="tone-example"><span class="quote">"Esta información es visible solo para personal autorizado"</span></td></tr>
+      </table>
+      <p style="font-size:13px; color:var(--opt-on-surface-variant);">Evitar en cualquier tono: jerga corporativa vacía ("sinergia", "revolucionario", "best-in-class"), y evitar que el tagline aparezca dentro de la interfaz de trabajo diario — es un elemento de portada/login, no un slogan repetido en cada pantalla.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 6. COMPONENTES -->
+    <section id="componentes">
+      <h2><span class="section-num">06</span> Componentes UI</h2>
+      <p class="section-intro">Lineamientos heredados de v1.0 (no cambian con la nueva paleta) más su aplicación visual con los nuevos tokens.</p>
+
+      <h4>Botones — un solo primario relleno por vista</h4>
+      <div class="card" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button class="btn btn-primary">Guardar</button>
+        <button class="btn btn-outline">Cancelar</button>
+        <button class="btn btn-text">Ver detalle</button>
+        <button class="btn btn-accent">+ Nueva OT</button>
+      </div>
+
+      <h4>Diálogo de formulario</h4>
+      <div class="mockup-dialog" style="max-width:360px;">
+        <div class="dialog-title">Editar sucursal</div>
+        <div class="dialog-body">Todo el CRUD del proyecto abre en <code>MatDialog</code> — el título usa <code>--mat-sys-primary</code>.</div>
+      </div>
+
+      <h4>Tabla con encabezado de marca</h4>
+      <table class="demo-table">
+        <tr><th>Folio</th><th>Cliente</th><th>Estado</th></tr>
+        <tr><td class="mono">OT-2026-00481</td><td>M. Herrera</td><td><span class="chip" style="background:#3A6EA0; color:#fff;">CALIDAD</span></td></tr>
+        <tr><td class="mono">OT-2026-00482</td><td>R. Soto</td><td><span class="chip" style="background:#1F8A4C; color:#fff;">ENTREGADO</span></td></tr>
+      </table>
+
+      <h4>Estado vacío / estado de error (<code>app-empty-state</code>)</h4>
+      <div class="grid grid-2">
+        <div class="empty-state-demo">
+          <span class="material-symbols-rounded">inventory_2</span>
+          Aún no hay productos registrados
+        </div>
+        <div class="empty-state-demo" style="border-color:#EAB6A6;">
+          <span class="material-symbols-rounded" style="color:var(--opt-accent-dark);">error</span>
+          No pudimos cargar el listado — <span style="text-decoration:underline; color:var(--opt-primary);">Reintentar</span>
+        </div>
+      </div>
+
+      <h4>Badge de dato sensible (Ley 21.719)</h4>
+      <span class="badge-clinico">🔒 Información clínica</span>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 7. ICONOGRAFÍA -->
+    <section id="iconografia">
+      <h2><span class="section-num">07</span> Iconografía</h2>
+      <p class="section-intro">Sin cambios respecto a v1.0 — el set ya es correcto y no fue objetado.</p>
+      <table>
+        <tr><th>Propiedad</th><th>Valor</th></tr>
+        <tr><td>Familia</td><td>Material Symbols, variante Rounded</td></tr>
+        <tr><td>Peso</td><td>400 por defecto; 700 solo en estados activos/alerta</td></tr>
+        <tr><td>Grilla</td><td>24×24</td></tr>
+        <tr><td>Área de toque</td><td>Mínimo 40×40px</td></tr>
+      </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 8. ACCESIBILIDAD -->
+    <section id="accesibilidad">
+      <h2><span class="section-num">08</span> Accesibilidad</h2>
+      <p class="section-intro">Regla de trabajo obligatoria, heredada sin excepción: <strong>ningún par texto/fondo se aprueba por percepción visual.</strong> Ratio de contraste WCAG 2.1 sobre luminancia relativa (coeficientes 0.2126/0.7152/0.0722). Mínimos: 4.5:1 texto normal AA, 3:1 texto grande AA, 7:1 AAA.</p>
+
+      <h4>Pares ya calculados para esta propuesta</h4>
+      <table>
+        <tr><th>Combinación</th><th>Ratio</th><th>Resultado</th></tr>
+        <tr><td>Blanco sobre <code>primary</code></td><td>6.9:1</td><td><span class="ratio-pill ratio-aa">AA</span></td></tr>
+        <tr><td>Blanco sobre <code>primary-dark</code></td><td>11.4:1</td><td><span class="ratio-pill ratio-aaa">AAA</span></td></tr>
+        <tr><td><code>on-surface</code> sobre <code>surface</code></td><td>15.1:1</td><td><span class="ratio-pill ratio-aaa">AAA</span></td></tr>
+        <tr><td><code>on-surface-variant</code> sobre <code>surface</code></td><td>6.0:1</td><td><span class="ratio-pill ratio-aa">AA</span></td></tr>
+        <tr><td>Oscuro sobre <code>accent</code></td><td>5.0:1</td><td><span class="ratio-pill ratio-aa">AA</span></td></tr>
+        <tr><td><code>accent-dark</code> sobre <code>accent-container</code></td><td>4.76:1</td><td><span class="ratio-pill ratio-aa">AA</span></td></tr>
+        <tr><td>Oscuro sobre chips INGRESADO/EN PROCESO/MONTAJE/LABORATORIO</td><td>4.7 – 15:1</td><td><span class="ratio-pill ratio-aa">AA/AAA</span></td></tr>
+        <tr><td>Blanco sobre chips CALIDAD/DESPACHO</td><td>5.35 – 9.1:1</td><td><span class="ratio-pill ratio-aa">AA/AAA</span></td></tr>
+        <tr><td>Blanco sobre ENTREGADO</td><td>4.4:1</td><td><span class="ratio-pill ratio-large">AA texto normal, ajustado</span></td></tr>
+      </table>
+      <p style="font-size:12.5px; color:var(--opt-on-surface-variant);">Nota sobre el punto de corte: en v1.0 el cambio de texto oscuro→blanco ocurría en <code>DESPACHO</code> (índice 5); con el nuevo azul ocurre un paso antes, en <code>CALIDAD</code> (índice 4) — no desplazar sin recalcular si se ajusta algún hex de la rampa.</p>
+      <p style="font-size:12.5px; color:var(--opt-on-surface-variant);">Adicional, sin cambios: el estado nunca se comunica solo con color — siempre color + texto o color + ícono.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 9. ANGULAR MATERIAL -->
+    <section id="angular">
+      <h2><span class="section-num">09</span> Aplicación en Angular Material</h2>
+      <p class="section-intro">Mapeo directo a los archivos ya existentes en <code>src/frontend/src</code>, para que implementar esta propuesta sea reemplazar valores, no rearmar la estructura.</p>
+      <table class="token-map">
+        <tr><th>Archivo</th><th>Qué cambia</th></tr>
+        <tr><td>theme-colors.scss</td><td>Regenerar con <code>ng generate @angular/material:theme-color</code> usando <code>primary: #2F5D8A</code>, <code>tertiary: #E2703B</code>. No editar a mano.</td></tr>
+        <tr><td>theme-tokens.scss</td><td>Reemplazar los 12 valores <code>--opt-*</code> por los de la sección 3 de esta guía (paleta manual + rampa de <code>OPT_EstadoOT</code>).</td></tr>
+        <tr><td>styles.scss</td><td><code>mat.theme(...)</code> con <code>typography: 'IBM Plex Sans'</code> en vez de <code>Roboto</code>; cargar Fraunces/IBM Plex en <code>index.html</code> junto a Material Symbols.</td></tr>
+        <tr><td>features/auth/login/*</td><td>Actualizar tagline a "Todo en foco." y lockup con el isotipo recoloreado.</td></tr>
+      </table>
+      <p style="font-size:13px; color:var(--opt-on-surface-variant);">Todo lo demás de la sección "Implementación en código" y "Patrones de UI agregados" de <code>branding-ux-ui.md</code> (navegación horizontal, <code>app-empty-state</code>, scroll horizontal de tablas, nivel de color "moderado" en listados) sigue vigente tal cual — esta propuesta no toca estructura ni patrones de interacción, solo tokens visuales.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 10. COMPARATIVA -->
+    <section id="comparativa">
+      <h2><span class="section-num">10</span> Antes / después</h2>
+      <div class="compare">
+        <div class="col before">
+          <h4>v1.0 — implementada hoy</h4>
+          <div class="swatchrow">
+            <div style="background:#0F6B76;"></div><div style="background:#F2A93B;"></div><div style="background:#0A4A52;"></div>
+          </div>
+          <p style="font-size:13px; margin:0;">Teal + ámbar · Manrope/Poppins + Inter/Roboto · "Visión clara, gestión clara"</p>
+        </div>
+        <div class="col after">
+          <h4>v2.0 — esta propuesta</h4>
+          <div class="swatchrow">
+            <div style="background:#2F5D8A;"></div><div style="background:#E2703B;"></div><div style="background:#1B3A66;"></div>
+          </div>
+          <p style="font-size:13px; margin:0;">Añil + terracota · Fraunces + IBM Plex Sans · "Todo en foco"</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 11. PENDIENTES -->
+    <section id="pendientes">
+      <h2><span class="section-num">11</span> Pendientes — no inventar, decidir con el equipo</h2>
+      <ul class="pending-list">
+        <li><strong>Esta guía es una propuesta, no una decisión.</strong> Antes de tocar código, validar la dirección (paleta/tipografía/tono) — recién ahí regenerar <code>theme-colors.scss</code> y actualizar <code>theme-tokens.scss</code>.</li>
+        <li><strong>Vector final del isotipo</strong> — sigue sin existir un SVG de producción; el de esta guía es una referencia de proporción y color, no el archivo final.</li>
+        <li><strong>Validación con stakeholders reales</strong> (dueños de óptica, equipo de atención) — ninguna versión de branding (v1.0 ni v2.0) pasó por esa fase todavía.</li>
+        <li><strong>Copy legal de consentimiento</strong> para datos de salud (Ley 21.719) — pendiente con equipo legal/DPO, no se resuelve en una guía de estilo.</li>
+        <li>Si se adopta esta propuesta, actualizar <code>.agents/context/branding-ux-ui.md</code> y <code>Manual_Tecnico_UX_OPT.docx</code> en la misma sesión que se cambie el código — son la fuente de verdad para el resto del equipo/agentes.</li>
+      </ul>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 12. ESPACIADO -->
+    <section id="espaciado">
+      <h2><span class="section-num">12</span> Espaciado y ritmo</h2>
+      <p class="section-intro">Escala base 4px. Toda medida de <code>margin</code>, <code>gap</code> y <code>padding</code> en SCSS nuevo usa una de estas variables — nunca un píxel suelto. Definidas en <code>theme-tokens.scss</code>.</p>
+      <table>
+        <tr><th>Token</th><th>Valor</th><th>Uso típico</th></tr>
+        <tr><td class="mono">--opt-space-3xs</td><td>2px</td><td>Ajuste óptico fino</td></tr>
+        <tr><td class="mono">--opt-space-2xs</td><td>4px</td><td>Gap entre ícono y texto</td></tr>
+        <tr><td class="mono">--opt-space-xs</td><td>8px</td><td>Gap entre chips, padding de chip</td></tr>
+        <tr><td class="mono">--opt-space-sm</td><td>12px</td><td>Gap entre acciones, margen bajo un título</td></tr>
+        <tr><td class="mono">--opt-space-md</td><td>16px</td><td>Gap de formulario, padding de tarjeta</td></tr>
+        <tr><td class="mono">--opt-space-lg</td><td>24px</td><td>Padding de contenido, separación de bloques</td></tr>
+        <tr><td class="mono">--opt-space-xl</td><td>32px</td><td>Separación de secciones</td></tr>
+        <tr><td class="mono">--opt-space-2xl</td><td>48px</td><td>Padding vertical de estado vacío / skeleton</td></tr>
+      </table>
+      <p style="font-size:13px; color:var(--opt-on-surface-variant);">El contenido bajo <code>Shell</code> tiene <code>padding: var(--opt-space-lg)</code> (16px en móvil). El encabezado de página (<code>app-page-header</code>) deja <code>--opt-space-lg</code> bajo sí.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 13. ELEVACIÓN Y FORMA -->
+    <section id="elevacion">
+      <h2><span class="section-num">13</span> Elevación y forma</h2>
+      <p class="section-intro">Dos niveles de sombra y cuatro radios de esquina. Se refuerzan en modo oscuro (negro más opaco). En <code>theme-tokens.scss</code>.</p>
+      <h4>Radios</h4>
+      <table>
+        <tr><th>Token</th><th>Valor</th><th>Uso</th></tr>
+        <tr><td class="mono">--opt-radius-sm</td><td>8px</td><td>Barras de skeleton, inputs pequeños</td></tr>
+        <tr><td class="mono">--opt-radius-md</td><td>12px</td><td>Tarjetas, contenedores, diálogos</td></tr>
+        <tr><td class="mono">--opt-radius-lg</td><td>16px</td><td>Contenedores destacados</td></tr>
+        <tr><td class="mono">--opt-radius-pill</td><td>999px</td><td>Botones y chips (regla "radio generoso")</td></tr>
+      </table>
+      <h4>Sombras</h4>
+      <table>
+        <tr><th>Token</th><th>Uso</th></tr>
+        <tr><td class="mono">--opt-elevation-1</td><td>Reposo: tarjeta, encabezado sticky</td></tr>
+        <tr><td class="mono">--opt-elevation-2</td><td>Flotante: menú, diálogo, hover de tarjeta interactiva</td></tr>
+      </table>
+      <p style="font-size:13px; color:var(--opt-on-surface-variant);">Los componentes de Angular Material traen su propia elevación M3 — estos tokens son para superficies propias (tarjetas de historial en la ficha del cliente, contenedores custom).</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 14. MOVIMIENTO -->
+    <section id="movimiento">
+      <h2><span class="section-num">14</span> Movimiento</h2>
+      <p class="section-intro">Transiciones cortas y funcionales — nunca decorativas. Tres duraciones, dos curvas. En <code>theme-tokens.scss</code>.</p>
+      <table>
+        <tr><th>Token</th><th>Valor</th><th>Uso</th></tr>
+        <tr><td class="mono">--opt-motion-fast</td><td>120ms</td><td>Hover, foco, cambio de estado de un control</td></tr>
+        <tr><td class="mono">--opt-motion-base</td><td>200ms</td><td>Entrada/salida de un elemento, expansión</td></tr>
+        <tr><td class="mono">--opt-motion-slow</td><td>320ms</td><td>Transición de página, panel lateral</td></tr>
+        <tr><td class="mono">--opt-easing-standard</td><td>cubic-bezier(.2,0,0,1)</td><td>Curva por defecto</td></tr>
+        <tr><td class="mono">--opt-easing-emphasized</td><td>cubic-bezier(.2,0,0,1.2)</td><td>Elemento que "aterriza" con carácter</td></tr>
+      </table>
+      <p style="font-size:13px; color:var(--opt-on-surface-variant);"><strong>Accesibilidad:</strong> <code>styles.scss</code> tiene un reset global de <code>@media (prefers-reduced-motion: reduce)</code> que anula animaciones y transiciones — no hace falta re-implementarlo por componente. El skeleton de carga apaga su shimmer bajo esa preferencia.</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 15. MODO OSCURO -->
+    <section id="modo-oscuro">
+      <h2><span class="section-num">15</span> Modo oscuro</h2>
+      <p class="section-intro">La app tiene tema claro y oscuro. Por defecto sigue la preferencia del sistema operativo; el usuario puede forzar uno desde el toggle de la barra superior (Claro / Oscuro / Según el sistema). La elección se recuerda en <code>localStorage</code>.</p>
+      <h4>Cómo funciona</h4>
+      <table>
+        <tr><th>Pieza</th><th>Rol</th></tr>
+        <tr><td class="mono">shared/services/tema.ts</td><td>Servicio <code>Tema</code> (<code>providedIn: 'root'</code>). Signal <code>preferencia</code> (<code>light</code>/<code>dark</code>/<code>system</code>) y <code>oscuro</code> (computed). Escribe <code>data-opt-theme</code> en <code>&lt;html&gt;</code>. Persiste en <code>localStorage</code> (<code>opt.tema</code>) con try/catch.</td></tr>
+        <tr><td class="mono">styles.scss</td><td>Emite <code>mat.theme</code> una vez para claro y otra para oscuro (esta versión de Angular Material no acepta <code>theme-type: light dark</code> en una sola emisión). El bloque oscuro aplica bajo <code>@media (prefers-color-scheme: dark)</code> y bajo <code>html[data-opt-theme='dark']</code>.</td></tr>
+        <tr><td class="mono">theme-tokens.scss</td><td>Override oscuro solo de lo que no adapta solo: <code>--opt-accent-container</code> y las sombras. El resto referencia roles M3 o son islas de color.</td></tr>
+      </table>
+      <h4>Reglas al construir UI nueva</h4>
+      <ul class="pending-list">
+        <li>Usar <strong>siempre</strong> <code>var(--mat-sys-*)</code> o <code>var(--opt-*)</code>. Nunca un hex suelto ni <code>#fff</code>/<code>#000</code> literales — salvo sobre un fondo de marca fijo (p. ej. el texto blanco de <code>.opt-badge-clinico</code>, cuyo fondo es <code>--opt-primary-dark</code> en ambos temas).</li>
+        <li>Los chips de <code>OPT_EstadoOT</code> llevan fondo <strong>y</strong> color de texto explícitos: se ven igual en claro y oscuro <strong>a propósito</strong>. Un estado de proceso es semántico, no se invierte con el tema. No agregar variante dark a <code>--opt-estado-ot-*</code>.</li>
+        <li>El <code>maximumWarning</code> de budget <code>initial</code> en <code>angular.json</code> subió de 500 a 550 kB por el 2º set de tokens M3 en CSS — decisión documentada, no accidental.</li>
+      </ul>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 16. FORMULARIOS -->
+    <section id="formularios">
+      <h2><span class="section-num">16</span> Layout de formularios</h2>
+      <p class="section-intro">Todo el CRUD abre en <code>MatDialog</code> (no rutas de alta/edición — ver <code>src/frontend/CLAUDE.md</code>). Estas reglas hacen que un formulario largo siga siendo usable dentro de un diálogo.</p>
+
+      <h4>Agrupar y acomodar</h4>
+      <table>
+        <tr><th>Situación</th><th>Solución</th></tr>
+        <tr><td>≤ 6 campos</td><td>Una columna, sin subtítulos. Es el caso de Sucursal, Empresa, Usuario.</td></tr>
+        <tr><td>&gt; 6 campos</td><td><code>class="opt-form-grid"</code> en <code>&lt;mat-dialog-content&gt;</code> → grilla de 2 columnas (colapsa a 1 bajo 600px). Subtítulos de sección con <code>&lt;p class="opt-form-section"&gt;</code>. Campos de ancho completo (email, dirección, textareas) con <code>.opt-col-2</code>. Referencia: <code>cliente-form</code> — Identificación / Contacto / Ubicación.</td></tr>
+      </table>
+
+      <h4>Validación y ayuda</h4>
+      <ul class="pending-list">
+        <li>Cada campo con validadores muestra <code>&lt;mat-error&gt;</code> por tipo de error (<code>required</code>, <code>maxlength</code>, <code>email</code>, <code>minlength</code>…). El botón Guardar deshabilitado <strong>no</strong> es feedback suficiente.</li>
+        <li><code>&lt;mat-hint&gt;</code> cuando aporta: mínimos de longitud, "el RUT no se puede modificar".</li>
+        <li>Campo de contraseña: botón <code>matSuffix</code> mostrar/ocultar (<code>visibility</code> / <code>visibility_off</code>) con <code>aria-label</code> y <code>aria-pressed</code>, controlado por un signal <code>ocultarClave</code>. Aplica a login, alta de usuario y cambio de clave.</li>
+        <li>Fechas: mostrar con <code>DatePipe</code> (<code>| date: 'dd-MM-yyyy'</code>), nunca el string ISO crudo del backend.</li>
+        <li>El halo de foco reforzado (§6) sigue vigente: <code>primary</code> + fondo <code>primary-container</code>, nunca solo borde de 1px.</li>
+      </ul>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 17. TABLAS Y LISTADOS -->
+    <section id="tablas">
+      <h2><span class="section-num">17</span> Tablas y listados</h2>
+      <p class="section-intro">Estructura estándar de una pantalla de listado, de arriba a abajo.</p>
+
+      <h4>Encabezado</h4>
+      <p style="font-size:13.5px; color:var(--opt-on-surface-variant);">Componente <code>app-page-header</code> (<code>shared/components/page-header/</code>) — nunca un <code>&lt;div class="encabezado"&gt;</code> propio. Inputs: <code>title</code> (obligatorio), <code>subtitle</code>, <code>backTo</code> (ruta del botón de volver), <code>backLabel</code>. La acción primaria de la pantalla se proyecta como contenido. Reemplaza la reimplementación que había en cada feature.</p>
+
+      <h4>Estado de carga</h4>
+      <p style="font-size:13.5px; color:var(--opt-on-surface-variant);">Componente <code>app-list-skeleton</code> (inputs <code>rows</code>, <code>header</code>) — reserva alto, el layout no salta al llegar los datos. Reemplaza el <code>&lt;mat-spinner&gt;</code> suelto flotando arriba a la izquierda. Apaga su shimmer bajo <code>prefers-reduced-motion</code>.</p>
+
+      <h4>Estado vacío / error</h4>
+      <p style="font-size:13.5px; color:var(--opt-on-surface-variant);">Sin cambios respecto a la sección 6 — <code>app-empty-state</code>, tono neutral para "sin datos" y tono error + "Reintentar" para "falló la carga". Un listado con búsqueda distingue además "sin resultados".</p>
+
+      <h4>Cuerpo de la tabla</h4>
+      <table>
+        <tr><th>Elemento</th><th>Regla</th></tr>
+        <tr><td>Encabezado y hover de fila</td><td>Tinte <code>primary-container</code> — ya global (<code>.mat-mdc-table</code> en <code>styles.scss</code>), no estilar por feature.</td></tr>
+        <tr><td>RUT, folios, montos</td><td>Clase <code>.opt-mono</code> (IBM Plex Mono, <code>tabular-nums</code>) en la celda. Aplicado a Clientes, Usuarios, Empresas y la tabla de graduación de la receta.</td></tr>
+        <tr><td>Acciones de fila</td><td>≤ 2 acciones → inline como <code>mat-icon-button</code>. &gt; 2 → 1 primaria inline + <code>mat-menu</code> (<code>more_vert</code>) con el resto, incluida la destructiva. Todo botón con <code>[attr.aria-label]</code> (no basta <code>matTooltip</code>). Destructiva con clase <code>.opt-accion-destructiva</code> (<code>--mat-sys-error</code>).</td></tr>
+        <tr><td>Tablas anchas</td><td>Scroll horizontal automático vía <code>.contenido { overflow-x: auto }</code> en <code>shell.scss</code> — no agregar <code>overflow-x</code> por tabla. Para pantallas con muchas columnas (OT), planificar prioridad/ocultación de columnas antes de depender solo del scroll.</td></tr>
+      </table>
+    </section>
+
+    <footer>
+      OPT — Guía de estilo v2.0 · aplicada al código · Act. 2026-08-27 (2ª pasada UX/UI + Propuesta v2.1 densidad/tipografía, ver <a href="propuesta-densidad-tipografia.html">documento aparte</a>) · Archivo: <code>src/Guia_de_estilo/index.html</code>
+    </footer>
+  </main>
+</div>
+
+<div class="toast" id="toast">Copiado al portapapeles</div>
+
+<script>
+  function copyHex(el){
+    const hex = el.getAttribute('data-hex');
+    if(navigator.clipboard){ navigator.clipboard.writeText(hex).catch(()=>{}); }
+    const toast = document.getElementById('toast');
+    toast.textContent = hex + ' copiado';
+    toast.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(()=>toast.classList.remove('show'), 1400);
+  }
+
+  // Scroll-spy simple para la nav lateral
+  const links = Array.from(document.querySelectorAll('nav.sidebar a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href')));
+  function onScroll(){
+    let current = sections[0];
+    for(const s of sections){ if(s && s.getBoundingClientRect().top - 90 <= 0) current = s; }
+    links.forEach(l => l.classList.toggle('active', current && l.getAttribute('href') === '#' + current.id));
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+</script>
+
+</body>
+</html>

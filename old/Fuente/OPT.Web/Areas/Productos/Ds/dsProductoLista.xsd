@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsProductoLista" targetNamespace="http://tempuri.org/dsProductoLista.xsd" xmlns:mstns="http://tempuri.org/dsProductoLista.xsd" xmlns="http://tempuri.org/dsProductoLista.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="Web.config" AppSettingsPropertyName="DB_OpticaConnectionDS" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="DB_OpticaConnectionDS (Web.config)" ParameterPrefix="@" PropertyReference="AppConfig.System.Configuration.ConfigurationManager.0.ConnectionStrings.DB_OpticaConnectionDS.ConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables>
+          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="OPT_ProductoTableAdapter" GeneratorDataComponentClassName="OPT_ProductoTableAdapter" Name="OPT_Producto" UserDataComponentName="OPT_ProductoTableAdapter">
+            <MainSource>
+              <DbSource ConnectionRef="DB_OpticaConnectionDS (Web.config)" DbObjectName="DB_A25CFD_OPT2.dbo.OPT_Producto" DbObjectType="Table" FillMethodModifier="Public" FillMethodName="Fill" GenerateMethods="Both" GenerateShortCommands="false" GeneratorGetMethodName="GetData" GeneratorSourceName="Fill" GetMethodModifier="Public" GetMethodName="GetData" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="false" UserGetMethodName="GetData" UserSourceName="Fill">
+                <SelectCommand>
+                  <DbCommand CommandType="Text" ModifiedByUser="true">
+                    <CommandText>Select Codigo	
+	  ,Producto
+	  ,FechaIngreso
+	  ,Entrada
+	  ,Salida
+	  ,Stock
+	  ,StockMinimo
+	  ,StockMaximo
+	  ,ControlStock                    
+From OPT_Producto 
+ORDER BY Producto	</CommandText>
+                    <Parameters />
+                  </DbCommand>
+                </SelectCommand>
+              </DbSource>
+            </MainSource>
+            <Mappings>
+              <Mapping SourceColumn="Producto" DataSetColumn="Producto" />
+              <Mapping SourceColumn="FechaIngreso" DataSetColumn="FechaIngreso" />
+              <Mapping SourceColumn="Codigo" DataSetColumn="Codigo" />
+              <Mapping SourceColumn="Entrada" DataSetColumn="Entrada" />
+              <Mapping SourceColumn="Salida" DataSetColumn="Salida" />
+              <Mapping SourceColumn="Stock" DataSetColumn="Stock" />
+              <Mapping SourceColumn="StockMinimo" DataSetColumn="StockMinimo" />
+              <Mapping SourceColumn="StockMaximo" DataSetColumn="StockMaximo" />
+              <Mapping SourceColumn="ControlStock" DataSetColumn="ControlStock" />
+            </Mappings>
+            <Sources />
+          </TableAdapter>
+        </Tables>
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsProductoLista" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="dsProductoLista" msprop:Generator_UserDSName="dsProductoLista">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="OPT_Producto" msprop:Generator_TableClassName="OPT_ProductoDataTable" msprop:Generator_TableVarName="tableOPT_Producto" msprop:Generator_TablePropName="OPT_Producto" msprop:Generator_RowDeletingName="OPT_ProductoRowDeleting" msprop:Generator_RowChangingName="OPT_ProductoRowChanging" msprop:Generator_RowEvHandlerName="OPT_ProductoRowChangeEventHandler" msprop:Generator_RowDeletedName="OPT_ProductoRowDeleted" msprop:Generator_UserTableName="OPT_Producto" msprop:Generator_RowChangedName="OPT_ProductoRowChanged" msprop:Generator_RowEvArgName="OPT_ProductoRowChangeEvent" msprop:Generator_RowClassName="OPT_ProductoRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Producto" msprop:Generator_ColumnVarNameInTable="columnProducto" msprop:Generator_ColumnPropNameInRow="Producto" msprop:Generator_ColumnPropNameInTable="ProductoColumn" msprop:Generator_UserColumnName="Producto">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="FechaIngreso" msprop:Generator_ColumnVarNameInTable="columnFechaIngreso" msprop:Generator_ColumnPropNameInRow="FechaIngreso" msprop:Generator_ColumnPropNameInTable="FechaIngresoColumn" msprop:Generator_UserColumnName="FechaIngreso" type="xs:dateTime" />
+              <xs:element name="Codigo" msprop:Generator_ColumnVarNameInTable="columnCodigo" msprop:Generator_ColumnPropNameInRow="Codigo" msprop:Generator_ColumnPropNameInTable="CodigoColumn" msprop:Generator_UserColumnName="Codigo">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Entrada" msprop:Generator_ColumnVarNameInTable="columnEntrada" msprop:Generator_ColumnPropNameInRow="Entrada" msprop:Generator_ColumnPropNameInTable="EntradaColumn" msprop:Generator_UserColumnName="Entrada" type="xs:int" minOccurs="0" />
+              <xs:element name="Salida" msprop:Generator_ColumnVarNameInTable="columnSalida" msprop:Generator_ColumnPropNameInRow="Salida" msprop:Generator_ColumnPropNameInTable="SalidaColumn" msprop:Generator_UserColumnName="Salida" type="xs:int" minOccurs="0" />
+              <xs:element name="Stock" msprop:Generator_ColumnVarNameInTable="columnStock" msprop:Generator_ColumnPropNameInRow="Stock" msprop:Generator_ColumnPropNameInTable="StockColumn" msprop:Generator_UserColumnName="Stock" type="xs:int" minOccurs="0" />
+              <xs:element name="StockMinimo" msprop:Generator_ColumnVarNameInTable="columnStockMinimo" msprop:Generator_ColumnPropNameInRow="StockMinimo" msprop:Generator_ColumnPropNameInTable="StockMinimoColumn" msprop:Generator_UserColumnName="StockMinimo" type="xs:int" />
+              <xs:element name="StockMaximo" msprop:Generator_ColumnVarNameInTable="columnStockMaximo" msprop:Generator_ColumnPropNameInRow="StockMaximo" msprop:Generator_ColumnPropNameInTable="StockMaximoColumn" msprop:Generator_UserColumnName="StockMaximo" type="xs:int" />
+              <xs:element name="ControlStock" msprop:Generator_ColumnVarNameInTable="columnControlStock" msprop:Generator_ColumnPropNameInRow="ControlStock" msprop:Generator_ColumnPropNameInTable="ControlStockColumn" msprop:Generator_UserColumnName="ControlStock" type="xs:boolean" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

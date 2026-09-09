@@ -1,0 +1,42 @@
+﻿@model PagedList.IPagedList<OPT.Entidad.OPT_Empresa>
+@using PagedList.Mvc;
+@{
+    Layout = null;
+ }
+
+@*<table class="table table-sm table-striped table-bordered table-light">*@
+<table class="table table-sm table-hover">
+    <thead>
+        <tr class="text-center">
+            <th>Empresa</th>
+            <th>Direccion</th>
+            <th>Contacto</th>
+            <th>Telefono</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Item in Model)
+            {
+            <tr>
+                <td>@Item.Empresa</td>
+                <td>@Item.Direccion</td>
+                <td>@Item.Contacto</td>
+                <td>@Item.Telefono</td>
+                <td>
+                    <a href="@Url.Action("Edit","Empresa",new {area="Empresas", id=Item.idEmpresa })" class="btn btn-sm btn-outline-warning" title="Editar..."><i class="fa fa-edit"></i></a>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+    <tfoot>
+        <tr class="text-center">
+            <td colspan="5">
+                Página @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) de @Model.PageCount
+                @Html.PagedListPager(Model, pPageNumber => Url.Action("Paginar", "Empresa", new { Area = "Empresas", pPageNumber }), new PagedListRenderOptions { FunctionToTransformEachPageLink = (liTag, aTag) => { aTag.Attributes.Add("name", "paginar"); liTag.InnerHtml = aTag.ToString(); return liTag; } })
+            </td>
+        </tr>
+    </tfoot>
+</table>
+

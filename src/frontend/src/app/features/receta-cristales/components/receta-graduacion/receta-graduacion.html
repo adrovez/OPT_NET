@@ -1,0 +1,90 @@
+<div class="graduacion">
+  <div class="graduacion__bloque">
+    <h4>Lejos {{ receta().incluirLejos ? '' : '(no incluye)' }}</h4>
+    <table class="graduacion__tabla opt-mono">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Esf.</th>
+          <th>Cil.</th>
+          <th>Eje</th>
+          <th>Obs.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>OD</th>
+          <td>{{ receta().odEsferaLejos ?? '—' }}</td>
+          <td>{{ receta().odCilindroLejos ?? '—' }}</td>
+          <td>{{ receta().odEjeLejos ?? '—' }}</td>
+          <td>{{ receta().observacionOdLejos ?? '—' }}</td>
+        </tr>
+        <tr>
+          <th>OI</th>
+          <td>{{ receta().oiEsferaLejos ?? '—' }}</td>
+          <td>{{ receta().oiCilindroLejos ?? '—' }}</td>
+          <td>{{ receta().oiEjeLejos ?? '—' }}</td>
+          <td>{{ receta().observacionOiLejos ?? '—' }}</td>
+        </tr>
+        @if (receta().dpLejos || receta().observacionDpLejos) {
+          <tr>
+            <th>DP</th>
+            <td>{{ receta().dpLejos ?? '—' }}</td>
+            <td colspan="2"></td>
+            <td>{{ receta().observacionDpLejos ?? '—' }}</td>
+          </tr>
+        }
+        @if (receta().addLejos) {
+          <tr>
+            <th>ADD</th>
+            <td>{{ receta().addLejos }}</td>
+            <td colspan="3"></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="graduacion__bloque">
+    <h4>Cerca {{ receta().incluirCerca ? '' : '(no incluye)' }}</h4>
+    <table class="graduacion__tabla opt-mono">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Esf.</th>
+          <th>Cil.</th>
+          <th>Eje</th>
+          <th>Obs.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>OD</th>
+          <td>{{ receta().odEsferaCerca ?? '—' }}</td>
+          <td>{{ receta().odCilindroCerca ?? '—' }}</td>
+          <td>{{ receta().odEjeCerca ?? '—' }}</td>
+          <td>{{ receta().observacionOdCerca ?? '—' }}</td>
+        </tr>
+        <tr>
+          <th>OI</th>
+          <td>{{ receta().oiEsferaCerca ?? '—' }}</td>
+          <td>{{ receta().oiCilindroCerca ?? '—' }}</td>
+          <td>{{ receta().oiEjeCerca ?? '—' }}</td>
+          <td>{{ receta().observacionOiCerca ?? '—' }}</td>
+        </tr>
+        @if (receta().dpCerca || receta().observacionDpCerca) {
+          <tr>
+            <th>DP</th>
+            <td>{{ receta().dpCerca ?? '—' }}</td>
+            <td colspan="2"></td>
+            <td>{{ receta().observacionDpCerca ?? '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (receta().observaciones) {
+  <p class="nota">{{ receta().observaciones }}</p>
+}

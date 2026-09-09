@@ -1,0 +1,49 @@
+﻿@model OPT.Entidad.OPT_Sucursal
+@{
+    Layout = null;
+}
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-primary">
+                <h5 class="modal-title"><i class="fa fa-store-alt"></i> DETALLE SUCURSAL</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="col-sm-4">
+                        <label>Nombre</label>
+                        <input type="text" value="@Model.Nombre" class="form-control form-control-sm" readonly />
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Telefono</label>
+                        <input type="text" value="@Model.Telefono" class="form-control form-control-sm" readonly>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Fecha Registro</label>
+                        <input type="text" value="@Model.FechaRegistro.ToString("dd/MM/yyyy")" class="form-control form-control-sm" readonly>
+                    </div>
+
+                </div>
+                <div class="form-row">
+                    <div class="col-sm-4">
+                        <label>Matriz</label>
+                        <input type="text" value="@if (Model.Matriz){@Html.Raw("SI") } else {@Html.Raw("NO")}" class="form-control form-control-sm" readonly>
+                    </div>
+                    <div class="col-sm-8">
+                        <label>Dirección</label>
+                        <input type="text" value="@Model.Direccion" class="form-control form-control-sm" readonly>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

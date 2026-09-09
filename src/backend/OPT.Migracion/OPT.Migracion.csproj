@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>OPT.Migracion</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <!--
+    Herramienta de consola standalone: ADO.NET directo (Microsoft.Data.SqlClient + Dapper),
+    sin dependencia de OPT.Domain/OPT.Application/OPT.Infrastructure ni AppDbContext.
+    Razón (ver .agents/progress.md, 2026-08-21): AuditableEntity.SetCreacion fuerza
+    DateTimeOffset.UtcNow (no permite preservar fechas históricas del legacy), y varios
+    métodos de fábrica de dominio son `internal` con invariantes no garantizadas en data
+    histórica migrada en bloque.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.*" />
+    <PackageReference Include="Dapper" Version="2.*" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.*" />
+  </ItemGroup>
+</Project>

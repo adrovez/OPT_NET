@@ -1,0 +1,114 @@
+﻿@model OPT.Web.Areas.Productos.Models.IngresoResponse
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section CustomHeadContent{
+    <link href="~/Content/component-chosen.min.css" rel="stylesheet" />
+}
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-newspaper"></i> INGRESO COMPRA</h4>
+    <div class="card-body">
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="Documento-tab" data-toggle="tab" role="tab" aria-controls="Documento" aria-selected="true">Documento</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="Producto-tab" data-toggle="tab" role="tab" aria-controls="Producto" aria-selected="false">Producto</a>
+            </li>
+        </ul>
+
+        <form id="formDocumento" action="@Url.Action("Documento","Ingreso",new {area="Productos" })">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="idProductoDocumento" name="idProductoDocumento" />
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="Documento-tab-content" role="tabpanel" aria-labelledby="Documento-tab">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label>N° Documento</label>
+                                <input type="text" id="NumDocumento" name="NumDocumento" value="" class="form-control form-control-sm" data-tipo="SoloNumero" maxlength="10" autocomplete="off" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Tipo Documento</label>
+                                @Html.DropDownList("idTipoDocumento", Model.ListTipoDocumento as IEnumerable<SelectListItem>, "--- SELECCIONAR ---", new { @class = "form-control form-control-sm", @required = "required" })
+
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Fecha Compra</label>
+                                <input type="text" id="FechaDocumento" name="FechaDocumento" value="@DateTime.Now.ToShortDateString()" class="form-control form-control-sm" maxlength="10" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-8">
+                                <label>Proveedor</label>
+                                <input type="text" id="Proveedor" name="Proveedor" value="" class="form-control form-control-sm" data-tipo="Descripcion" maxlength="50" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12  text-right">
+                                <button type="button" class="btn btn-sm btn-success" id="btnSiguiente"><i class="fa fa-arrow-right"></i> Siguiente</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="Producto-tab-content" role="tabpanel" aria-labelledby="Producto-tab">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                @Html.DropDownList("Producto", Model.ListProductos as IEnumerable<SelectListItem>, "--- SELECCIONAR ---", new { @class = "form-control" })
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" id="Cantidad" class="form-control form-control-sm text-right" placeholder="Cantidad" data-tipo="Numeric" autocomplete="off" />
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" id="Valor" class="form-control form-control-sm text-right" placeholder="Valor" data-tipo="Numeric" autocomplete="off" />
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-sm btn-outline-success" title="Agregar Producto..." id="AgregaProducto"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="tableProductos">
+                                        <thead>
+                                            <tr class="text-center">
+                                                <th>Producto</th>
+                                                <th>Cantidad</th>
+                                                <th>Valor</th>
+                                                <th>Accion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12  text-right">
+                                <button type="button" id="btnVolverDocumento" class="btn btn-sm border-secondary"><i class="fa fa-arrow-left"></i> Volver</button>
+                                <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-arrow-right"></i> Finalizar</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts{    
+    <script src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Scripts/chosen.jquery.min.js"></script>
+    <script src="~/Areas/Productos/Scripts/Ingreso.Compra.js?v=3"></script>
+}

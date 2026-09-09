@@ -1,0 +1,69 @@
+﻿@model OPT.Web.Areas.Anamnesis.Models.AnamnesisDetalleResponse
+@{
+    Layout = null;
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-info">
+                <h5 class="modal-title"><i class="fa fa-eye"></i> DETALLE ANAMNESIS N° @Model.idAnamnesis</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+
+                    <div class="form-group row">
+                        <div class="col-sm-2">
+                            <label>Rut</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.RutCliente" data-tipo="RUT" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.NombreCliente" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label>Empresa</label>
+                            <input type="text" class="form-control form-control-sm" value="@Model.NombreEmpresa" readonly>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <label>Hipertensión (HTA)</label>
+                            <input type="text" class="form-control" value="@Model.hipertension" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Diabetes (DM)</label>
+                            <input type="text" class="form-control" value="@Model.Diabetes" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Alergias</label>
+                            <input type="text" class="form-control" value="@Model.Alergias" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Usa Lente</label>
+                            <input type="text" class="form-control" value="@Model.Lentes" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <label>Observación</label>
+                            <textarea name="Observacion" maxlength="500" class="form-control" rows="4">@Model.Observacion</textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

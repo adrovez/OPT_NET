@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  width: 960px;
+  max-width: 96vw;
+}
+
+.campo {
+  width: 100%;
+  display: block;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tablas-graduacion {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tabla-receta {
+  flex: 1 1 400px;
+  border-collapse: collapse;
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 8px;
+  padding: 4px 16px 16px;
+  border: 1px solid transparent;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+  opacity: 0.6;
+
+  // El check "Incluir cristales Lejos/Cerca" vive en la caption de su propia tabla — activarlo
+  // resalta el bloque entero (borde + opacidad plena) en vez de dejarlo indistinguible del
+  // bloque apagado, que es lo único que transmitía antes el gris nativo de los inputs.
+  &.tabla-receta--activa {
+    opacity: 1;
+    border-color: var(--mat-sys-outline-variant);
+  }
+
+  caption {
+    text-align: left;
+    margin-bottom: 4px;
+    caption-side: top;
+  }
+
+  th {
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+    padding: 0 6px 4px;
+  }
+
+  td {
+    padding: 2px 6px;
+    text-align: center;
+  }
+
+  td:first-child {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant);
+    text-align: left;
+    padding-left: 0;
+  }
+}
+
+// El checkbox hace de título de la tabla: label más grande/oscuro que un mat-checkbox normal,
+// para que se lea como encabezado de sección y no como una opción más entre varias.
+.check-bloque {
+  font-weight: 600;
+  font-size: 15px;
+
+  ::ng-deep .mdc-form-field {
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.campo-tabla {
+  width: 96px;
+
+  &.campo-tabla--observacion {
+    width: 152px;
+  }
+}
+
+.fila-checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 28px;
+  margin: 4px 0 20px;
+  padding: 8px 12px;
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 8px;
+}
+
+// Explica por qué "Guardar" está deshabilitado (bloqueActivoConDatosValidator) — evita que se
+// vea "roto" en vez de "esperando datos", el mismo problema que tenían antes las 6 observaciones.
+.opt-hint-guardar {
+  font-size: 12px;
+  color: var(--mat-sys-error);
+  margin-right: auto;
+  align-self: center;
+}

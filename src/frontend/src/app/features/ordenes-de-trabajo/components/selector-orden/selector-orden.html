@@ -1,0 +1,97 @@
+<app-search-box
+  class="filtro"
+  [etiqueta]="etiqueta()"
+  [valorInicial]="estado.busqueda()"
+  (buscar)="estado.buscar($event)"
+/>
+
+@if (estado.cargando()) {
+  <app-list-skeleton [rows]="5" />
+} @else if (estado.error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudieron cargar las órdenes"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="estado.refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (estado.items().length === 0 && estado.hayBusqueda()) {
+  <app-empty-state
+    icon="search_off"
+    title="Sin resultados"
+    message="Ninguna orden de trabajo coincide con el texto buscado."
+  />
+} @else if (estado.items().length === 0) {
+  <app-empty-state
+    icon="receipt_long"
+    title="No hay órdenes que mostrar"
+    [message]="
+      soloConSaldo()
+        ? 'Ninguna orden de trabajo tiene saldo pendiente.'
+        : 'Todavía no hay órdenes de trabajo registradas.'
+    "
+  />
+} @else {
+  <table
+    mat-table
+    matSort
+    [dataSource]="estado.items()"
+    class="tabla"
+    (matSortChange)="estado.ordenar($event)"
+  >
+    <ng-container matColumnDef="numeroOT">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>N° OT</th>
+      <td mat-cell *matCellDef="let orden" class="opt-mono">{{ orden.numeroOT }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cliente">
+      <th mat-header-cell *matHeaderCellDef>Cliente</th>
+      <td mat-cell *matCellDef="let orden">
+        <span class="opt-mono">{{ orden.clienteRut }}</span> · {{ orden.clienteNombre }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+      <td mat-cell *matCellDef="let orden">
+        <app-estado-ot-chip [estadoId]="orden.estadoOTId" [nombre]="orden.estadoOT" />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="precio">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="num">Total</th>
+      <td mat-cell *matCellDef="let orden" class="num opt-mono">
+        {{ orden.precio | pesos }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="saldo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="num">Saldo</th>
+      <td mat-cell *matCellDef="let orden" class="num opt-mono">
+        {{ orden.saldo | pesos }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr
+      mat-row
+      *matRowDef="let orden; columns: columnas"
+      class="fila-seleccionable"
+      tabindex="0"
+      (click)="seleccionar.emit(orden)"
+      (keydown.enter)="seleccionar.emit(orden)"
+    ></tr>
+  </table>
+
+  <mat-paginator
+    [length]="estado.total()"
+    [pageSize]="estado.tamanioPagina()"
+    [pageIndex]="estado.pagina() - 1"
+    [pageSizeOptions]="opcionesTamanioPagina"
+    (page)="estado.cambiarPagina($event)"
+  />
+}

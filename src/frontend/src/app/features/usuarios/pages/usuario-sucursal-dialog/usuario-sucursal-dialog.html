@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Sucursales — {{ data.usuario.nombre }} {{ data.usuario.apellido }}</h2>
+
+<mat-dialog-content>
+  <p class="aviso">
+    Sucursal activa actual: {{ sucursalActivaNombre ?? 'ninguna (se asigna al iniciar sesión)' }}.
+  </p>
+
+  <mat-form-field appearance="outline" class="campo">
+    <mat-label>Sucursal</mat-label>
+    <mat-select [(value)]="sucursalId">
+      @for (sucursal of data.sucursales; track sucursal.id) {
+        <mat-option [value]="sucursal.id">{{ sucursal.nombre }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cerrar()">Cerrar</button>
+  <button
+    mat-stroked-button
+    color="warn"
+    [disabled]="!sucursalId() || procesando()"
+    (click)="quitar()"
+  >
+    Quitar
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!sucursalId() || procesando()"
+    (click)="asignar()"
+  >
+    Asignar
+  </button>
+</mat-dialog-actions>

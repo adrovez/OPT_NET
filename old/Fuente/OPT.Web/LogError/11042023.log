@@ -1,0 +1,52 @@
+============================ 11-04-2023 22:08:28 ============================
+Microsoft.ReportViewer.WebForms
+Void EnsureExecutionSession()
+An error occurred during local report processing.
+   en Microsoft.Reporting.WebForms.LocalReport.EnsureExecutionSession()
+   en Microsoft.Reporting.WebForms.LocalReport.InternalRender(String format, Boolean allowInternalRenderers, String deviceInfo, PageCountMode pageCountMode, CreateAndRegisterStream createStreamCallback, Warning[]& warnings)
+   en Microsoft.Reporting.WebForms.LocalReport.InternalRender(String format, Boolean allowInternalRenderers, String deviceInfo, PageCountMode pageCountMode, String& mimeType, String& encoding, String& fileNameExtension, String[]& streams, Warning[]& warnings)
+   en Microsoft.Reporting.WebForms.LocalReport.Render(String format, String deviceInfo, PageCountMode pageCountMode, String& mimeType, String& encoding, String& fileNameExtension, String[]& streams, Warning[]& warnings)
+   en Microsoft.Reporting.WebForms.Report.Render(String format, String deviceInfo, String& mimeType, String& encoding, String& fileNameExtension, String[]& streams, Warning[]& warnings)
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 235
+Microsoft.Reporting.DefinitionInvalidException: The definition of the report 'Areas/Reportes/Rpt/rptConsolidadoAnual.rdlc' is invalid. ---> Microsoft.ReportingServices.ReportProcessing.ReportProcessingException: The definition of this report is not valid or supported by this version of Reporting Services. The report definition may have been created with a later version of Reporting Services, or contain content that is not well-formed or not valid based on Reporting Services schemas. Details: The report definition has an invalid target namespace 'http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition' which cannot be upgraded.
+============================ 11-04-2023 22:08:28 ============================
+Microsoft.ReportViewer.WebForms
+Void EnsureExecutionSession()
+An error occurred during local report processing.
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 258
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.Reporte(FormCollection myForm) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 68
+Microsoft.Reporting.DefinitionInvalidException: The definition of the report 'Areas/Reportes/Rpt/rptConsolidadoAnual.rdlc' is invalid. ---> Microsoft.ReportingServices.ReportProcessing.ReportProcessingException: The definition of this report is not valid or supported by this version of Reporting Services. The report definition may have been created with a later version of Reporting Services, or contain content that is not well-formed or not valid based on Reporting Services schemas. Details: The report definition has an invalid target namespace 'http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition' which cannot be upgraded.
+============================ 11-04-2023 23:31:40 ============================
+OPT.Reportes
+Byte[] ReporteConsolidadoAnual(System.DateTime, System.DateTime)
+An error occurred during local report processing.
+   en OPT.Reportes.Class1.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta)
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 218
+System.ApplicationException: The report definition for report 'Report1' has not been specified ---> System.IO.DirectoryNotFoundException: No se puede encontrar una parte de la ruta de acceso 'C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\RPT\Report1.rdlc'.
+   en System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   en System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   en System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share)
+   en Microsoft.ReportingServices.StandalonePreviewStore.GetReportDefinition(PreviewItemContext itemContext)
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en Microsoft.ReportingServices.StandalonePreviewStore.GetReportDefinition(PreviewItemContext itemContext)
+   en Microsoft.Reporting.LocalService.GetCompiledReport(PreviewItemContext itemContext, Boolean rebuild, ControlSnapshot& snapshot)
+   en Microsoft.Reporting.LocalService.CompileReport()
+   en Microsoft.Reporting.LocalService.Microsoft.Reporting.ILocalProcessingHost.CompileReport()
+   en Microsoft.Reporting.WebForms.LocalReport.EnsureExecutionSession()
+============================ 11-04-2023 23:31:40 ============================
+OPT.Reportes
+Byte[] ReporteConsolidadoAnual(System.DateTime, System.DateTime)
+An error occurred during local report processing.
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.ReporteConsolidadoAnual(DateTime pFechaDesde, DateTime pFechaHasta) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 235
+   en OPT.Web.Areas.Reportes.Controllers.ReporteController.Reporte(FormCollection myForm) en C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\Areas\Reportes\Controllers\ReporteController.cs:línea 68
+System.ApplicationException: The report definition for report 'Report1' has not been specified ---> System.IO.DirectoryNotFoundException: No se puede encontrar una parte de la ruta de acceso 'C:\Adrovez\DevAzure\OpticasBL\Fuente\OPT.Web\RPT\Report1.rdlc'.
+   en System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   en System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   en System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share)
+   en Microsoft.ReportingServices.StandalonePreviewStore.GetReportDefinition(PreviewItemContext itemContext)
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en Microsoft.ReportingServices.StandalonePreviewStore.GetReportDefinition(PreviewItemContext itemContext)
+   en Microsoft.Reporting.LocalService.GetCompiledReport(PreviewItemContext itemContext, Boolean rebuild, ControlSnapshot& snapshot)
+   en Microsoft.Reporting.LocalService.CompileReport()
+   en Microsoft.Reporting.LocalService.Microsoft.Reporting.ILocalProcessingHost.CompileReport()
+   en Microsoft.Reporting.WebForms.LocalReport.EnsureExecutionSession()

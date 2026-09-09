@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar sucursal' : 'Nueva sucursal' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>El nombre es obligatorio.</mat-error>
+      }
+      @if (form.controls.nombre.hasError('maxlength')) {
+        <mat-error>Máximo 100 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Dirección</mat-label>
+      <input matInput formControlName="direccion" />
+      @if (form.controls.direccion.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Teléfono</mat-label>
+      <input matInput formControlName="telefono" />
+      @if (form.controls.telefono.hasError('maxlength')) {
+        <mat-error>Máximo 20 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (!esEdicion) {
+      <mat-checkbox formControlName="esMatriz">Sucursal matriz</mat-checkbox>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
+      @if (guardando()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

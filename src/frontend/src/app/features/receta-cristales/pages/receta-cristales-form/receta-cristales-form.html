@@ -1,0 +1,208 @@
+<h2 mat-dialog-title>
+  {{ esEdicion ? 'Editar receta de cristales' : 'Nueva receta de cristales' }}
+  <span class="opt-badge-clinico">Información clínica</span>
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <div class="fila-checks">
+      <mat-checkbox formControlName="requiereLab">Cristales de laboratorio</mat-checkbox>
+      <mat-checkbox formControlName="urgente">Urgente</mat-checkbox>
+    </div>
+
+    <div class="tablas-graduacion">
+      <table class="tabla-receta" [class.tabla-receta--activa]="incluirLejosActivo()">
+        <caption>
+          <mat-checkbox formControlName="incluirLejos" class="check-bloque">Lejos</mat-checkbox>
+        </caption>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Esférico</th>
+            <th>Cilíndrico</th>
+            <th>Eje</th>
+            <th>Observación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OD</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="odEsferaLejos" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="odCilindroLejos" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="odEjeLejos" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla campo-tabla--observacion" subscriptSizing="dynamic">
+                <input matInput formControlName="observacionOdLejos" maxlength="50" />
+              </mat-form-field>
+            </td>
+          </tr>
+          <tr>
+            <td>OI</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="oiEsferaLejos" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="oiCilindroLejos" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="oiEjeLejos" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla campo-tabla--observacion" subscriptSizing="dynamic">
+                <input matInput formControlName="observacionOiLejos" maxlength="50" />
+              </mat-form-field>
+            </td>
+          </tr>
+          <tr>
+            <td>DP</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.5" formControlName="dpLejos" />
+              </mat-form-field>
+            </td>
+            <td colspan="2"></td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla campo-tabla--observacion" subscriptSizing="dynamic">
+                <input matInput formControlName="observacionDpLejos" maxlength="50" />
+              </mat-form-field>
+            </td>
+          </tr>
+          <tr>
+            <td>ADD</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="addLejos" />
+              </mat-form-field>
+            </td>
+            <td colspan="3"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="tabla-receta" [class.tabla-receta--activa]="incluirCercaActivo()">
+        <caption>
+          <mat-checkbox formControlName="incluirCerca" class="check-bloque">Cerca</mat-checkbox>
+        </caption>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Esférico</th>
+            <th>Cilíndrico</th>
+            <th>Eje</th>
+            <th>Observación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OD</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="odEsferaCerca" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="odCilindroCerca" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="odEjeCerca" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla campo-tabla--observacion" subscriptSizing="dynamic">
+                <input matInput formControlName="observacionOdCerca" maxlength="50" />
+              </mat-form-field>
+            </td>
+          </tr>
+          <tr>
+            <td>OI</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="oiEsferaCerca" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.25" formControlName="oiCilindroCerca" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="oiEjeCerca" />
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla campo-tabla--observacion" subscriptSizing="dynamic">
+                <input matInput formControlName="observacionOiCerca" maxlength="50" />
+              </mat-form-field>
+            </td>
+          </tr>
+          <tr>
+            <td>DP</td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla" subscriptSizing="dynamic">
+                <input matInput type="number" step="0.5" formControlName="dpCerca" />
+              </mat-form-field>
+            </td>
+            <td colspan="2"></td>
+            <td>
+              <mat-form-field appearance="outline" class="campo-tabla campo-tabla--observacion" subscriptSizing="dynamic">
+                <input matInput formControlName="observacionDpCerca" maxlength="50" />
+              </mat-form-field>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Observaciones generales</mat-label>
+      <textarea matInput formControlName="observaciones" rows="3"></textarea>
+      @if (form.controls.observaciones.hasError('maxlength')) {
+        <mat-error>Máximo 500 caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    @if (form.errors && !guardando()) {
+      <span class="opt-hint-guardar">
+        @if (form.errors['bloqueRequerido']) {
+          Marca "Lejos" o "Cerca" para poder guardar la receta.
+        } @else if (form.errors['lejosSinDatos']) {
+          Ingresa al menos un dato en el bloque "Lejos" para guardar.
+        } @else if (form.errors['cercaSinDatos']) {
+          Ingresa al menos un dato en el bloque "Cerca" para guardar.
+        }
+      </span>
+    }
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
+      @if (guardando()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,126 @@
+<app-page-header title="Clientes">
+  <button mat-flat-button color="primary" (click)="nuevo()">
+    <mat-icon>add</mat-icon>
+    Nuevo cliente
+  </button>
+</app-page-header>
+
+<app-search-box
+  class="filtro"
+  etiqueta="Buscar por RUT, nombre o apellido"
+  [valorInicial]="estado.busqueda()"
+  (buscar)="estado.buscar($event)"
+/>
+
+@if (estado.cargando()) {
+  <app-list-skeleton [rows]="estado.tamanioPagina() > 10 ? 8 : estado.tamanioPagina()" />
+} @else if (estado.error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudieron cargar los clientes"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="estado.refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (estado.items().length === 0 && estado.hayBusqueda()) {
+  <app-empty-state
+    icon="search_off"
+    title="Sin resultados"
+    message="Ningún cliente coincide con el texto buscado."
+  />
+} @else if (estado.items().length === 0) {
+  <app-empty-state
+    icon="people"
+    title="Aún no hay clientes"
+    message="Registra el primer cliente para comenzar a atenderlo."
+  >
+    <button mat-flat-button color="primary" (click)="nuevo()">
+      <mat-icon>add</mat-icon>
+      Nuevo cliente
+    </button>
+  </app-empty-state>
+} @else {
+  <table
+    mat-table
+    matSort
+    [dataSource]="estado.items()"
+    class="tabla"
+    (matSortChange)="estado.ordenar($event)"
+  >
+    <ng-container matColumnDef="rut">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>RUT</th>
+      <td mat-cell *matCellDef="let cliente" class="opt-mono">{{ cliente.rut }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.nombre }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="apellido">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.apellido }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.email ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.telefono ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let cliente">
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Ver ficha de ' + cliente.nombre + ' ' + cliente.apellido"
+          matTooltip="Ver ficha"
+          (click)="verFicha(cliente)"
+        >
+          <mat-icon>folder_open</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Más acciones para ' + cliente.nombre + ' ' + cliente.apellido"
+          matTooltip="Más acciones"
+          [matMenuTriggerFor]="menuAcciones"
+          [matMenuTriggerData]="{ cliente }"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  <mat-menu #menuAcciones="matMenu">
+    <ng-template matMenuContent let-cliente="cliente">
+      <button mat-menu-item (click)="editar(cliente)">
+        <mat-icon>edit</mat-icon>
+        <span>Editar</span>
+      </button>
+      <button mat-menu-item class="opt-accion-destructiva" (click)="eliminar(cliente)">
+        <mat-icon>delete</mat-icon>
+        <span>Eliminar</span>
+      </button>
+    </ng-template>
+  </mat-menu>
+
+  <mat-paginator
+    [length]="estado.total()"
+    [pageSize]="estado.tamanioPagina()"
+    [pageIndex]="estado.pagina() - 1"
+    [pageSizeOptions]="opcionesTamanioPagina"
+    (page)="estado.cambiarPagina($event)"
+  />
+}

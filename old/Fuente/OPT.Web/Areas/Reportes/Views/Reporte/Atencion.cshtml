@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-print"></i> Reporte Atención</h4>
+    <div class="card-body">
+
+        <form id="formIndex" name="formIndex" method="post" action="@Url.Action("ReporteAtencion","Atencion",new {area="Clientes" })">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label>Fecha Desde</label>
+                    <input type="text" id="FechaDesde" name="Desde" value="" autocomplete="off" class="form-control form-control-sm" required />
+                </div>
+                <div class="col-sm-4">
+                    <label>Fecha Hasta</label>
+                    <input type="text" id="FechaHasta" name="Hasta" value="" autocomplete="off" class="form-control form-control-sm" required />
+                </div>
+                <div class="col-sm-4 text-right">
+                    <br />
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-print"></i> Generar</button>
+                </div>
+            </div>            
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+
+    <script>
+        $(document).ready(function () {
+            $('#FechaDesde').datepicker({
+                format: "dd/mm/yyyy",
+                //startDate: '0d',
+                language: "es",
+                autoclose: true,
+                todayHighlight: true
+            });
+
+            $('#FechaHasta').datepicker({
+                format: "dd/mm/yyyy",
+                //startDate: '0d',
+                language: "es",
+                autoclose: true,
+                todayHighlight: true
+            });
+
+        })
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+

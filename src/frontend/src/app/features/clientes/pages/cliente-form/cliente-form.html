@@ -1,0 +1,131 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar cliente' : 'Nuevo cliente' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <p class="opt-form-section">Identificación</p>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>RUT</mat-label>
+      <input matInput formControlName="rut" [readonly]="esEdicion" />
+      @if (esEdicion) {
+        <mat-hint>El RUT no se puede modificar.</mat-hint>
+      }
+      @if (form.controls.rut.hasError('required')) {
+        <mat-error>El RUT es obligatorio.</mat-error>
+      }
+      @if (form.controls.rut.hasError('maxlength')) {
+        <mat-error>Máximo 12 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="fila">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" />
+        @if (form.controls.nombre.hasError('required')) {
+          <mat-error>El nombre es obligatorio.</mat-error>
+        }
+        @if (form.controls.nombre.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Apellido</mat-label>
+        <input matInput formControlName="apellido" />
+        @if (form.controls.apellido.hasError('required')) {
+          <mat-error>El apellido es obligatorio.</mat-error>
+        }
+        @if (form.controls.apellido.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="fila">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Fecha de nacimiento</mat-label>
+        <input matInput [matDatepicker]="pickerNacimiento" formControlName="fechaNacimiento" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerNacimiento" />
+        <mat-datepicker #pickerNacimiento />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Previsión</mat-label>
+        <mat-select formControlName="tipoPrevision">
+          <mat-option [value]="null">Sin especificar</mat-option>
+          <mat-option value="FONASA">FONASA</mat-option>
+          <mat-option value="ISAPRE">ISAPRE</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <p class="opt-form-section">Contacto</p>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" />
+      @if (form.controls.email.hasError('email')) {
+        <mat-error>El correo no tiene un formato válido.</mat-error>
+      }
+      @if (form.controls.email.hasError('maxlength')) {
+        <mat-error>Máximo 150 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Teléfono</mat-label>
+      <input matInput formControlName="telefono" />
+      @if (form.controls.telefono.hasError('maxlength')) {
+        <mat-error>Máximo 20 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <p class="opt-form-section">Ubicación</p>
+
+    <div class="fila">
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Región</mat-label>
+        <mat-select
+          formControlName="regionId"
+          (selectionChange)="onRegionSeleccionada($event.value)"
+        >
+          @for (region of regiones(); track region.id) {
+            <mat-option [value]="region.id">{{ region.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Comuna</mat-label>
+        <mat-select formControlName="comunaId" [disabled]="comunas().length === 0">
+          @for (comuna of comunas(); track comuna.id) {
+            <mat-option [value]="comuna.id">{{ comuna.nombre }}</mat-option>
+          }
+        </mat-select>
+        @if (comunas().length === 0) {
+          <mat-hint>Elige primero una región.</mat-hint>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Dirección</mat-label>
+      <input matInput formControlName="direccion" />
+      @if (form.controls.direccion.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
+      @if (guardando()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

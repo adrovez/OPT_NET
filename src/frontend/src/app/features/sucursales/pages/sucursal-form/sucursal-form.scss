@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  // Formulario de una sola columna; nunca supera el viewport en pantallas angostas.
+  width: min(480px, 94vw);
+}
+
+.campo {
+  width: 100%;
+  display: block;
+}

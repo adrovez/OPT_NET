@@ -1,0 +1,87 @@
+﻿@model OPT.Web.Areas.Productos.Models.RegularizaProductoResponse
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<form id="formCreate" name="formCreate" method="post" action="@Url.Action("Regularizar","Producto",new {area="Productos" })">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="idProducto" value="@Model.producto.idProducto" />
+    <input type="hidden" name="StockAnterior" value="@Model.producto.Stock" />
+    <div class="card  border-primary">
+        <h4 class="card-header alert-primary"><i class="fa fa-recycle"></i> Regularizar Stock Producto</h4>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="col-4">
+                    <div class="form-row">
+                        <div class="col-sm-12">
+                            <label>Codigo</label>
+                            <input type="text" value="@Model.producto.Codigo" class="form-control form-control-sm mayusculas" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-12">
+                            <label>Producto</label>
+                            <input type="text" value="@Model.producto.Producto" class="form-control form-control-sm mayusculas" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-12">
+                            <label>Stock</label>
+                            <input type="text" name="StockNuevo" value="@Model.producto.Stock" class="form-control form-control-sm text-right" data-tipo="Numeric" maxlength="9" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-12">
+                            <label>Motivo</label>
+                            <textarea name="Motivo" class="form-control" data-tipo="AlfaNumeric" maxlength="200" required></textarea>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-8">
+                    <label>Historial</label>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover"  id="TablaDatos">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Responsable</th>
+                                    <th>Stock Inicial</th>
+                                    <th>Stock </th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.regularizaProducto)
+                                {
+                                    <tr>
+                                        <td>@item.Fecha.ToShortDateString()</td>
+                                        <td>@item.Responsable</td>
+                                        <td>@item.StockAnterior</td>
+                                        <td>@item.StockNuevo</td>
+                                        <td>@item.Motivo</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>         
+        </div>
+
+        <div class="card-footer">
+            <div class="form-group">
+                <div class="col-sm-12 text-right">
+                    <a href="@Url.Action("Index","Producto",new {area="Productos" })" class="btn btn-sm btn-danger"><i class="fa fa-arrow-left"></i> Volver</a>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+

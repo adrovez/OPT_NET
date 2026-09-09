@@ -1,0 +1,156 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.OrdenTrabajoResponse
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string idOT = Model.idOT == 0 ? "" : Model.idOT.ToString();
+    string SoloLectura = Model.idOT == 0 ? "" : "readonly";
+    var FechaHoy = DateTime.Now;
+    DateTime FechaEntrega = FechaHoy;
+
+    if (idOT == "")
+    {
+        for (int k = 0; k < 10; k++)
+        {
+            while (FechaEntrega.DayOfWeek == DayOfWeek.Saturday || FechaEntrega.DayOfWeek == DayOfWeek.Sunday)
+            {
+                FechaEntrega = FechaEntrega.AddDays(1);
+            }
+
+            FechaEntrega = FechaEntrega.AddDays(1);
+        }
+    }
+    else
+    {
+        FechaEntrega = DateTime.Parse(Model.FechaEntrega.ToString());
+    }
+
+
+
+
+
+}
+
+
+@section CustomHeadContent{
+    <link href="~/Content/component-chosen.min.css" rel="stylesheet" />
+}
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-newspaper"></i> NUEVA OT</h4>
+    <div class="card-body">
+
+        <div class="form-group row">
+            <div class="col-sm-4">
+                <label>N° OT</label>
+                <input type="text" id="idOT" name="idOT" value="@idOT" class="form-control form-control-sm" data-tipo="SoloNumero" maxlength="10" @SoloLectura  required>
+            </div>
+            <div class="col-sm-4">
+                <label>Fecha Ingreso</label>
+                <input type="text" id="FechaAtencion" name="FechaAtencion" value="@FechaHoy.ToShortDateString()" class="form-control form-control-sm" maxlength="10" readonly>
+            </div>
+            <div class="col-sm-4">
+                <label>Fecha Entrega</label>
+                <input type="text" id="FechaEntrega" name="FechaEntrega" value="@FechaEntrega.ToShortDateString()" class="form-control form-control-sm" maxlength="10" autocomplete="off" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-6">
+                <label>Beneficiario</label>
+                <input type="text" id="Beneficiario" name="Beneficiario" class="form-control form-control-sm" maxlength="100">
+            </div>
+            <div class="col-sm-6">
+                <label>Empresa</label>
+                @Html.DropDownList("idEmpresa", Model.cliente.ListEmpresa as IEnumerable<SelectListItem>, "--- SELECCIONAR ---", new { @class = "form-control form-control-sm", @required = "required" })
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="Cliente-tab" data-toggle="tab" role="tab" aria-controls="Cliente" aria-selected="true">Cliente</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="Receta-tab" data-toggle="tab" role="tab" aria-controls="Receta" aria-selected="false">Receta</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="Lentes-tab" data-toggle="tab" role="tab" aria-controls="Lentes" aria-selected="false">Lentes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="Pago-tab" data-toggle="tab" role="tab" aria-controls="Pago" aria-selected="false">Abonos</a>
+            </li>
+        </ul>
+
+
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="Cliente-tab-content" role="tabpanel" aria-labelledby="Cliente-tab">
+                <div class="card-body">
+                    <form id="formCliente" action="@Url.Action("Cliente","Ingreso",new {area="OrdenTrabajo" })">
+                        @Html.AntiForgeryToken()
+                        @Html.Partial("_ParcialCliente")
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="Receta-tab-content" role="tabpanel" aria-labelledby="Receta-tab">
+                <div class="card-body">
+                    <form id="formReceta" action="@Url.Action("Receta","Ingreso",new {area="OrdenTrabajo" })">
+                        @Html.AntiForgeryToken()
+                        @Html.Partial("_ParcialReceta")
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="Lentes-tab-content" role="tabpanel" aria-labelledby="Lentes-tab">
+                <div class="card-body">
+                    <form id="formLente" action="@Url.Action("Lente", "Ingreso", new {area="OrdenTrabajo" })">
+                        @Html.AntiForgeryToken()
+                        @Html.Partial("_ParcialLente")
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="Pago-tab-content" role="tabpanel" aria-labelledby="Pago-tab">
+                <div class="card-body">
+                    @Html.Partial("_ParcialAbono")
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="divImprimir" style="display:none">
+
+</div>
+
+
+@section Scripts{
+
+    <script type="text/javascript" src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Scripts/chosen.jquery.min.js"></script>
+
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/Cliente.js?v=3"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/Receta.js?v=5"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/Lente.js?v=4"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/Abono.js?v=4"></script>
+    <script src="~/Areas/Imprimir/Scripts/TicketOT.js"></script>
+
+    <script type="text/javascript">
+        ObjCliente.UrlExiste = "@Url.Action("Existe", "Ingreso",new {area="OrdenTrabajo" })";
+        ObjCliente.UrlDatoCliente = "@Url.Action("DatoCliente", "Ingreso", new {area="OrdenTrabajo" })";
+        ObjCliente.UrlComuna = "@Url.Action("Comuna","Util",new {area="" })";
+        ObjCliente.UrlBuscaReceta = "@Url.Action("BuscaReceta", "Ingreso", new {area="OrdenTrabajo" })";
+
+        ObjLente.UrlElimina = "@Url.Action("EliminaLente", "Ingreso", new {area="OrdenTrabajo" })";
+        ObjAbono.UrlElimina = "@Url.Action("EliminaAbono", "Ingreso", new {area="OrdenTrabajo" })";
+        ObjAbono.UrlFinaliza = "@Url.Action("Finaliza", "Ingreso", new {area= "OrdenTrabajo" })"
+
+       
+
+
+    </script>
+}
+
+
+
+
+

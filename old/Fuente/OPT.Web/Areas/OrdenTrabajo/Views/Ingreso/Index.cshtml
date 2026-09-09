@@ -1,0 +1,52 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.OrdenTrabajoViewResponse
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-clipboard"></i> Listado OT</h4>
+    <div class="card-body">
+
+        <form id="formIndex" action="@Url.Action("Paginar","Ingreso",new {area="OrdenTrabajo" })">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label>N° OT</label>
+                    <input type="text" id="NumeroOT" name="NumeroOT" data-tipo="SoloNumero" class="form-control form-control-sm" maxlength="10">
+                </div>
+                <div class="col-sm-3">
+                    <label>Rut / Nombre</label>
+                    <input type="text" id="RutNombre" name="RutNombre" class="form-control form-control-sm" maxlength="50">
+                </div>
+                <div class="col-sm-3">
+                    <label>Empresa</label>
+                    @Html.DropDownList("idEmpresa", Model.Empresas, "--- TODOS ---", new { @class = "form-control form-control-sm" })
+                </div>
+                <div class="col-sm-3 text-right">
+                    <br />
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                    <a href="@Url.Action("Create","Ingreso",new {area="OrdenTrabajo" })" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Nueva OT</a>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <div class="table-responsive" id="TableListaOT">
+                        @Html.Partial("_ParcialIndex")
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+
+    <script src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Ingreso/index.js?v=4"></script>
+    <script src="~/Areas/Flujo/Scripts/ModalBitacora.js?v=3"></script>
+}

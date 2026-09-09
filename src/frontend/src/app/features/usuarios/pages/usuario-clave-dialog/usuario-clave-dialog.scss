@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  min-width: 360px;
+}
+
+.aviso {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+}
+
+.campo {
+  width: 100%;
+  display: block;
+}

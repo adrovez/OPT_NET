@@ -1,0 +1,53 @@
+// Isla de color: fondo + texto explícitos desde los tokens de OPT_EstadoOT, iguales en
+// tema claro y oscuro (el estado es semántico, no decorativo — ver branding-ux-ui.md).
+.estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--opt-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.estado--ingresado {
+  background-color: var(--opt-estado-ot-ingresado);
+  color: var(--opt-estado-ot-ingresado-fg);
+}
+
+.estado--en-proceso {
+  background-color: var(--opt-estado-ot-en-proceso);
+  color: var(--opt-estado-ot-en-proceso-fg);
+}
+
+.estado--montaje {
+  background-color: var(--opt-estado-ot-montaje);
+  color: var(--opt-estado-ot-montaje-fg);
+}
+
+.estado--laboratorio {
+  background-color: var(--opt-estado-ot-laboratorio);
+  color: var(--opt-estado-ot-laboratorio-fg);
+}
+
+.estado--calidad {
+  background-color: var(--opt-estado-ot-calidad);
+  color: var(--opt-estado-ot-calidad-fg);
+}
+
+.estado--despacho {
+  background-color: var(--opt-estado-ot-despacho);
+  color: var(--opt-estado-ot-despacho-fg);
+}
+
+.estado--entregado {
+  background-color: var(--opt-estado-ot-entregado);
+  color: var(--opt-estado-ot-entregado-fg);
+}
+
+.estado--anulado {
+  background-color: var(--opt-estado-ot-anulado);
+  color: var(--opt-estado-ot-anulado-fg);
+  text-decoration: line-through;
+}

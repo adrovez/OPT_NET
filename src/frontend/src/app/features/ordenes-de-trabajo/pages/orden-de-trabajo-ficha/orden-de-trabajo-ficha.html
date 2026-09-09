@@ -1,0 +1,498 @@
+@if (cargando()) {
+  <app-list-skeleton [rows]="6" [header]="false" />
+} @else if (error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudo cargar la orden de trabajo"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="cargar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (orden(); as ot) {
+  <app-page-header
+    [title]="'OT N° ' + ot.numeroOT"
+    [subtitle]="ot.clienteNombre + ' · ' + ot.sucursalNombre"
+    backTo="/ordenes-de-trabajo"
+    backLabel="Volver al listado"
+  >
+    <button mat-stroked-button [disabled]="esTerminal()" (click)="editar()">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+  </app-page-header>
+
+  <!-- ───────── Cabecera de la orden (mismos campos que el encabezado del legacy) ───────── -->
+  <section class="cabecera">
+    <dl class="cabecera__datos">
+      <div class="campo">
+        <dt>N° OT</dt>
+        <dd class="opt-mono">{{ ot.numeroOT }}</dd>
+      </div>
+      <div class="campo">
+        <dt>Fecha</dt>
+        <dd class="opt-mono">{{ (ot.fechaAtencion ?? ot.creadoEn) | date: 'dd-MM-yyyy' }}</dd>
+      </div>
+      <div class="campo">
+        <dt>Fecha entrega</dt>
+        <dd class="opt-mono">
+          {{ ot.fechaEntrega | date: 'dd-MM-yyyy' }}
+          @if (ot.horaEntrega) {
+            <span class="campo__sub">{{ ot.horaEntrega.slice(0, 5) }}</span>
+          }
+        </dd>
+      </div>
+      <div class="campo">
+        <dt>Beneficiario</dt>
+        <dd>{{ ot.beneficiario ?? '—' }}</dd>
+      </div>
+      <div class="campo campo--ancho">
+        <dt>Empresa</dt>
+        <dd>{{ ot.empresaNombre ?? 'Particular' }}</dd>
+      </div>
+      <div class="campo">
+        <dt>Sucursal</dt>
+        <dd>{{ ot.sucursalNombre }}</dd>
+      </div>
+      <div class="campo">
+        <dt>Estado</dt>
+        <dd>
+          <app-estado-ot-chip [estadoId]="ot.estadoOTId" [nombre]="ot.estadoOT" />
+        </dd>
+      </div>
+    </dl>
+
+    @if (ot.observaciones) {
+      <p class="cabecera__observaciones">{{ ot.observaciones }}</p>
+    }
+
+    <app-resumen-financiero
+      [precio]="ot.precio"
+      [totalAbonado]="ot.totalAbonado"
+      [saldo]="ot.saldo"
+    />
+
+    @if (estaAnulada()) {
+      <div class="aviso aviso--bloqueo">
+        <mat-icon>block</mat-icon>
+        <span>Esta orden está anulada y no admite modificaciones.</span>
+      </div>
+    } @else if (esTerminal()) {
+      <div class="aviso aviso--bloqueo">
+        <mat-icon>lock</mat-icon>
+        <span>
+          Esta orden fue entregada
+          @if (ot.fechaEntrega) {
+            el {{ ot.fechaEntrega | date: 'dd-MM-yyyy' }}
+          }
+          y no admite modificaciones.
+        </span>
+      </div>
+    }
+  </section>
+
+  <!-- ───────── Flujo de estados ───────── -->
+  <section class="flujo">
+    <div class="flujo__etapas">
+      @for (etapa of etapas(); track etapa.id) {
+        <div
+          class="flujo__etapa"
+          [class.flujo__etapa--alcanzada]="etapaAlcanzada(etapa.id)"
+          [class.flujo__etapa--actual]="etapa.id === ot.estadoOTId"
+        >
+          <span class="flujo__punto"></span>
+          <span class="flujo__nombre">{{ etapa.nombre }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="flujo__acciones">
+      @if (estaAnulada()) {
+        <p class="flujo__nota">
+          Esta orden está anulada: no admite cambios de estado ni movimientos de dinero.
+        </p>
+      } @else if (esTerminal()) {
+        <p class="flujo__nota">La orden llegó al final del flujo ({{ ot.estadoOT }}).</p>
+      } @else {
+        @if (estadoAnterior(); as anterior) {
+          <button mat-stroked-button [disabled]="procesando()" (click)="retroceder()">
+            <mat-icon>undo</mat-icon>
+            Volver a {{ anterior.nombre }}
+          </button>
+        }
+        @if (estadoSiguiente(); as siguiente) {
+          <button mat-flat-button color="primary" [disabled]="procesando()" (click)="avanzar()">
+            <mat-icon>arrow_forward</mat-icon>
+            Avanzar a {{ siguiente.nombre }}
+          </button>
+        }
+      }
+      @if (sePuedeAnular()) {
+        <button
+          mat-button
+          class="opt-accion-destructiva"
+          [disabled]="procesando()"
+          (click)="anular()"
+        >
+          <mat-icon>block</mat-icon>
+          Anular
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- ───────── Pestañas ─────────
+       Las cuatro primeras son las del legacy (Cliente / Receta / Detalle / Abonos); las tres
+       siguientes son propias del sistema nuevo, que el legacy no tenía en esta pantalla. -->
+  <mat-tab-group class="pestanias">
+    <!-- Cliente -->
+    <mat-tab label="Cliente">
+      <div class="panel__barra">
+        <span class="panel__conteo">Datos del cliente al que pertenece esta orden</span>
+        <button mat-stroked-button (click)="verCliente()">
+          <mat-icon>person</mat-icon>
+          Ficha del cliente
+        </button>
+      </div>
+
+      <dl class="datos">
+        <div class="campo">
+          <dt>RUT</dt>
+          <dd class="opt-mono">{{ ot.cliente.rut }}</dd>
+        </div>
+        <div class="campo campo--ancho">
+          <dt>Nombre</dt>
+          <dd>{{ ot.cliente.nombre }}</dd>
+        </div>
+        <div class="campo">
+          <dt>Fecha de nacimiento</dt>
+          <dd class="opt-mono">
+            {{ (ot.cliente.fechaNacimiento | date: 'dd-MM-yyyy') ?? '—' }}
+          </dd>
+        </div>
+        <div class="campo">
+          <dt>Previsión</dt>
+          <dd>{{ ot.cliente.tipoPrevision ?? '—' }}</dd>
+        </div>
+        <div class="campo">
+          <dt>Celular</dt>
+          <dd class="opt-mono">{{ ot.cliente.telefono ?? '—' }}</dd>
+        </div>
+        <div class="campo campo--ancho">
+          <dt>Correo</dt>
+          <dd>{{ ot.cliente.email ?? '—' }}</dd>
+        </div>
+        <div class="campo">
+          <dt>Región</dt>
+          <dd>{{ ot.cliente.regionNombre ?? '—' }}</dd>
+        </div>
+        <div class="campo">
+          <dt>Comuna</dt>
+          <dd>{{ ot.cliente.comunaNombre ?? '—' }}</dd>
+        </div>
+        <div class="campo campo--ancho">
+          <dt>Dirección</dt>
+          <dd>{{ ot.cliente.direccion ?? '—' }}</dd>
+        </div>
+      </dl>
+    </mat-tab>
+
+    <!-- Receta -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Receta
+        @if (ot.recetas.length > 1) {
+          <span class="tab-contador">{{ ot.recetas.length }}</span>
+        }
+      </ng-template>
+
+      @if (ot.recetas.length === 0) {
+        <app-empty-state
+          icon="visibility"
+          title="Sin receta vinculada"
+          message="Esta orden no tiene una receta de cristales asociada. Puedes vincular una del historial del cliente desde la edición de la orden."
+        >
+          <button mat-stroked-button [disabled]="esTerminal()" (click)="editar()">
+            <mat-icon>edit</mat-icon>
+            Editar orden
+          </button>
+        </app-empty-state>
+      } @else {
+        @for (receta of ot.recetas; track receta.publicId) {
+          <article class="receta">
+            <header class="receta__cab">
+              <time class="opt-mono">{{ receta.fechaRegistro | date: 'dd-MM-yyyy' }}</time>
+              @if (receta.urgente) {
+                <span class="opt-chip opt-chip--alerta">Urgente</span>
+              }
+              @if (receta.requiereLab) {
+                <span class="opt-chip opt-chip--si">Laboratorio</span>
+              }
+            </header>
+            <app-receta-graduacion [receta]="receta" />
+          </article>
+        }
+      }
+    </mat-tab>
+
+    <!-- Detalle -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Detalle
+        <span class="tab-contador">{{ ot.detalles.length }}</span>
+      </ng-template>
+
+      @if (ot.detalles.length === 0) {
+        <app-empty-state
+          icon="inventory_2"
+          title="Sin líneas de detalle"
+          message="Esta orden no tiene productos registrados."
+        />
+      } @else {
+        <table mat-table [dataSource]="ot.detalles" class="tabla">
+          <ng-container matColumnDef="producto">
+            <th mat-header-cell *matHeaderCellDef>Producto</th>
+            <td mat-cell *matCellDef="let linea">
+              <span class="opt-mono">{{ linea.productoCodigo ?? linea.productoId }}</span>
+              <span class="sub">{{ linea.productoDescripcion ?? '' }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef class="num">Cantidad</th>
+            <td mat-cell *matCellDef="let linea" class="num opt-mono">{{ linea.cantidad }}</td>
+          </ng-container>
+          <ng-container matColumnDef="valorUnitario">
+            <th mat-header-cell *matHeaderCellDef class="num">Valor unitario</th>
+            <td mat-cell *matCellDef="let linea" class="num opt-mono">
+              {{ linea.valorUnitario | pesos }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef class="num">Total</th>
+            <td mat-cell *matCellDef="let linea" class="num opt-mono">
+              {{ linea.total | pesos }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="comentario">
+            <th mat-header-cell *matHeaderCellDef>Comentario</th>
+            <td mat-cell *matCellDef="let linea">{{ linea.comentario ?? '—' }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnasDetalle"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasDetalle"></tr>
+        </table>
+      }
+    </mat-tab>
+
+    <!-- Abonos -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Abonos
+        <span class="tab-contador">{{ ot.abonos.length }}</span>
+      </ng-template>
+
+      <div class="panel__barra">
+        <span class="panel__conteo">
+          {{ ot.abonos.length }} abono(s) registrados
+          @if (ot.numeroCuotas) {
+            · plan de {{ ot.numeroCuotas }} cuota(s)
+          }
+        </span>
+        <button mat-stroked-button [disabled]="esTerminal()" (click)="irA('abonos')">
+          <mat-icon>add</mat-icon>
+          Registrar abono
+        </button>
+      </div>
+
+      @if (ot.abonos.length === 0) {
+        <app-empty-state
+          icon="savings"
+          title="Sin abonos"
+          message="Esta orden todavía no tiene un abono inicial registrado."
+        />
+      } @else {
+        <table mat-table [dataSource]="ot.abonos" class="tabla">
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef>Fecha</th>
+            <td mat-cell *matCellDef="let abono" class="opt-mono">
+              {{ abono.fechaRegistro | date: 'dd-MM-yyyy' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="formaPago">
+            <th mat-header-cell *matHeaderCellDef>Abona con</th>
+            <td mat-cell *matCellDef="let abono">
+              <span class="chip-pago">{{ abono.formaPago }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="referencia">
+            <th mat-header-cell *matHeaderCellDef>Referencia</th>
+            <td mat-cell *matCellDef="let abono">{{ abono.referencia ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="monto">
+            <th mat-header-cell *matHeaderCellDef class="num">Monto abono</th>
+            <td mat-cell *matCellDef="let abono" class="num opt-mono">
+              {{ abono.monto | pesos }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnasAbonos"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasAbonos"></tr>
+        </table>
+      }
+    </mat-tab>
+
+    <!-- Pagos -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Pagos
+        <span class="tab-contador">{{ ot.pagos.length }}</span>
+      </ng-template>
+
+      <div class="panel__barra">
+        <span class="panel__conteo">{{ ot.pagos.length }} pago(s) registrados</span>
+        <button mat-stroked-button [disabled]="esTerminal()" (click)="irA('pagos')">
+          <mat-icon>add</mat-icon>
+          Registrar pago
+        </button>
+      </div>
+
+      @if (ot.pagos.length === 0) {
+        <app-empty-state
+          icon="payments"
+          title="Sin pagos posteriores"
+          message="Los cobros posteriores al abono inicial aparecerán aquí."
+        />
+      } @else {
+        <table mat-table [dataSource]="ot.pagos" class="tabla">
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef>Fecha</th>
+            <td mat-cell *matCellDef="let pago" class="opt-mono">
+              {{ pago.fechaPago | date: 'dd-MM-yyyy' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="formaPago">
+            <th mat-header-cell *matHeaderCellDef>Forma de pago</th>
+            <td mat-cell *matCellDef="let pago">
+              <span class="chip-pago">{{ pago.formaPago }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="referencia">
+            <th mat-header-cell *matHeaderCellDef>Referencia</th>
+            <td mat-cell *matCellDef="let pago">{{ pago.referencia ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="monto">
+            <th mat-header-cell *matHeaderCellDef class="num">Monto</th>
+            <td mat-cell *matCellDef="let pago" class="num opt-mono">
+              {{ pago.monto | pesos }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnasPagos"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasPagos"></tr>
+        </table>
+      }
+    </mat-tab>
+
+    <!-- Cuotas -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Cuotas
+        <span class="tab-contador">{{ ot.cuotas.length }}</span>
+      </ng-template>
+
+      <div class="panel__barra">
+        <span class="panel__conteo">
+          @if (ot.numeroCuotas) {
+            Plan de {{ ot.numeroCuotas }} cuota(s)
+          } @else {
+            Sin plan de cuotas (pago al contado)
+          }
+        </span>
+        <button mat-stroked-button [disabled]="esTerminal()" (click)="irA('cuotas')">
+          <mat-icon>calendar_month</mat-icon>
+          Administrar cuotas
+        </button>
+      </div>
+
+      @if (ot.cuotas.length === 0) {
+        <app-empty-state
+          icon="calendar_month"
+          title="Sin cuotas"
+          message="Esta orden no tiene un plan de cuotas generado."
+        />
+      } @else {
+        <table mat-table [dataSource]="ot.cuotas" class="tabla">
+          <ng-container matColumnDef="numero">
+            <th mat-header-cell *matHeaderCellDef class="num">N°</th>
+            <td mat-cell *matCellDef="let cuota" class="num opt-mono">{{ cuota.numero }}</td>
+          </ng-container>
+          <ng-container matColumnDef="vencimiento">
+            <th mat-header-cell *matHeaderCellDef>Vencimiento</th>
+            <td mat-cell *matCellDef="let cuota" class="opt-mono">
+              {{ cuota.fechaVencimiento | date: 'dd-MM-yyyy' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="valor">
+            <th mat-header-cell *matHeaderCellDef class="num">Valor</th>
+            <td mat-cell *matCellDef="let cuota" class="num opt-mono">
+              {{ cuota.valorCuota | pesos }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let cuota">{{ cuota.estadoCuota }}</td>
+          </ng-container>
+          <ng-container matColumnDef="pago">
+            <th mat-header-cell *matHeaderCellDef>Pago</th>
+            <td mat-cell *matCellDef="let cuota">
+              @if (cuota.fechaPago) {
+                <span class="opt-mono">{{ cuota.fechaPago | date: 'dd-MM-yyyy' }}</span>
+                <span class="sub">{{ cuota.formaPago ?? '' }}</span>
+              } @else {
+                —
+              }
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnasCuotas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasCuotas"></tr>
+        </table>
+      }
+    </mat-tab>
+
+    <!-- Bitácora -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Bitácora
+        <span class="tab-contador">{{ ot.bitacora.length }}</span>
+      </ng-template>
+
+      @if (ot.bitacora.length === 0) {
+        <app-empty-state
+          icon="history"
+          title="Sin movimientos"
+          message="Todavía no hay cambios de estado registrados para esta orden."
+        />
+      } @else {
+        <ol class="bitacora">
+          @for (entrada of ot.bitacora; track entrada.id) {
+            <li class="bitacora__item">
+              <div class="bitacora__cab">
+                <app-estado-ot-chip
+                  [estadoId]="entrada.estadoNuevoId"
+                  [nombre]="entrada.estadoNuevo"
+                />
+                <span class="bitacora__desde">desde {{ entrada.estadoAnterior }}</span>
+                <span class="bitacora__fecha opt-mono">
+                  {{ entrada.fecha | date: 'dd-MM-yyyy HH:mm' }}
+                </span>
+              </div>
+              @if (entrada.observacion) {
+                <p class="bitacora__obs">{{ entrada.observacion }}</p>
+              }
+            </li>
+          }
+        </ol>
+      }
+    </mat-tab>
+  </mat-tab-group>
+}

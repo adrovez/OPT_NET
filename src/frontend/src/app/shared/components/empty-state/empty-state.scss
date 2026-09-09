@@ -1,0 +1,41 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 36px 24px; // 48 → 36 (Propuesta v2.1 §5)
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.empty-state__icono {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  // Tono neutral en el acento cálido de marca (antes `primary`) — un estado vacío es un
+  // "momento de pausa" y es el lugar elegido para dejar respirar el terracota sin
+  // saturar la interfaz de trabajo (Propuesta v2.1 §6, atributo "amigable"). Se usa
+  // `accent-dark` por contraste sobre `surface`. El tono de error se mantiene en
+  // --mat-sys-error, sin cambios.
+  color: var(--opt-accent-dark);
+
+  &--error {
+    color: var(--mat-sys-error);
+  }
+}
+
+.empty-state__titulo {
+  margin: 0;
+  font: var(--mat-sys-title-medium);
+  // Guiño humanista con la tipografía de titulares (Fraunces) — excepción deliberada a
+  // "nunca en la interfaz de trabajo diario": aplica solo al título de un estado vacío/
+  // error, nunca a tablas ni formularios (Propuesta v2.1 §6, atributo "amigable").
+  // `font-family` va después del shorthand `font:` para ganarle al reset de familia.
+  font-family: var(--opt-font-titular);
+  color: var(--mat-sys-on-surface);
+}
+
+.empty-state__mensaje {
+  margin: 0;
+  max-width: 360px;
+}

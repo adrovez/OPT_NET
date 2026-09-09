@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  max-width: min(480px, 94vw);
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+p {
+  margin: 0 0 var(--opt-space-sm);
+  color: var(--mat-sys-on-surface-variant);
+}

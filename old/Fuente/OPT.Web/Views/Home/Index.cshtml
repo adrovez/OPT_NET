@@ -1,0 +1,246 @@
+﻿@{
+    OPT.Entidad.DTO.SessionDTO sessionDTO = new OPT.Entidad.DTO.SessionDTO();
+    OPT.Web.Libreria.UsuarioConectado.ValidaSession(ref sessionDTO);
+   
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section CustomHeadContent{
+
+    <!-- Custom CSS -->
+    <link href="~/Content/Home/startmin.css" rel="stylesheet" />
+    <!-- Morris Charts CSS -->
+    <link href="~/Content/Morris/morris.css" rel="stylesheet" />
+
+}
+
+    <div class="card-body">
+
+        <div class="form-group row">
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-building fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">@ViewBag.Empresa</div>
+                                <div>Empresas</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Reporte","Empresa",new {area="Empresas" })" target="_blank">
+                        <div class="panel-footer">
+                            <span class="pull-left">Detalle</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-green">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-users fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">@ViewBag.Cliente</div>
+                                <div>Clientes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Reporte","Cliente",new {area="Clientes" })" target="_blank">
+                        <div class="panel-footer">
+                            <span class="pull-left">Detalle</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-shopping-cart fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">@ViewBag.OT</div>
+                                <div>Orden de Trabajo</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Reporte","OT",new {area="OrdenTrabajo" })" target="_blank">
+                        <div class="panel-footer">
+                            <span class="pull-left">View Details</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            @if (sessionDTO.idRol == 1)
+            {
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-money-bill fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">@ViewBag.Deudores</div>
+                                    <div>Deudores</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="@Url.Action("Reporte", "Deuda", new { area = "OrdenTrabajo" })" target="_blank">
+                            <div class="panel-footer">
+                                <span class="pull-left">Detalle</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+            </div>
+        @if (sessionDTO.idRol == 1)
+        {
+            <div class="form-group row">
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-chart-line"></i> OT AÑO @DateTime.Now.Year
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-bar-chart"></div>
+                        </div>
+                        <div class="panel-footer">
+                            <h5 id="TotalChart" class="text-right"></h5>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-chart-line"></i>  OT AÑO @(DateTime.Now.Year - 1)
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-bar-chart2"></div>
+                        </div>
+                        <!-- /.panel-body -->
+                        <div class="panel-footer">
+                            <h5 id="TotalChart2" class="text-right"></h5>
+                        </div>
+                    </div>
+                    <!-- /.panel -->
+
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-chart-line"></i>  OT AÑO @(DateTime.Now.Year - 2)
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-bar-chart3"></div>
+                        </div>
+                        <!-- /.panel-body -->
+                        <div class="panel-footer">
+                            <h5 id="TotalChart3" class="text-right"></h5>
+                        </div>
+                    </div>
+                    <!-- /.panel -->
+
+                </div>
+            </div>
+        }
+        else
+        {
+
+            <div class="form-group row">
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-chart-line"></i> OT PERIODO @DateTime.Now.ToString("MM/yyyy")
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-bar-chart"></div>
+                        </div>
+                        <div class="panel-footer">
+                            <h5 id="TotalChart" class="text-right"></h5>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-chart-line"></i>  OT PERIODO @(DateTime.Now.AddMonths(-1).ToString("MM/yyyy"))
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-bar-chart2"></div>
+                        </div>
+                        <!-- /.panel-body -->
+                        <div class="panel-footer">
+                            <h5 id="TotalChart2" class="text-right"></h5>
+                        </div>
+                    </div>
+                    <!-- /.panel -->
+
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-chart-line"></i>  OT PERIODO @(DateTime.Now.AddMonths(-2).ToString("MM/yyyy"))
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="morris-bar-chart3"></div>
+                        </div>
+                        <!-- /.panel-body -->
+                        <div class="panel-footer">
+                            <h5 id="TotalChart3" class="text-right"></h5>
+                        </div>
+                    </div>
+                    <!-- /.panel -->
+
+                </div>
+            </div>
+
+
+        }
+    </div>
+@section Scripts{
+
+
+    <!-- Morris Charts JavaScript -->
+    <script src="~/Scripts/jquery.number.min.js"></script>
+    <script src="~/Scripts/Home/raphael.min.js"></script>
+    <script src="~/Scripts/Morris/morris.js"></script>
+    <script src="~/Scripts/Home/Home.Index.js?v=3"></script>
+    <script type="text/javascript">
+        ObjHome.UrlPeriodo = "@Url.Action("OTPeriodo", "Home",new { area=""})";
+        ObjHome.UrlPeriodo2 = "@Url.Action("OTPeriodo2", "Home",new { area=""})";
+        ObjHome.UrlPeriodo3 = "@Url.Action("OTPeriodo3", "Home",new { area=""})";
+
+    </script>
+
+    <!-- Custom Theme JavaScript -->
+    @*<script src="~/Scripts/Home/startmin.js"></script>*@
+}
+

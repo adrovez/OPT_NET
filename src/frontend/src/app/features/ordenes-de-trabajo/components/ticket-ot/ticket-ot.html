@@ -1,0 +1,103 @@
+<article class="ticket">
+  <header class="ticket__cabecera">
+    <div>
+      <p class="ticket__marca">Óptica OPT</p>
+      <p class="ticket__sucursal">{{ orden().sucursalNombre }}</p>
+    </div>
+    <div class="ticket__numero">
+      <span class="ticket__numero-etiqueta">Orden de trabajo</span>
+      <strong class="opt-mono">N° {{ orden().numeroOT }}</strong>
+    </div>
+  </header>
+
+  <section class="ticket__datos">
+    <p><span>Cliente</span> {{ orden().cliente.nombre }}</p>
+    <p>
+      <span>RUT</span> <span class="opt-mono">{{ orden().cliente.rut }}</span>
+    </p>
+    @if (orden().cliente.telefono) {
+      <p>
+        <span>Teléfono</span> <span class="opt-mono">{{ orden().cliente.telefono }}</span>
+      </p>
+    }
+    @if (orden().beneficiario) {
+      <p><span>Beneficiario</span> {{ orden().beneficiario }}</p>
+    }
+    @if (orden().empresaNombre) {
+      <p><span>Convenio</span> {{ orden().empresaNombre }}</p>
+    }
+    <p>
+      <span>Atención</span>
+      {{ orden().fechaAtencion ?? orden().creadoEn | date: 'dd-MM-yyyy' }}
+    </p>
+    <p>
+      <span>Entrega</span>
+      {{ orden().fechaEntrega | date: 'dd-MM-yyyy' }}
+      @if (orden().horaEntrega) {
+        · {{ orden().horaEntrega!.slice(0, 5) }} h
+      }
+    </p>
+  </section>
+
+  @if (orden().recetas.length > 0) {
+    <section class="ticket__bloque">
+      <h3>Receta</h3>
+      <app-receta-graduacion [receta]="orden().recetas[0]" />
+    </section>
+  }
+
+  <section class="ticket__bloque">
+    <h3>Detalle</h3>
+    <table class="ticket__tabla">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th class="num">Cant.</th>
+          <th class="num">Valor</th>
+          <th class="num">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (linea of orden().detalles; track linea.id) {
+          <tr>
+            <td>
+              {{ linea.productoDescripcion ?? linea.productoCodigo }}
+              @if (linea.comentario) {
+                <span class="ticket__comentario">{{ linea.comentario }}</span>
+              }
+            </td>
+            <td class="num opt-mono">{{ linea.cantidad }}</td>
+            <td class="num opt-mono">{{ linea.valorUnitario | pesos }}</td>
+            <td class="num opt-mono">{{ linea.total | pesos }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <section class="ticket__bloque ticket__totales">
+    <p>
+      <span>Total</span> <strong class="opt-mono">{{ orden().precio | pesos }}</strong>
+    </p>
+    <p>
+      <span>Abonado</span> <strong class="opt-mono">{{ orden().totalAbonado | pesos }}</strong>
+    </p>
+    <p class="ticket__saldo">
+      <span>Saldo</span> <strong class="opt-mono">{{ orden().saldo | pesos }}</strong>
+    </p>
+    @if (cuotas().length > 0) {
+      <p>
+        <span>Cuotas</span>
+        <strong class="opt-mono"> {{ cuotas().length }} × {{ valorCuota() | pesos }} </strong>
+      </p>
+      <p>
+        <span>1er vencimiento</span>
+        <strong class="opt-mono">{{ cuotas()[0].fechaVencimiento | date: 'dd-MM-yyyy' }}</strong>
+      </p>
+    }
+  </section>
+
+  <footer class="ticket__pie">
+    <p>Presente este comprobante al retirar. Conserve el N° de orden para consultas.</p>
+  </footer>
+</article>

@@ -1,0 +1,46 @@
+﻿@model PagedList.IPagedList<OPT.Entidad.DTO.OPT_UsuarioDTO>
+@using PagedList.Mvc;
+
+@{
+    Layout = null;
+}
+
+<table class="table table-sm table-hover">
+    <thead>
+        <tr class="text-center">            
+            <th>Rut</th>
+            <th>Nombre</th>
+            <th>Mail</th>
+            <th>Sucursal</th>
+            <th>Rol</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Item in Model)
+        {
+        <tr>
+            <td>@Item.RutUsuario</td>
+            <td>@Item.Nombre</td>
+            <td>@Item.Mail</td>
+            <td>@Item.Sucursal.Count()</td>
+            <td>@Item.Rol</td>
+            <td class="text-center">
+                <a href="@Url.Action("Details","Empleado",new {area="Administrar", id=Item.RutUsuario })" name="Ver" class="btn btn-sm btn-outline-primary" title="Detalle..."><i class="fa fa-eye"></i></a>
+                <a href="@Url.Action("Edit","Empleado",new {area="Administrar", id=Item.RutUsuario })" name="Editar" class="btn btn-sm btn-outline-warning" title="Editar..."><i class="fa fa-edit"></i></a>
+                <a href="@Url.Action("Eliminar","Empleado",new {area="Administrar", id=Item.RutUsuario })" name="Eliminar" class="btn btn-sm btn-outline-danger" title="Eliminar..."><i class="fa fa-trash"></i></a>
+            </td>
+        </tr>
+
+        }
+    </tbody>
+    <tfoot>
+        <tr class="text-center">
+            <td colspan="7">
+                Página @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) de @Model.PageCount
+                @Html.PagedListPager(Model, pPageNumber => Url.Action("Paginar", "Empleado", new { pPageNumber }), new PagedListRenderOptions { FunctionToTransformEachPageLink = (liTag, aTag) => { aTag.Attributes.Add("name", "paginar"); liTag.InnerHtml = aTag.ToString(); return liTag; } })
+            </td>
+        </tr>
+    </tfoot>
+</table>
+

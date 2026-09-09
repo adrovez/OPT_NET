@@ -1,0 +1,126 @@
+﻿@model OPT.Web.Areas.OrdenTrabajo.Models.Pago.PagoResponse
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card  border-primary">
+    <h4 class="card-header alert-primary"><i class="fa fa-clipboard"></i> PAGO ORDEN DE TRABAJO</h4>
+    <form id="formIndex" action="@Url.Action("Create","Pago",new {area="OrdenTrabajo" })">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="idOT" value="@Model.idOT" />
+        <input type="hidden" id="TipoPago" name="TipoPago" />
+        <div class="card-body">
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label>N° OT</label>
+                    <input type="text" class="form-control form-control-sm" value="@Model.idOT" readonly />
+                </div>
+                <div class="col-sm-4">
+                    <label>Rut</label>
+                    <input type="text" class="form-control form-control-sm" value="@Model.RutCliente" readonly />
+                </div>
+                <div class="col-sm-4">
+                    <label>Nombre</label>
+                    <input type="text" class="form-control form-control-sm" value="@Model.NombreCliente" readonly />
+                </div>
+            </div>
+            <hr />
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Total OT</label>
+                            <input type="text" class="form-control form-control-sm text-right" value="@Model.Precio.ToString("N0")" readonly />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Total Pagado</label>
+                            <input type="text" class="form-control form-control-sm text-right" value="@Model.Abono.ToString("N0")" readonly />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Saldo Pendiente</label>
+                            <input type="text" id="SaldoPendiente" name="SaldoPendiente" class="form-control form-control-sm text-right" value="@Model.Saldo.ToString("N0")" readonly />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-sm-6">
+
+                    <table class="table table-sm table-hover" id="TableAbono">
+                        <thead>
+                            <tr>
+                                <td class="text-center" colspan="3">Historial Pago</td>
+                            </tr>
+                            <tr class="text-center">
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Forma Pago</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            @foreach (var item in Model.Pagos)
+                            {
+                                <tr>
+                                    <td>@item.FechaPago.ToShortDateString()</td>
+                                    <td class="text-right">@item.Monto.ToString("N0")</td>
+                                    <td>@item.TipoPago</td>
+                                </tr>
+                            }
+
+                        </tfoot>
+                    </table>
+
+
+                </div>
+
+                @if (Model.EstadoPago == "PENDIENTE")
+                {
+                    <div class="col-sm-3">
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label>Fecha Pago</label>
+                                <input type="text" id="FechaPago" name="FechaPago" class="form-control form-control-sm text-right" autocomplete="off" maxlength="10" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label>Monto a Pagar</label>
+                                <input type="text" id="Monto" name="Monto" class="form-control form-control-sm text-right" data-tipo="Numeric" autocomplete="off" maxlength="10" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label>Forma Pago</label>
+                                @Html.DropDownList("idTipoPago", Model.ListFormaPago as IEnumerable<SelectListItem>, "--- SELECCIONAR ---", new { @class = "form-control form-control-sm", @required = "required" })
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <div class="form-group row">
+                <div class="col-sm-12  text-right">
+                    <a href="@Url.Action("Index","Ingreso",new {area="OrdenTrabajo" })" id="btnVolverOT" class="btn btn-sm border-secondary"><i class="fa fa-arrow-left"></i> Volver</a>
+                    @if (Model.EstadoPago == "PENDIENTE")
+                    {
+                        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Pagar</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+@section Scripts{
+    <script src="~/Scripts/js/ValidaUtil.js?v=3"></script>
+    <script src="~/Areas/OrdenTrabajo/Scripts/Pago.Index.js?v=4"></script>
+}

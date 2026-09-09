@@ -1,0 +1,239 @@
+// Página ancha (no es un diálogo): los campos se agrupan en filas flexibles que colapsan
+// solas en pantallas angostas, sin puntos de quiebre propios.
+.asistente {
+  max-width: 1000px;
+  background: transparent;
+}
+
+.paso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--opt-space-xs);
+  padding-top: var(--opt-space-xs);
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--opt-space-sm);
+}
+
+.campo-ancho {
+  flex: 1 1 320px;
+}
+
+.campo-medio {
+  flex: 1 1 220px;
+}
+
+.campo-corto {
+  flex: 0 1 200px;
+}
+
+.campo-mini {
+  flex: 0 1 140px;
+}
+
+// Los helpers `.campo-*` son ítems de una fila (`.fila` / `.linea-nueva`, eje horizontal):
+// ahí `flex-basis` fija el ancho. Cuando el campo cuelga directo de `.paso` (flex column),
+// ese mismo `flex-basis` cae sobre el eje vertical y estira el control a esa altura
+// —el combo "Receta" aparecía como un recuadro vacío de ~320 px de alto—. En ese contexto
+// se anula el flex y se acota el ancho a una medida cómoda para un campo suelto.
+.paso > .campo-ancho,
+.paso > .campo-medio,
+.paso > .campo-corto,
+.paso > .campo-mini {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.paso > .campo-ancho {
+  max-width: 420px;
+}
+
+.paso > .campo-medio {
+  max-width: 320px;
+}
+
+.paso > .campo-corto {
+  max-width: 240px;
+}
+
+.paso > .campo-mini {
+  max-width: 160px;
+}
+
+.linea-nueva {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--opt-space-sm);
+  padding: var(--opt-space-sm);
+  border: 1px dashed var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-sm);
+  margin-bottom: var(--opt-space-sm);
+
+  button {
+    margin-top: var(--opt-space-xs);
+  }
+}
+
+.quitar-empresa,
+.accion-suelta {
+  margin-top: var(--opt-space-xs);
+  align-self: flex-start;
+}
+
+.tabla {
+  width: 100%;
+}
+
+.num {
+  text-align: right;
+}
+
+.producto__descripcion {
+  display: block;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.detalle-vacio,
+.ayuda {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.total-detalle,
+.saldo {
+  margin: var(--opt-space-xs) 0 0;
+  text-align: right;
+}
+
+.acciones-paso {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--opt-space-xs);
+  padding-top: var(--opt-space-sm);
+}
+
+// ───────── Paso 1: cliente ─────────
+// Aviso de "no existe, créalo" y ficha del cliente ya elegido: las dos piezas que reemplazan
+// al ida y vuelta a la pantalla de Clientes que obligaba el formulario anterior.
+.aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--opt-space-xs);
+  padding: var(--opt-space-sm);
+  border-radius: var(--opt-radius-sm);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface-variant);
+
+  span {
+    flex: 1 1 240px;
+  }
+}
+
+.ficha-cliente {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--opt-space-sm);
+  padding: var(--opt-space-sm);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-sm);
+}
+
+.ficha-cliente__datos p {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.ficha-cliente__nombre {
+  font-weight: 600;
+  color: var(--mat-sys-on-surface) !important;
+}
+
+// ───────── Paso 2: receta ─────────
+.recetas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--opt-space-2xs);
+}
+
+.recetas__resumen {
+  margin-left: var(--opt-space-xs);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.receta-previa {
+  margin-top: var(--opt-space-xs);
+  padding: var(--opt-space-sm);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-sm);
+}
+
+// ───────── Paso 4: pago ─────────
+.sin-plan {
+  margin-top: var(--opt-space-sm);
+}
+
+// Selector de modalidad de pago (observación 6, ADR 0010): tres tarjetas en vez de un
+// checkbox suelto — cada `mat-radio-button` se estira con su ícono y texto adentro.
+.modalidades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+}
+
+.modalidad {
+  flex: 1 1 220px;
+  padding: var(--opt-space-sm);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-md);
+
+  ::ng-deep .mdc-form-field {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--opt-space-xs);
+  }
+}
+
+.modalidad__texto {
+  display: flex;
+  flex-direction: column;
+
+  small {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.cuota-estimada {
+  align-self: center;
+  margin: 0;
+}
+
+.tabla-cuotas {
+  width: 100%;
+  max-width: 420px;
+  margin: var(--opt-space-sm) 0;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: var(--opt-space-2xs) var(--opt-space-xs);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    text-align: left;
+  }
+}
+
+.error-plan {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-2xs);
+  margin: 0;
+  color: var(--mat-sys-error);
+}

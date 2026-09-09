@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsConsolidaVentaDiaria" targetNamespace="http://tempuri.org/dsConsolidaVentaDiaria.xsd" xmlns:mstns="http://tempuri.org/dsConsolidaVentaDiaria.xsd" xmlns="http://tempuri.org/dsConsolidaVentaDiaria.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="Web.config" AppSettingsPropertyName="DB_OpticaConnectionDS" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="DB_OpticaConnectionDS (Web.config)" ParameterPrefix="@" PropertyReference="AppConfig.System.Configuration.ConfigurationManager.0.ConnectionStrings.DB_OpticaConnectionDS.ConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables>
+          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="DataTableConsolidaVentaDiariaTableAdapter" GeneratorDataComponentClassName="DataTableConsolidaVentaDiariaTableAdapter" Name="DataTableConsolidaVentaDiaria" UserDataComponentName="DataTableConsolidaVentaDiariaTableAdapter">
+            <MainSource>
+              <DbSource ConnectionRef="DB_OpticaConnectionDS (Web.config)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="Fill" GenerateMethods="Both" GenerateShortCommands="false" GeneratorGetMethodName="GetData" GeneratorSourceName="Fill" GetMethodModifier="Public" GetMethodName="GetData" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="false" UserGetMethodName="GetData" UserSourceName="Fill">
+                <SelectCommand>
+                  <DbCommand CommandType="Text" ModifiedByUser="true">
+                    <CommandText>SELECT A.FechaAtencion
+	  ,COUNT(A.idOT) AS OTS
+	  ,SUM(B.Monto)  AS TOTAL
+	  ,C.FormaPago
+FROM OPT_OrdenDeTrabajo as A 
+INNER JOIN OPT_Abono AS B
+		ON A.idOT = B.idOT
+INNER JOIN OPT_FormaPago as C
+		ON B.idFormaPago = C.idFormaPago
+GROUP BY A.FechaAtencion
+		,C.FormaPago
+ORDER BY A.FechaAtencion DESC</CommandText>
+                    <Parameters />
+                  </DbCommand>
+                </SelectCommand>
+              </DbSource>
+            </MainSource>
+            <Mappings>
+              <Mapping SourceColumn="FechaAtencion" DataSetColumn="FechaAtencion" />
+              <Mapping SourceColumn="OTS" DataSetColumn="OTS" />
+              <Mapping SourceColumn="TOTAL" DataSetColumn="TOTAL" />
+              <Mapping SourceColumn="FormaPago" DataSetColumn="FormaPago" />
+            </Mappings>
+            <Sources />
+          </TableAdapter>
+        </Tables>
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsConsolidaVentaDiaria" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="dsConsolidaVentaDiaria" msprop:Generator_UserDSName="dsConsolidaVentaDiaria">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="DataTableConsolidaVentaDiaria" msprop:Generator_TableClassName="DataTableConsolidaVentaDiariaDataTable" msprop:Generator_TableVarName="tableDataTableConsolidaVentaDiaria" msprop:Generator_TablePropName="DataTableConsolidaVentaDiaria" msprop:Generator_RowDeletingName="DataTableConsolidaVentaDiariaRowDeleting" msprop:Generator_RowChangingName="DataTableConsolidaVentaDiariaRowChanging" msprop:Generator_RowEvHandlerName="DataTableConsolidaVentaDiariaRowChangeEventHandler" msprop:Generator_RowDeletedName="DataTableConsolidaVentaDiariaRowDeleted" msprop:Generator_UserTableName="DataTableConsolidaVentaDiaria" msprop:Generator_RowChangedName="DataTableConsolidaVentaDiariaRowChanged" msprop:Generator_RowEvArgName="DataTableConsolidaVentaDiariaRowChangeEvent" msprop:Generator_RowClassName="DataTableConsolidaVentaDiariaRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="FechaAtencion" msprop:Generator_ColumnVarNameInTable="columnFechaAtencion" msprop:Generator_ColumnPropNameInRow="FechaAtencion" msprop:Generator_ColumnPropNameInTable="FechaAtencionColumn" msprop:Generator_UserColumnName="FechaAtencion" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="OTS" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnOTS" msprop:Generator_ColumnPropNameInRow="OTS" msprop:Generator_ColumnPropNameInTable="OTSColumn" msprop:Generator_UserColumnName="OTS" type="xs:int" minOccurs="0" />
+              <xs:element name="TOTAL" msdata:ReadOnly="true" msprop:Generator_ColumnVarNameInTable="columnTOTAL" msprop:Generator_ColumnPropNameInRow="TOTAL" msprop:Generator_ColumnPropNameInTable="TOTALColumn" msprop:Generator_UserColumnName="TOTAL" type="xs:decimal" minOccurs="0" />
+              <xs:element name="FormaPago" msprop:Generator_ColumnVarNameInTable="columnFormaPago" msprop:Generator_ColumnPropNameInRow="FormaPago" msprop:Generator_ColumnPropNameInTable="FormaPagoColumn" msprop:Generator_UserColumnName="FormaPago">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

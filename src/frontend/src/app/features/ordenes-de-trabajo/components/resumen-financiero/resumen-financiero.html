@@ -1,0 +1,19 @@
+<div class="resumen">
+  <div class="resumen__item">
+    <span class="resumen__etiqueta">Total OT</span>
+    <span class="resumen__valor opt-mono">{{ precio() | pesos }}</span>
+  </div>
+  <div class="resumen__item">
+    <span class="resumen__etiqueta">Abonado</span>
+    <span class="resumen__valor opt-mono">{{ totalAbonado() | pesos }}</span>
+  </div>
+  <div class="resumen__item resumen__item--saldo" [class.resumen__item--pagada]="saldo() <= 0">
+    <span class="resumen__etiqueta">Saldo</span>
+    <span class="resumen__valor opt-mono">{{ saldo() | pesos }}</span>
+    @if (saldo() < 0) {
+      <span class="resumen__nota">Pagada de más</span>
+    } @else if (saldo() === 0) {
+      <span class="resumen__nota">Sin saldo pendiente</span>
+    }
+  </div>
+</div>

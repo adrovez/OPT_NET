@@ -1,0 +1,144 @@
+﻿@model OPT.Entidad.OPT_RecetaCristales
+@{
+    Layout = null;
+    string CheckCristalesLaboratorio = Model.CheckCristalesLaboratorio == true ? "checked" : "";
+    string checkUrgente = Model.CheckUrgente == true ? "checked" : "";
+    string checkLejos = Model.CheckLejos == true ? "checked" : "";
+    string checkCerca = Model.CheckCerca == true ? "checked" : "";   
+
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header alert-info">
+                <h5 class="modal-title"><i class="fa fa-eye"></i> DETALLE RECETA LENTES CLIENTE RUT: @Model.RutCliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label>Fecha</label>
+                        <input type="text" class="form-control" value="@(DateTime.Parse(Model.FechaIngreso.ToString()).ToShortDateString())" readonly />
+                    </div>
+                    <div class="col-sm-4">
+                        <label> Cristales de Laboratorios</label>
+                        <input type="checkbox" class="custom-checkbox" @CheckCristalesLaboratorio />
+                    </div>
+                    <div class="col-sm-4">
+                        <label> Urgente</label>
+                        <input type="checkbox" class="custom-checkbox" @checkUrgente />
+                    </div>
+                </div>
+                <hr />
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label>Incluir Cristales Lejos</label>
+                        <input type="checkbox" @checkLejos class="custom-checkbox" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label>Incluir Cristales Cerca</label>
+                        <input type="checkbox" @checkCerca class="custom-checkbox" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                      
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th></th>
+                                            <th>Esferico</th>
+                                            <th>Cilindrico</th>
+                                            <th>Eje</th>
+                                            <th>Observacion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>OD</td>
+                                            <td><input type="text" value="@Model.LejosODEsferico" class="form-control  form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.LejosODCilindro" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.LejosODEje" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.LejosODObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>OI</td>
+                                            <td><input type="text" value="@Model.LejosOIEsferico" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.LejosOICilindro" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.LejosOIEje" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.LejosOIObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>DP</td>
+                                            <td><input type="text" value="@Model.LejosDPEsferico" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td colspan="3"><input type="text" value="@Model.LejosDPObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>ADD</td>
+                                            <td><input type="text" value="@Model.LejosADDEsfera" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                       
+
+                    </div>
+                    <div class="col-sm-6">
+                       
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th></th>
+                                            <th>Esferico</th>
+                                            <th>Cilindrico</th>
+                                            <th>Eje</th>
+                                            <th>Observacion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>OD</td>
+                                            <td><input type="text" value="@Model.CercaODEsferico" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.CercaODCilindro" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.CercaODEje" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.CercaODObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>OI</td>
+                                            <td><input type="text" value="@Model.CercaOIEsferico" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.CercaOICilindro" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.CercaOIEje" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td><input type="text" value="@Model.CercaOIObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>DP</td>
+                                            <td><input type="text" value="@Model.CercaDPEsferico" class="form-control form-control-sm text-right" maxlength="10" data-tipo="DecimalNegativo"></td>
+                                            <td colspan="3"><input type="text" value="@Model.CercaDPObservacion" class="form-control form-control-sm" maxlength="50"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                       
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

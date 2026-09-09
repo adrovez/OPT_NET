@@ -1,0 +1,23 @@
+.filtro {
+  display: block;
+  margin-bottom: var(--opt-space-sm);
+}
+
+.tabla {
+  width: 100%;
+}
+
+.num {
+  text-align: right;
+}
+
+// La fila entera es el control de selección (no hay botón "elegir" por fila): se marca
+// como tal con el cursor y el foco visible, y responde a Enter para el uso con teclado.
+.fila-seleccionable {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+  }
+}

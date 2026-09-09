@@ -1,0 +1,43 @@
+.contexto {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-xs);
+  padding: var(--opt-space-xs) var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+  border-radius: var(--opt-radius-sm);
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+}
+
+.filtros__busqueda {
+  flex: 1 1 320px;
+}
+
+.filtros__estado {
+  flex: 0 1 200px;
+}
+
+.filtros__saldo {
+  flex: 0 0 auto;
+}
+
+.tabla {
+  width: 100%;
+}
+
+.num {
+  text-align: right;
+}
+
+.cliente__nombre {
+  display: block;
+  color: var(--mat-sys-on-surface-variant);
+}
