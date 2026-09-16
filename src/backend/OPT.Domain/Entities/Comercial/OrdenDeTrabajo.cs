@@ -10,7 +10,10 @@ namespace OPT.Domain.Entities.Comercial;
 ///   - <see cref="Precio"/> es la <b>suma de los detalles</b>, no un dato digitado.
 ///   - <c>TotalAbonado = abonos + pagos</c> y <c>Saldo = Precio - TotalAbonado</c>, recalculados
 ///     dentro de la misma transacción del movimiento que los origina (ADR 0003 / ADR 0006).
-///   - El número visible (<see cref="NumeroOT"/>) lo genera la BD atómicamente, nunca la aplicación.
+///   - El número visible (<see cref="NumeroOT"/>) se ingresa manualmente, igual que en el legacy
+///     (decisión 2026-09-11): único entre OT del mismo año que no estén anuladas — una OT
+///     anulada libera su número para reutilizarse. La BD refuerza con un índice único filtrado
+///     (no anuladas) como respaldo; la app valida además el año.
 ///   - Todo cambio de estado queda registrado en <see cref="BitacoraOT"/>.
 ///   - El estado avanza o retrocede de a un paso; <see cref="EstadosOT.Entregado"/> y
 ///     <see cref="EstadosOT.Anulado"/> son terminales.
@@ -26,7 +29,7 @@ public class OrdenDeTrabajo : AuditableEntity
 
     /// <summary>
     /// Número legible comunicado al cliente (aparece en tickets/reportes).
-    /// Generado por la BD (SEQUENCE), no por la capa de aplicación.
+    /// Se ingresa manualmente, igual que en el legacy — no lo genera la BD ni la aplicación.
     /// Es atributo visible distinto del Id interno.
     /// </summary>
     public int     NumeroOT     { get; private set; }
@@ -73,13 +76,18 @@ public class OrdenDeTrabajo : AuditableEntity
 
     protected OrdenDeTrabajo() { }
 
-    public static OrdenDeTrabajo Crear(int clienteId, int sucursalId, DateTimeOffset fechaEntrega,
+    public static OrdenDeTrabajo Crear(int numeroOT, int clienteId, int sucursalId,
+                                        DateTimeOffset fechaEntrega,
                                         int usuarioId, int? empresaId = null,
                                         string? observaciones = null, string? beneficiario = null,
                                         DateOnly? fechaAtencion = null, TimeOnly? horaEntrega = null)
     {
+        if (numeroOT <= 0)
+            throw new DomainException("El número de orden debe ser mayor a cero.");
+
         var ot = new OrdenDeTrabajo
         {
+            NumeroOT      = numeroOT,
             ClienteId     = clienteId,
             SucursalId    = sucursalId,
             EstadoOTId    = EstadosOT.Inicial,

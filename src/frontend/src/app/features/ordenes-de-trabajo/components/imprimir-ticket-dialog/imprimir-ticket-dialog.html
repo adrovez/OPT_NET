@@ -1,0 +1,20 @@
+<h2 mat-dialog-title class="opt-no-imprimir">
+  <mat-icon>print</mat-icon>
+  Ticket OT N° {{ data.orden.numeroOT }}
+</h2>
+
+<mat-dialog-content>
+  <p class="resumen opt-no-imprimir">
+    {{ data.orden.cliente.nombre }} · <span class="opt-mono">{{ data.orden.cliente.rut }}</span>
+  </p>
+
+  <app-ticket-ot [orden]="data.orden" />
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="opt-no-imprimir">
+  <button mat-button type="button" mat-dialog-close>Cerrar</button>
+  <button mat-flat-button color="primary" type="button" (click)="imprimir()">
+    <mat-icon>print</mat-icon>
+    Imprimir ticket
+  </button>
+</mat-dialog-actions>

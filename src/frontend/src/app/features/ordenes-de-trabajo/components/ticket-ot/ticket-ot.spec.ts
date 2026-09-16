@@ -28,7 +28,15 @@ describe('TicketOT', () => {
   });
 
   it('deja fuera las cuotas anuladas', () => {
-    const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(texto).toContain('1 ×');
+    const instancia = component as unknown as { cuotas: () => unknown[] };
+    expect(instancia.cuotas().length).toBe(1);
+  });
+
+  it('en pantalla se ve una sola copia; las demás son solo para imprimir', () => {
+    const copias = (fixture.nativeElement as HTMLElement).querySelectorAll('.ticket');
+    expect(copias.length).toBe(3);
+    expect(copias[0].classList).not.toContain('ticket--solo-impresion');
+    expect(copias[1].classList).toContain('ticket--solo-impresion');
+    expect(copias[2].classList).toContain('ticket--solo-impresion');
   });
 });

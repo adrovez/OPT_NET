@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OPT.API.Authorization;
 using OPT.Application.Features.OrdenesDeTrabajo;
 using OPT.Application.Features.OrdenesDeTrabajo.Commands.Actualizar;
 using OPT.Application.Features.OrdenesDeTrabajo.Commands.Anular;
@@ -23,6 +24,13 @@ namespace OPT.API.Controllers;
 /// La OT se direcciona siempre por <c>PublicId</c>, nunca por el Id interno ni por el
 /// NumeroOT (ADR 0004). Abonos, pagos, cuotas y bitácora son <b>subrecursos</b>: solo se
 /// alcanzan bajo la ruta de su OT, que ya está protegida.
+///
+/// Autorización por rol vía <see cref="AutorizarRolesAttribute"/> por acción (no a nivel de
+/// clase): CambiarEstado admite además a Control Calidad (etapa CALIDAD del flujo) y
+/// Anular/AnularCuota quedan reservadas a supervisión por su impacto financiero — un atributo
+/// de clase único no puede expresar esa diferencia por acción.
+/// Control de acceso por sucursal (BOLA/IDOR) vive en los handlers de Application
+/// (<c>AutorizacionSucursal</c>), no aquí: necesita cargar la OT para conocer su SucursalId.
 /// </summary>
 [ApiController]
 [Authorize]
@@ -33,9 +41,12 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// Listado paginado. Query params: pagina, tamanioPagina, busqueda (número de OT,
     /// beneficiario o RUT/nombre del cliente), ordenarPor
     /// (numeroOT|fechaEntrega|precio|saldo|estado|creadoEn), direccionOrden (asc|desc),
-    /// y los filtros clientePublicId, sucursalId, estadoOTId, soloConSaldo.
+    /// y los filtros clientePublicId, sucursalId, estadoOTId, soloConSaldo, empresaPublicId,
+    /// operativoPublicId (OT asociadas a un Operativo — módulo Operativo, requerimiento sección 6).
     /// </summary>
     [HttpGet]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad)]
     [ProducesResponseType(typeof(PagedResult<OrdenDeTrabajoResumenDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ObtenerTodos([FromQuery] ObtenerOrdenesDeTrabajoQuery query,
                                                     CancellationToken ct = default)
@@ -43,6 +54,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
 
     /// <summary>Vista completa: cabecera, detalle, abonos, pagos, cuotas y bitácora de estados.</summary>
     [HttpGet("{publicId:guid}")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObtenerPorId(Guid publicId, CancellationToken ct)
@@ -53,6 +66,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// mismo cuerpo, el plan de cuotas y el abono inicial.
     /// </summary>
     [HttpPost]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -60,6 +75,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
         => Ok(await mediator.Send(command, ct));
 
     [HttpPut("{publicId:guid}")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,6 +91,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// Saltar etapas o mover una OT terminal devuelve 422.
     /// </summary>
     [HttpPost("{publicId:guid}/estado")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -86,6 +105,7 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// queda en el listado con su historial — reemplaza al SP_OTEliminar del legacy.
     /// </summary>
     [HttpPost("{publicId:guid}/anular")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -97,6 +117,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
 
     /// <summary>Registra el abono inicial y recalcula el saldo en la misma transacción.</summary>
     [HttpPost("{publicId:guid}/abonos")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -109,6 +131,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// antiguas que el monto alcance a cubrir completas.
     /// </summary>
     [HttpPost("{publicId:guid}/pagos")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -119,6 +143,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     // ── Plan de cuotas ───────────────────────────────────────────────────────────
 
     [HttpPost("{publicId:guid}/cuotas")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -131,6 +157,8 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// el pago en <c>POST {publicId}/pagos</c>, que imputa las cuotas solo.
     /// </summary>
     [HttpPost("{publicId:guid}/cuotas/{numero:int}/pagar")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -139,6 +167,7 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
         => Ok(await mediator.Send(command with { OrdenPublicId = publicId, Numero = numero }, ct));
 
     [HttpPost("{publicId:guid}/cuotas/{numero:int}/anular")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]

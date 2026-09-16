@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OPT.API.Authorization;
 using OPT.Application.Features.Sucursales;
 using OPT.Application.Features.Sucursales.Commands.Actualizar;
 using OPT.Application.Features.Sucursales.Commands.Crear;
@@ -29,12 +30,14 @@ public sealed class SucursalesController(IMediator mediator) : ControllerBase
         => Ok(await mediator.Send(new ObtenerSucursalPorIdQuery(id), ct));
 
     [HttpPost]
+    [AutorizarRoles(RolesOPT.Administrador)]
     [ProducesResponseType(typeof(SucursalDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Crear([FromBody] CrearSucursalCommand command, CancellationToken ct)
         => Ok(await mediator.Send(command, ct));
 
     [HttpPut("{id:int}")]
+    [AutorizarRoles(RolesOPT.Administrador)]
     [ProducesResponseType(typeof(SucursalDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,6 +45,7 @@ public sealed class SucursalesController(IMediator mediator) : ControllerBase
         => Ok(await mediator.Send(command with { Id = id }, ct));
 
     [HttpDelete("{id:int}")]
+    [AutorizarRoles(RolesOPT.Administrador)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Eliminar(int id, CancellationToken ct)

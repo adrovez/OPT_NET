@@ -12,11 +12,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="opt-no-imprimir">
-  <button mat-button type="button" (click)="cerrarCon('nueva')">
-    <mat-icon>add</mat-icon>
-    Nueva OT
-  </button>
-  <button mat-stroked-button type="button" (click)="cerrarCon('ver')">Ver orden</button>
+  <button mat-button type="button" mat-dialog-close>Cerrar</button>
   <button mat-flat-button color="primary" type="button" (click)="imprimir()">
     <mat-icon>print</mat-icon>
     Imprimir ticket

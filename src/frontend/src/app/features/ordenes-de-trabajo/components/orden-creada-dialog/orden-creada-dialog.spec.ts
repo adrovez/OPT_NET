@@ -8,22 +8,12 @@ import { OrdenCreadaDialog } from './orden-creada-dialog';
 describe('OrdenCreadaDialog', () => {
   let component: OrdenCreadaDialog;
   let fixture: ComponentFixture<OrdenCreadaDialog>;
-  let cerradoCon: unknown;
 
   beforeEach(async () => {
-    cerradoCon = undefined;
-
     await TestBed.configureTestingModule({
       imports: [OrdenCreadaDialog, NoopAnimationsModule],
       providers: [
-        {
-          provide: MatDialogRef,
-          useValue: {
-            close: (valor: unknown) => {
-              cerradoCon = valor;
-            },
-          },
-        },
+        { provide: MatDialogRef, useValue: { close: () => undefined } },
         { provide: MAT_DIALOG_DATA, useValue: { orden: ORDEN_TICKET } },
       ],
     }).compileComponents();
@@ -39,13 +29,5 @@ describe('OrdenCreadaDialog', () => {
 
   it('anuncia el número de la orden recién creada', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('17067');
-  });
-
-  it('devuelve la acción elegida al cerrar', () => {
-    const botonNueva = (fixture.nativeElement as HTMLElement).querySelector(
-      'mat-dialog-actions button',
-    ) as HTMLButtonElement;
-    botonNueva.click();
-    expect(cerradoCon).toBe('nueva');
   });
 });

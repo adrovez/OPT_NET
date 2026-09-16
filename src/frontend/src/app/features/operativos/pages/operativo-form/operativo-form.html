@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>{{ esEdicion ? 'Editar Operativo' : 'Nuevo Operativo' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Empresa</mat-label>
+      <input
+        matInput
+        formControlName="empresa"
+        [matAutocomplete]="autoEmpresa"
+        placeholder="Nombre o RUT de la empresa"
+      />
+      <mat-autocomplete #autoEmpresa [displayWith]="mostrarEmpresa">
+        @for (empresa of sugerenciasEmpresa(); track empresa.publicId) {
+          <mat-option [value]="empresa" (onSelectionChange)="elegirEmpresa(empresa)">
+            {{ empresa.nombre }}
+            <span class="opt-mono">{{ empresa.rut }}</span>
+          </mat-option>
+        }
+      </mat-autocomplete>
+      @if (esEdicion) {
+        <mat-hint>La empresa no se puede modificar tras crear el Operativo.</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Sucursal</mat-label>
+      <mat-select formControlName="sucursalId">
+        @for (sucursal of sucursales(); track sucursal.id) {
+          <mat-option [value]="sucursal.id">{{ sucursal.nombre }}</mat-option>
+        }
+      </mat-select>
+      @if (esEdicion) {
+        <mat-hint>La sucursal no se puede modificar tras crear el Operativo.</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Fecha del Operativo</mat-label>
+      <input matInput [matDatepicker]="pickerFecha" formControlName="fecha" />
+      <mat-datepicker-toggle matIconSuffix [for]="pickerFecha" />
+      <mat-datepicker #pickerFecha />
+      @if (form.controls.fecha.hasError('required')) {
+        <mat-error>La fecha es obligatoria.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Observación</mat-label>
+      <textarea matInput formControlName="observacion" rows="2"></textarea>
+      @if (form.controls.observacion.hasError('maxlength')) {
+        <mat-error>Máximo 500 caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || guardando()">
+      @if (guardando()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

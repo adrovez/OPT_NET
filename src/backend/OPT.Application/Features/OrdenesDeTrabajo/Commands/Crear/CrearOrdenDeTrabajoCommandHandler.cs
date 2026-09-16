@@ -1,6 +1,8 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
 using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
+using OPT.Domain.Common;
 using OPT.Domain.Interfaces.Repositories;
 using EntidadOT = OPT.Domain.Entities.Comercial.OrdenDeTrabajo;
 
@@ -59,11 +61,25 @@ public sealed class CrearOrdenDeTrabajoCommandHandler(
 
         if (errores.Count > 0) throw new ValidationException(errores);
 
+        // BOLA/IDOR: no se puede crear una OT en una sucursal a la que el usuario no
+        // está asignado — recién acá, para que un SucursalId inexistente siga dando el
+        // error de validación de arriba en vez de un 403 confuso.
+        AutorizacionSucursal.ValidarAcceso(currentUser, request.SucursalId);
+
+        // N° de OT manual (decisión 2026-09-11, como el legacy): único por año entre las OT que
+        // no estén anuladas. Se valida aparte de `errores` para dar un mensaje específico —
+        // "Errores de validación." genérico no le dice al usuario qué número está repetido.
+        var anioActual = DateTimeOffset.UtcNow.Year;
+        if (await ordenRepo.ExisteNumeroOTVigenteAsync(request.NumeroOT, anioActual, ct))
+            throw new DomainException(
+                $"Ya existe una Orden de Trabajo N° {request.NumeroOT} en el año {anioActual} " +
+                "que no está anulada. Ingrese otro número o verifique el estado de esa orden.");
+
         var usuarioId = currentUser.UsuarioId;
 
-        var orden = EntidadOT.Crear(cliente!.Id, request.SucursalId, request.FechaEntrega,
-            usuarioId, empresaId, request.Observaciones, request.Beneficiario,
-            request.FechaAtencion, request.HoraEntrega);
+        var orden = EntidadOT.Crear(request.NumeroOT, cliente!.Id, request.SucursalId,
+            request.FechaEntrega, usuarioId, empresaId, request.Observaciones,
+            request.Beneficiario, request.FechaAtencion, request.HoraEntrega);
 
         orden.ReemplazarDetalles(
             request.Detalles.Select(d => (d.ProductoId, d.Cantidad, d.ValorUnitario, d.Comentario)),

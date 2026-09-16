@@ -4,6 +4,10 @@ using OPT.Domain.Entities.Comercial;
 using OPT.Domain.Entities.Inventario;
 using OPT.Domain.Entities.Organizacion;
 using OPT.Infrastructure.Persistence.Interceptors;
+using EntidadOperativo = OPT.Domain.Entities.Operativo.Operativo;
+using OperativoOT = OPT.Domain.Entities.Operativo.OperativoOT;
+using GastoOperativo = OPT.Domain.Entities.Operativo.GastoOperativo;
+using EstadoOperativo = OPT.Domain.Entities.Operativo.EstadoOperativo;
 
 namespace OPT.Infrastructure.Persistence;
 
@@ -48,6 +52,12 @@ public class AppDbContext : DbContext
     public DbSet<ProductoSucursal>  ProductoSucursal   => Set<ProductoSucursal>();
     public DbSet<CategoriaProducto> CategoriasProducto => Set<CategoriaProducto>();
 
+    // ── Operativo ────────────────────────────────────────────────────────────
+    public DbSet<EntidadOperativo> Operativos         => Set<EntidadOperativo>();
+    public DbSet<OperativoOT>      OperativoOT        => Set<OperativoOT>();
+    public DbSet<GastoOperativo>   GastosOperativo    => Set<GastoOperativo>();
+    public DbSet<EstadoOperativo>  EstadosOperativo   => Set<EstadoOperativo>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(_auditInterceptor);
@@ -57,8 +67,16 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // NumeroOT se genera en la BD vía SEQUENCE — nunca calculado en la capa de aplicación (ADR 0003).
+        // SEQ_NumeroOT ya no se usa: NumeroOT se ingresa manualmente (decisión 2026-09-11).
+        // Se mantiene declarada porque el objeto sigue existiendo en la BD (008_numero_ot_manual.sql
+        // le quita el DEFAULT a la columna pero no elimina la SEQUENCE, por si se necesita de respaldo).
         modelBuilder.HasSequence<int>("SEQ_NumeroOT", schema: "dbo")
+                    .StartsAt(1)
+                    .IncrementsBy(1);
+
+        // Correlativo del Operativo — autogenerado (decisión 2026-09-15, punto 8.5 del
+        // requerimiento), script 009_modulo_operativo.sql.
+        modelBuilder.HasSequence<int>("SEQ_CorrelativoOperativo", schema: "dbo")
                     .StartsAt(1)
                     .IncrementsBy(1);
 

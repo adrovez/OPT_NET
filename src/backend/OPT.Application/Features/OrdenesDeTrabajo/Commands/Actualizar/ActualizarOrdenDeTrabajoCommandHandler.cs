@@ -1,6 +1,7 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
 using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
 using OPT.Domain.Interfaces.Repositories;
 
 namespace OPT.Application.Features.OrdenesDeTrabajo.Commands.Actualizar;
@@ -19,6 +20,8 @@ public sealed class ActualizarOrdenDeTrabajoCommandHandler(
     {
         var orden = await ordenRepo.ObtenerCompletaPorPublicIdAsync(request.PublicId, ct)
             ?? throw new NotFoundException("Orden de Trabajo", request.PublicId);
+
+        AutorizacionSucursal.ValidarAcceso(currentUser, orden.SucursalId);
 
         var errores = new Dictionary<string, string[]>();
 

@@ -2,8 +2,8 @@
   [title]="esEdicion() ? 'Editar orden de trabajo' : 'Nueva orden de trabajo'"
   [subtitle]="
     esEdicion()
-      ? 'El cliente y la sucursal no se pueden cambiar después de crear la orden.'
-      : 'El N° de OT lo genera el sistema y el total se calcula desde el detalle.'
+      ? 'El N° de OT, el cliente y la sucursal no se pueden cambiar después de crear la orden.'
+      : 'El total se calcula desde el detalle.'
   "
   backTo="/ordenes-de-trabajo"
   backLabel="Volver al listado"
@@ -18,6 +18,22 @@
     <!-- ───────── Paso 1 · Cliente ───────── -->
     <mat-step [stepControl]="formCliente" label="Cliente">
       <form [formGroup]="formCliente" class="paso">
+        <div class="fila">
+          <mat-form-field appearance="outline" class="campo-corto">
+            <mat-label>N° de OT</mat-label>
+            <input matInput type="number" formControlName="numeroOT" min="1" />
+            @if (!esEdicion()) {
+              <mat-hint>Debe ser único dentro del año (una OT anulada libera su número).</mat-hint>
+            }
+            @if (formCliente.controls.numeroOT.hasError('required')) {
+              <mat-error>El N° de OT es obligatorio.</mat-error>
+            }
+            @if (formCliente.controls.numeroOT.hasError('min')) {
+              <mat-error>El N° de OT debe ser mayor a cero.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
         <div class="fila">
           <mat-form-field appearance="outline" class="campo-ancho">
             <mat-label>Cliente</mat-label>
@@ -43,18 +59,25 @@
             }
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo-medio">
-            <mat-label>Sucursal</mat-label>
-            <mat-select formControlName="sucursalId">
-              @for (sucursal of sucursales(); track sucursal.id) {
-                <mat-option [value]="sucursal.id">{{ sucursal.nombre }}</mat-option>
-              }
-            </mat-select>
-            @if (formCliente.controls.sucursalId.hasError('required')) {
-              <mat-error>La sucursal es obligatoria.</mat-error>
-            }
-          </mat-form-field>
+          @if (esEdicion()) {
+            <!-- Sucursal fija tras crear la orden — de solo lectura, ya no es un campo elegible
+                 (se toma de la sucursal actual del menú al crear, ver `Shell`). -->
+            <mat-form-field appearance="outline" class="campo-medio">
+              <mat-label>Sucursal</mat-label>
+              <input matInput [value]="sucursalNombre()" disabled />
+            </mat-form-field>
+          }
         </div>
+
+        @if (!esEdicion()) {
+          <div class="aviso">
+            <mat-icon>storefront</mat-icon>
+            <span
+              >Se creará en la sucursal actual del menú:
+              <strong>{{ sucursalActualNombre() }}</strong></span
+            >
+          </div>
+        }
 
         <!-- El legacy daba de alta al cliente dentro del propio ingreso de la OT; acá se
              reutiliza el diálogo de Clientes para no duplicar sus campos ni sus validaciones. -->
@@ -288,13 +311,6 @@
          El legacy lo llamaba "Lentes"; el nombre correcto del negocio es Detalle. -->
     <mat-step [stepControl]="formOrden" label="Detalle">
       <form [formGroup]="formOrden" class="paso">
-        <div class="fila">
-          <mat-form-field appearance="outline" class="campo-ancho">
-            <mat-label>Observaciones</mat-label>
-            <input matInput formControlName="observaciones" maxlength="500" />
-          </mat-form-field>
-        </div>
-
         <div class="linea-nueva" [formGroup]="formLinea">
           <mat-form-field appearance="outline" class="campo-ancho">
             <mat-label>Producto</mat-label>

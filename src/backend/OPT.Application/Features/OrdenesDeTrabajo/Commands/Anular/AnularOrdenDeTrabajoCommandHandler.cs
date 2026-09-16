@@ -1,6 +1,7 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
 using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
 using OPT.Domain.Interfaces.Repositories;
 
 namespace OPT.Application.Features.OrdenesDeTrabajo.Commands.Anular;
@@ -16,6 +17,8 @@ public sealed class AnularOrdenDeTrabajoCommandHandler(
     {
         var orden = await ordenRepo.ObtenerCompletaPorPublicIdAsync(request.PublicId, ct)
             ?? throw new NotFoundException("Orden de Trabajo", request.PublicId);
+
+        AutorizacionSucursal.ValidarAcceso(currentUser, orden.SucursalId);
 
         orden.Anular(request.Motivo, currentUser.UsuarioId);
 

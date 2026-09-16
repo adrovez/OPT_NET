@@ -59,6 +59,42 @@
 
   <span class="separador"></span>
 
+  @if (misSucursales().length > 1) {
+    @if (esMovil()) {
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menuSucursal"
+        aria-label="Cambiar sucursal"
+        [matTooltip]="'Sucursal: ' + (sucursalActual()?.nombre ?? '—')"
+      >
+        <mat-icon>storefront</mat-icon>
+      </button>
+    } @else {
+      <button mat-button [matMenuTriggerFor]="menuSucursal" matTooltip="Cambiar sucursal">
+        <mat-icon>storefront</mat-icon>
+        {{ sucursalActual()?.nombre ?? 'Sin sucursal' }}
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+    }
+    <mat-menu #menuSucursal="matMenu">
+      @for (sucursal of misSucursales(); track sucursal.id) {
+        <button
+          mat-menu-item
+          [class.activo]="sucursal.id === auth.sucursalActualId()"
+          (click)="cambiarSucursal(sucursal)"
+        >
+          <mat-icon>storefront</mat-icon>
+          <span>{{ sucursal.nombre }}</span>
+        </button>
+      }
+    </mat-menu>
+  } @else if (misSucursales().length === 1 && !esMovil()) {
+    <span class="sucursal-unica" matTooltip="Sucursal actual">
+      <mat-icon>storefront</mat-icon>
+      {{ sucursalActual()?.nombre }}
+    </span>
+  }
+
   <button
     mat-icon-button
     [matMenuTriggerFor]="menuTema"

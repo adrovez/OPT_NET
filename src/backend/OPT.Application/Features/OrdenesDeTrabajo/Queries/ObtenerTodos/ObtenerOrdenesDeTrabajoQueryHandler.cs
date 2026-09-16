@@ -1,5 +1,7 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
+using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
 using OPT.Domain.Common;
 using OPT.Domain.Interfaces.Repositories;
 
@@ -10,12 +12,28 @@ public sealed class ObtenerOrdenesDeTrabajoQueryHandler(
     IClienteRepositorio        clienteRepo,
     ISucursalRepositorio       sucursalRepo,
     IEmpresaRepositorio        empresaRepo,
-    IEstadoOTRepositorio       estadoRepo)
+    IEstadoOTRepositorio       estadoRepo,
+    IOperativoRepositorio      operativoRepo,
+    ICurrentUserService        currentUser)
     : IRequestHandler<ObtenerOrdenesDeTrabajoQuery, PagedResult<OrdenDeTrabajoResumenDto>>
 {
     public async Task<PagedResult<OrdenDeTrabajoResumenDto>> Handle(
         ObtenerOrdenesDeTrabajoQuery request, CancellationToken ct)
     {
+        // BOLA/IDOR: quien no tiene alcance nacional solo puede listar OT de una sucursal
+        // suya — si no filtra por ninguna, se restringe de oficio a su sucursal activa en
+        // vez de devolver todas las sucursales sin querer exponerlas.
+        var sucursalIdFiltro = request.SucursalId;
+        if (!RolesOPT.AccesoTotalSucursales.Contains(currentUser.RolId))
+        {
+            if (sucursalIdFiltro is not null)
+                AutorizacionSucursal.ValidarAcceso(currentUser, sucursalIdFiltro.Value);
+            else
+                sucursalIdFiltro = currentUser.SucursalId
+                    ?? throw new ForbiddenAccessException(
+                        "El usuario no tiene una sucursal activa asignada.");
+        }
+
         int? clienteId = null;
         if (request.ClientePublicId is not null)
         {
@@ -32,9 +50,17 @@ public sealed class ObtenerOrdenesDeTrabajoQueryHandler(
             empresaId = empresa.Id;
         }
 
+        int? operativoId = null;
+        if (request.OperativoPublicId is not null)
+        {
+            var operativo = await operativoRepo.ObtenerPorPublicIdAsync(request.OperativoPublicId.Value, ct)
+                ?? throw new NotFoundException("Operativo", request.OperativoPublicId.Value);
+            operativoId = operativo.Id;
+        }
+
         var (items, total) = await ordenRepo.BuscarPaginadoAsync(
-            request, clienteId, request.SucursalId, request.EstadoOTId, request.SoloConSaldo,
-            empresaId, ct);
+            request, clienteId, sucursalIdFiltro, request.EstadoOTId, request.SoloConSaldo,
+            empresaId, operativoId, ct);
 
         // Un lookup por página, no uno por fila.
         var clientes  = (await clienteRepo.ObtenerPorIdsAsync(items.Select(o => o.ClienteId), ct))

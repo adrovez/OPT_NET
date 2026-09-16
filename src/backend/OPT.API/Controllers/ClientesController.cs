@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OPT.API.Authorization;
 using OPT.Application.Features.Clientes;
 using OPT.Domain.Common;
 using OPT.Application.Features.Clientes.Commands.Actualizar;
@@ -11,8 +12,14 @@ using OPT.Application.Features.Clientes.Queries.ObtenerTodos;
 
 namespace OPT.API.Controllers;
 
+/// <summary>
+/// Datos clínicos/personales del cliente (ADR 0004) — acotado al personal que atiende o
+/// vende, sin Control Calidad ni Externo (sin necesidad de negocio de ver esta información).
+/// </summary>
 [ApiController]
 [Authorize]
+[AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                 RolesOPT.Vendedor, RolesOPT.TecnicoMedico, RolesOPT.Operador)]
 [Route("api/[controller]")]
 public sealed class ClientesController(IMediator mediator) : ControllerBase
 {

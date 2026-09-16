@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OPT.API.Authorization;
 using OPT.Application.Features.Usuarios;
 using OPT.Application.Features.Usuarios.Commands.Activar;
 using OPT.Application.Features.Usuarios.Commands.Actualizar;
@@ -16,8 +17,14 @@ using OPT.Domain.Common;
 
 namespace OPT.API.Controllers;
 
+/// <summary>
+/// Administración de usuarios — datos de acceso y asignación de sucursal, se restringe
+/// completa a Administrador: es la única superficie que crea/modifica credenciales de
+/// otros usuarios, no corresponde compartirla con roles operativos.
+/// </summary>
 [ApiController]
 [Authorize]
+[AutorizarRoles(RolesOPT.Administrador)]
 [Route("api/[controller]")]
 public sealed class UsuariosController(IMediator mediator) : ControllerBase
 {

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OPT.Application.Common.Behaviours;
 using OPT.Application.Features.OrdenesDeTrabajo;
+using OPT.Application.Features.Operativos;
 using System.Reflection;
 
 namespace OPT.Application;
@@ -20,6 +21,9 @@ public static class DependencyInjection
         // Ensamblador de la vista completa de una OT — lo comparten los nueve comandos y la
         // consulta por Id del agregado Comercial; el escaneo de MediatR no lo alcanza.
         services.AddScoped<OrdenDeTrabajoDtoFactory>();
+
+        // Igual motivo para el agregado Operativo.
+        services.AddScoped<OperativoDtoFactory>();
 
         return services;
     }

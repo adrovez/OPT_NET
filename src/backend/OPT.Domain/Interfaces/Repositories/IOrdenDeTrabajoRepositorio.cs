@@ -21,6 +21,13 @@ public interface IOrdenDeTrabajoRepositorio : IRepositorioBase<OrdenDeTrabajo>
     Task<OrdenDeTrabajo?> ObtenerCompletaPorPublicIdAsync(Guid publicId, CancellationToken ct = default);
 
     Task<OrdenDeTrabajo?> ObtenerConDetallesAsync(int id, CancellationToken ct = default);
+
+    /// <summary>
+    /// True si ya existe una OT con ese <paramref name="numeroOT"/>, creada en
+    /// <paramref name="anio"/>, que no esté anulada — es la validación de duplicado del alta
+    /// manual del N° de OT (regla 2026-09-11): una OT anulada libera su número para el mismo año.
+    /// </summary>
+    Task<bool> ExisteNumeroOTVigenteAsync(int numeroOT, int anio, CancellationToken ct = default);
     Task<IReadOnlyList<OrdenDeTrabajo>> ObtenerPorClienteAsync(int clienteId, CancellationToken ct = default);
     Task<IReadOnlyList<OrdenDeTrabajo>> ObtenerPorSucursalAsync(int sucursalId,
                                                                   int? estadoId = null,
@@ -29,7 +36,9 @@ public interface IOrdenDeTrabajoRepositorio : IRepositorioBase<OrdenDeTrabajo>
     /// <summary>
     /// Listado paginado. <see cref="ParametrosPaginacion.Busqueda"/> hace match contra el
     /// NumeroOT (si el término es numérico), el Beneficiario y el RUT/nombre/apellido del cliente.
-    /// Los filtros son acumulativos y todos opcionales.
+    /// Los filtros son acumulativos y todos opcionales. <paramref name="operativoId"/> filtra por
+    /// las OT asociadas a un Operativo (módulo Operativo, requerimiento sección 6 — Cobranza
+    /// filtrada por Operativo reusa este mismo listado, igual que ya hace con empresaId).
     /// </summary>
     Task<(IReadOnlyList<OrdenDeTrabajo> Items, int Total)> BuscarPaginadoAsync(
         ParametrosPaginacion parametros,
@@ -38,6 +47,7 @@ public interface IOrdenDeTrabajoRepositorio : IRepositorioBase<OrdenDeTrabajo>
         int? estadoOTId = null,
         bool? soloConSaldo = null,
         int? empresaId = null,
+        int? operativoId = null,
         CancellationToken ct = default);
 
     /// <summary>

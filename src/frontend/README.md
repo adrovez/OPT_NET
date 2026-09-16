@@ -70,6 +70,8 @@ src/app/
 │   ├── ordenes-de-trabajo/          # Agregado Comercial: listado, asistente de alta, ficha "Ver Orden" y ticket
 │   ├── abonos/ pagos/ cuotas/        # Pantallas propias sobre subrecursos de la OT (no hay /api/pagos)
 │   ├── cobranza/                      # Deudores por empresa convenio
+│   ├── operativos/                     # Agrupa OT de una jornada en terreno + gastos + ganancia/pérdida;
+│   │                                    # listado, diálogo de alta/edición y ficha ruteada (Órdenes/Gastos)
 │   └── inventario/                     # Solo el catálogo de productos (GET /api/productos); el resto es stub
 │
 ├── app.routes.ts            # Composición: /login (público) vs. shell con children lazy-loaded + authGuard

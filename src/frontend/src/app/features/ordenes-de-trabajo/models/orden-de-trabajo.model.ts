@@ -135,8 +135,12 @@ export interface LineaDetalleOT {
  * Campos de CrearOrdenDeTrabajoCommand. El precio NO se envía: lo calcula el backend como
  * la suma de las líneas. El abono inicial y el plan de cuotas son opcionales y se registran
  * en la misma transacción — es el flujo real del mesón.
+ *
+ * `numeroOT` se ingresa a mano, igual que en el legacy (decisión 2026-09-11): el backend
+ * rechaza un número repetido dentro del mismo año en una OT que no esté anulada.
  */
 export interface OrdenDeTrabajoCrear {
+  numeroOT: number;
   clientePublicId: string;
   sucursalId: number;
   fechaEntrega: string;
@@ -210,6 +214,8 @@ export interface CuotaPagar {
 export interface FiltrosOrdenesDeTrabajo {
   clientePublicId?: string | null;
   empresaPublicId?: string | null;
+  /** Vuelta desde la ficha de un Operativo — solo las OT asociadas a él (módulo Operativo). */
+  operativoPublicId?: string | null;
   sucursalId?: number | null;
   estadoOTId?: number | null;
   soloConSaldo?: boolean | null;

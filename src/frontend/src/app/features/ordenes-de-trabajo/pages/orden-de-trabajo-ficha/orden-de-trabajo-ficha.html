@@ -19,6 +19,10 @@
     backTo="/ordenes-de-trabajo"
     backLabel="Volver al listado"
   >
+    <button mat-stroked-button (click)="imprimirTicket()">
+      <mat-icon>print</mat-icon>
+      Imprimir ticket
+    </button>
     <button mat-stroked-button [disabled]="esTerminal()" (click)="editar()">
       <mat-icon>edit</mat-icon>
       Editar

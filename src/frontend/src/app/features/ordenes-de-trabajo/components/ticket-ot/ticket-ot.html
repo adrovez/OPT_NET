@@ -1,103 +1,226 @@
-<article class="ticket">
-  <header class="ticket__cabecera">
-    <div>
-      <p class="ticket__marca">Óptica OPT</p>
-      <p class="ticket__sucursal">{{ orden().sucursalNombre }}</p>
-    </div>
-    <div class="ticket__numero">
-      <span class="ticket__numero-etiqueta">Orden de trabajo</span>
-      <strong class="opt-mono">N° {{ orden().numeroOT }}</strong>
-    </div>
-  </header>
-
-  <section class="ticket__datos">
-    <p><span>Cliente</span> {{ orden().cliente.nombre }}</p>
-    <p>
-      <span>RUT</span> <span class="opt-mono">{{ orden().cliente.rut }}</span>
-    </p>
-    @if (orden().cliente.telefono) {
-      <p>
-        <span>Teléfono</span> <span class="opt-mono">{{ orden().cliente.telefono }}</span>
+@for (copia of copias; track copia) {
+  <article class="ticket" [class.ticket--solo-impresion]="copia > 1">
+    @if (copia === 1 && copias.length > 1) {
+      <p class="ticket__aviso-copias opt-no-imprimir">
+        Se imprimirán {{ copias.length }} copias (firma de compromiso de pago).
       </p>
     }
-    @if (orden().beneficiario) {
-      <p><span>Beneficiario</span> {{ orden().beneficiario }}</p>
-    }
-    @if (orden().empresaNombre) {
-      <p><span>Convenio</span> {{ orden().empresaNombre }}</p>
-    }
-    <p>
-      <span>Atención</span>
-      {{ orden().fechaAtencion ?? orden().creadoEn | date: 'dd-MM-yyyy' }}
-    </p>
-    <p>
-      <span>Entrega</span>
-      {{ orden().fechaEntrega | date: 'dd-MM-yyyy' }}
-      @if (orden().horaEntrega) {
-        · {{ orden().horaEntrega!.slice(0, 5) }} h
-      }
-    </p>
-  </section>
 
-  @if (orden().recetas.length > 0) {
-    <section class="ticket__bloque">
-      <h3>Receta</h3>
-      <app-receta-graduacion [receta]="orden().recetas[0]" />
-    </section>
-  }
+    <header class="ticket__empresa">
+      <h2>{{ empresa.nombre }}</h2>
+      <table class="ticket__empresa-datos">
+        <tbody>
+          <tr>
+            <td>Rut</td>
+            <td>{{ empresa.rut }}</td>
+          </tr>
+          <tr>
+            <td>Fono</td>
+            <td>{{ empresa.fono }}</td>
+          </tr>
+          <tr>
+            <td>Dirección</td>
+            <td>{{ empresa.direccion }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </header>
 
-  <section class="ticket__bloque">
-    <h3>Detalle</h3>
+    <h3 class="ticket__titulo">Nota de venta y autorización de descuento</h3>
+
+    <table class="ticket__datos">
+      <tbody>
+        <tr>
+          <td>N° OT</td>
+          <td class="opt-mono">
+            <strong>{{ orden().numeroOT }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Fecha</td>
+          <td>{{ (orden().fechaAtencion ?? orden().creadoEn) | date: 'dd-MM-yyyy' }}</td>
+        </tr>
+        <tr>
+          <td>Rut</td>
+          <td class="opt-mono">{{ orden().cliente.rut }}</td>
+        </tr>
+        <tr>
+          <td>Nombre</td>
+          <td>{{ orden().cliente.nombre }}</td>
+        </tr>
+        <tr>
+          <td>Teléfono</td>
+          <td class="opt-mono">{{ orden().cliente.telefono ?? '—' }}</td>
+        </tr>
+        <tr>
+          <td>Empresa</td>
+          <td>{{ orden().empresaNombre ?? 'Particular' }}</td>
+        </tr>
+        <tr>
+          <td>Entrega</td>
+          <td>
+            {{ orden().fechaEntrega | date: 'dd-MM-yyyy' }}
+            @if (orden().horaEntrega) {
+              · {{ orden().horaEntrega!.slice(0, 5) }} h
+            }
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
     <table class="ticket__tabla">
       <thead>
         <tr>
+          <th>Un.</th>
+          <th>Detalle</th>
           <th>Producto</th>
-          <th class="num">Cant.</th>
-          <th class="num">Valor</th>
-          <th class="num">Total</th>
+          <th class="num">Precio</th>
         </tr>
       </thead>
       <tbody>
         @for (linea of orden().detalles; track linea.id) {
           <tr>
-            <td>
-              {{ linea.productoDescripcion ?? linea.productoCodigo }}
-              @if (linea.comentario) {
-                <span class="ticket__comentario">{{ linea.comentario }}</span>
-              }
-            </td>
             <td class="num opt-mono">{{ linea.cantidad }}</td>
+            <td>{{ linea.comentario ?? '—' }}</td>
+            <td>{{ linea.productoDescripcion ?? linea.productoCodigo }}</td>
             <td class="num opt-mono">{{ linea.valorUnitario | pesos }}</td>
-            <td class="num opt-mono">{{ linea.total | pesos }}</td>
           </tr>
         }
       </tbody>
     </table>
-  </section>
 
-  <section class="ticket__bloque ticket__totales">
-    <p>
-      <span>Total</span> <strong class="opt-mono">{{ orden().precio | pesos }}</strong>
-    </p>
-    <p>
-      <span>Abonado</span> <strong class="opt-mono">{{ orden().totalAbonado | pesos }}</strong>
-    </p>
-    <p class="ticket__saldo">
-      <span>Saldo</span> <strong class="opt-mono">{{ orden().saldo | pesos }}</strong>
-    </p>
-    @if (cuotas().length > 0) {
-      <p>
-        <span>Cuotas</span>
-        <strong class="opt-mono"> {{ cuotas().length }} × {{ valorCuota() | pesos }} </strong>
-      </p>
-      <p>
-        <span>1er vencimiento</span>
-        <strong class="opt-mono">{{ cuotas()[0].fechaVencimiento | date: 'dd-MM-yyyy' }}</strong>
-      </p>
+    <table class="ticket__totales">
+      <tbody>
+        <tr>
+          <td>Sub total</td>
+          <td class="num opt-mono">{{ orden().precio | pesos }}</td>
+        </tr>
+        <tr>
+          <td>Abono</td>
+          <td class="num opt-mono">{{ orden().totalAbonado | pesos }}</td>
+        </tr>
+        <tr class="ticket__totales-saldo">
+          <td><strong>Total a pagar</strong></td>
+          <td class="num opt-mono">
+            <strong>{{ orden().saldo | pesos }}</strong>
+          </td>
+        </tr>
+        @if (cuotas().length > 0) {
+          <tr>
+            <td>Cuotas</td>
+            <td class="num opt-mono">{{ cuotas().length }}</td>
+          </tr>
+          <tr>
+            <td>Monto cuota</td>
+            <td class="num opt-mono">{{ valorCuota() | pesos }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (receta(); as r) {
+      <div class="ticket__rx">
+        <table class="ticket__rx-tabla">
+          <caption>RX Lejos</caption>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Esf.</th>
+              <th>Cil.</th>
+              <th>Eje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>OD</th>
+              <td>{{ r.odEsferaLejos ?? '—' }}</td>
+              <td>{{ r.odCilindroLejos ?? '—' }}</td>
+              <td>{{ r.odEjeLejos ?? '—' }}</td>
+            </tr>
+            <tr>
+              <th>OI</th>
+              <td>{{ r.oiEsferaLejos ?? '—' }}</td>
+              <td>{{ r.oiCilindroLejos ?? '—' }}</td>
+              <td>{{ r.oiEjeLejos ?? '—' }}</td>
+            </tr>
+            <tr>
+              <th>DP</th>
+              <td>{{ r.dpLejos ?? '—' }}</td>
+              <td colspan="2"></td>
+            </tr>
+            <tr>
+              <th>Add</th>
+              <td>{{ r.addLejos ?? '—' }}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="ticket__rx-tabla">
+          <caption>RX Cerca</caption>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Esf.</th>
+              <th>Cil.</th>
+              <th>Eje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>OD</th>
+              <td>{{ r.odEsferaCerca ?? '—' }}</td>
+              <td>{{ r.odCilindroCerca ?? '—' }}</td>
+              <td>{{ r.odEjeCerca ?? '—' }}</td>
+            </tr>
+            <tr>
+              <th>OI</th>
+              <td>{{ r.oiEsferaCerca ?? '—' }}</td>
+              <td>{{ r.oiCilindroCerca ?? '—' }}</td>
+              <td>{{ r.oiEjeCerca ?? '—' }}</td>
+            </tr>
+            <tr>
+              <th>DP</th>
+              <td>{{ r.dpCerca ?? '—' }}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="ticket__rx-prevision">
+          <caption>Previsión</caption>
+          <tbody>
+            <tr>
+              <td>Cía. de Seguro</td>
+              <td>____</td>
+            </tr>
+            <tr>
+              <td>FONASA</td>
+              <td>____</td>
+            </tr>
+            <tr>
+              <td>ISAPRE</td>
+              <td>____</td>
+            </tr>
+            <tr>
+              <td>OTRO</td>
+              <td>____</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     }
-  </section>
 
-  <footer class="ticket__pie">
-    <p>Presente este comprobante al retirar. Conserve el N° de orden para consultas.</p>
-  </footer>
-</article>
+    <section class="ticket__autorizacion">
+      <h3>Autorización del titular</h3>
+      <p>{{ textoAutorizacion }}</p>
+      <p class="ticket__firma-linea">Yo&emsp;_____________________________________</p>
+      <p class="ticket__firma-linea">Run&emsp;_____________________________________</p>
+      <p class="ticket__firma-linea">Sección&emsp;_____________________________________</p>
+      <p class="ticket__firma-final">
+        <strong>_____________________________________</strong>
+      </p>
+      <p class="ticket__firma-final"><strong>Recibo conforme</strong></p>
+    </section>
+  </article>
+}

@@ -1,0 +1,200 @@
+// ───────── Cabecera del Operativo ─────────
+.cabecera {
+  padding: var(--opt-space-md);
+  margin-bottom: var(--opt-space-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-md);
+  background-color: var(--mat-sys-surface-container-low);
+}
+
+.cabecera__datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--opt-space-sm) var(--opt-space-md);
+  margin: 0;
+}
+
+.campo {
+  min-width: 0;
+
+  dt {
+    margin-bottom: 2px;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.campo--ancho {
+  grid-column: span 2;
+}
+
+@media (max-width: 599.98px) {
+  .campo--ancho {
+    grid-column: auto;
+  }
+}
+
+.cabecera__observaciones {
+  margin: var(--opt-space-md) 0 0;
+  padding: var(--opt-space-xs);
+  border-left: 3px solid var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.aviso--bloqueo {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-xs);
+  margin-top: var(--opt-space-md);
+  padding: var(--opt-space-sm);
+  border-radius: var(--opt-radius-sm);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ───────── Resumen financiero (vendido / pagado / gastos / ganancia) ─────────
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--opt-space-sm);
+  margin-top: var(--opt-space-md);
+}
+
+.resumen__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--opt-space-sm);
+  border-radius: var(--opt-radius-sm);
+  background-color: var(--mat-sys-surface-container);
+}
+
+.resumen__etiqueta {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.resumen__valor {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.resumen__item--negativo .resumen__valor {
+  color: var(--mat-sys-error);
+}
+
+// ───────── Barra del flujo de estados ─────────
+.flujo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--opt-space-sm);
+  padding: var(--opt-space-sm) var(--opt-space-md);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--opt-radius-md);
+  margin-bottom: var(--opt-space-md);
+}
+
+.flujo__etapas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--opt-space-md);
+}
+
+.flujo__etapa {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-2xs);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.flujo__punto {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--opt-radius-pill);
+  border: 2px solid var(--mat-sys-outline);
+  transition: background-color var(--opt-motion-fast) var(--opt-easing-standard);
+}
+
+.flujo__etapa--alcanzada {
+  color: var(--mat-sys-on-surface);
+
+  .flujo__punto {
+    background-color: var(--mat-sys-primary);
+    border-color: var(--mat-sys-primary);
+  }
+}
+
+.flujo__etapa--actual {
+  font-weight: 700;
+
+  .flujo__punto {
+    box-shadow: 0 0 0 3px var(--mat-sys-primary-container);
+  }
+}
+
+.flujo__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--opt-space-xs);
+}
+
+.flujo__nota {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ───────── Pestañas ─────────
+.panel__barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--opt-space-md);
+  margin: var(--opt-space-md) 0;
+}
+
+.panel__acciones {
+  display: flex;
+  gap: var(--opt-space-xs);
+}
+
+.panel__conteo {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+.tab-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: var(--opt-space-xs);
+  border-radius: var(--opt-radius-pill);
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tabla {
+  width: 100%;
+  margin-top: var(--opt-space-sm);
+}
+
+.num {
+  text-align: right;
+}

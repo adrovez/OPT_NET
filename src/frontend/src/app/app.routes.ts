@@ -44,6 +44,11 @@ export const routes: Routes = [
           import('./features/cobranza/cobranza.routes').then((m) => m.COBRANZA_ROUTES),
       },
       {
+        path: 'operativos',
+        loadChildren: () =>
+          import('./features/operativos/operativos.routes').then((m) => m.OPERATIVOS_ROUTES),
+      },
+      {
         path: 'inventario',
         loadChildren: () =>
           import('./features/inventario/inventario.routes').then((m) => m.INVENTARIO_ROUTES),

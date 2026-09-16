@@ -1,16 +1,21 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OPT.API.Authorization;
 using OPT.Application.Features.Anamnesis;
 using OPT.Application.Features.Anamnesis.Commands.Crear;
 using OPT.Application.Features.Anamnesis.Commands.Eliminar;
 using OPT.Application.Features.Anamnesis.Queries.ObtenerPorCliente;
 using OPT.Application.Features.Anamnesis.Queries.ObtenerPorId;
+using OPT.Domain.Common;
 
 namespace OPT.API.Controllers;
 
+/// <summary>Datos clínicos (ADR 0004) — mismo criterio de acceso que Clientes.</summary>
 [ApiController]
 [Authorize]
+[AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                 RolesOPT.Vendedor, RolesOPT.TecnicoMedico, RolesOPT.Operador)]
 [Route("api/[controller]")]
 public sealed class AnamnesisController(IMediator mediator) : ControllerBase
 {

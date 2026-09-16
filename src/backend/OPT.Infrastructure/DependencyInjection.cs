@@ -49,6 +49,8 @@ public static class DependencyInjection
         services.AddScoped<IEstadoOTRepositorio,        EstadoOTRepositorio>();
         services.AddScoped<IFormaPagoRepositorio,       FormaPagoRepositorio>();
         services.AddScoped<IEstadoCuotaRepositorio,     EstadoCuotaRepositorio>();
+        services.AddScoped<IOperativoRepositorio,       OperativoRepositorio>();
+        services.AddScoped<IEstadoOperativoRepositorio, EstadoOperativoRepositorio>();
 
         // ── Identidad ─────────────────────────────────────────────────────────
         services.AddScoped<IPasswordService, PasswordService>();

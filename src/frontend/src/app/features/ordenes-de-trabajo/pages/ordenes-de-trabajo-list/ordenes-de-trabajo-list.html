@@ -10,7 +10,13 @@
     <mat-icon>filter_alt</mat-icon>
     <span>
       Mostrando solo las órdenes
-      {{ empresaPublicId() ? 'de la empresa seleccionada' : 'del cliente seleccionado' }}.
+      @if (operativoPublicId()) {
+        del Operativo seleccionado.
+      } @else if (empresaPublicId()) {
+        de la empresa seleccionada.
+      } @else {
+        del cliente seleccionado.
+      }
     </span>
     <button mat-button (click)="limpiarContexto()">Quitar filtro</button>
   </div>

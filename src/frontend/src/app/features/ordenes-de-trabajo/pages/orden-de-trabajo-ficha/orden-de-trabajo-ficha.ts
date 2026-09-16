@@ -17,6 +17,7 @@ import { PesosPipe } from '../../../../shared/pipes/pesos-pipe';
 import { Toast } from '../../../../shared/services/toast';
 import { RecetaGraduacion } from '../../../receta-cristales/components/receta-graduacion/receta-graduacion';
 import { EstadoOtChip } from '../../components/estado-ot-chip/estado-ot-chip';
+import { ImprimirTicketDialog } from '../../components/imprimir-ticket-dialog/imprimir-ticket-dialog';
 import { ResumenFinanciero } from '../../components/resumen-financiero/resumen-financiero';
 import { ESTADOS_OT, EstadoOT } from '../../models/catalogos-comercial.model';
 import { OrdenDeTrabajo } from '../../models/orden-de-trabajo.model';
@@ -244,6 +245,19 @@ export class OrdenDeTrabajoFicha implements OnInit {
 
   protected editar(): void {
     this.router.navigate(['/ordenes-de-trabajo', this.publicId(), 'editar']);
+  }
+
+  /**
+   * Reimprime el ticket de una OT ya existente — el legacy lo permitía desde
+   * `Imprimir/Ticket/TicketOT/{id}` en cualquier momento, sin importar el estado de la orden;
+   * acá tampoco se bloquea si está anulada o entregada, porque reimprimir no modifica nada.
+   */
+  protected imprimirTicket(): void {
+    const orden = this.orden();
+    if (!orden) {
+      return;
+    }
+    this.dialog.open(ImprimirTicketDialog, { data: { orden } });
   }
 
   protected verCliente(): void {

@@ -30,15 +30,17 @@ public sealed class OrdenDeTrabajoConfiguration : IEntityTypeConfiguration<Orden
                .IsUnique()
                .HasDatabaseName("UQ_OrdenesDeTrabajo_PublicId");
 
-        // Número visible al cliente — generado por SEQUENCE en la BD, nunca en la capa de aplicación (ADR 0003).
+        // Número visible al cliente — ingresado manualmente por el usuario, igual que en el
+        // legacy (decisión 2026-09-11). Único solo entre OT vigentes (no anuladas): el índice
+        // filtrado deja reutilizar el número de una OT anulada. La app valida además que no se
+        // repita dentro del mismo año (ver CrearOrdenDeTrabajoCommandHandler).
         builder.Property(o => o.NumeroOT)
-               .IsRequired()
-               .ValueGeneratedOnAdd()
-               .HasDefaultValueSql("NEXT VALUE FOR [dbo].[SEQ_NumeroOT]");
+               .IsRequired();
 
         builder.HasIndex(o => o.NumeroOT)
                .IsUnique()
-               .HasDatabaseName("UQ_OrdenesDeTrabajo_NumeroOT");
+               .HasFilter("[EstadoOTId] <> 7")
+               .HasDatabaseName("UQ_OrdenesDeTrabajo_NumeroOT_Vigente");
 
         builder.Property(o => o.ClienteId).IsRequired();
         builder.Property(o => o.SucursalId).IsRequired();

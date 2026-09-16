@@ -44,6 +44,9 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next,
             DomainException de        => (StatusCodes.Status422UnprocessableEntity,
                                           de.Message, (object?)null),
 
+            ForbiddenAccessException fae => (StatusCodes.Status403Forbidden,
+                                             fae.Message, (object?)null),
+
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized,
                                             "No autorizado.", (object?)null),
 

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OPT.API.Authorization;
 using OPT.Application.Features.Empresas;
 using OPT.Application.Features.Empresas.Commands.Actualizar;
 using OPT.Application.Features.Empresas.Commands.Crear;
@@ -29,12 +30,14 @@ public sealed class EmpresasController(IMediator mediator) : ControllerBase
         => Ok(await mediator.Send(new ObtenerEmpresaPorPublicIdQuery(publicId), ct));
 
     [HttpPost]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor)]
     [ProducesResponseType(typeof(EmpresaDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Crear([FromBody] CrearEmpresaCommand command, CancellationToken ct)
         => Ok(await mediator.Send(command, ct));
 
     [HttpPut("{publicId:guid}")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor)]
     [ProducesResponseType(typeof(EmpresaDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,6 +45,7 @@ public sealed class EmpresasController(IMediator mediator) : ControllerBase
         => Ok(await mediator.Send(command with { PublicId = publicId }, ct));
 
     [HttpDelete("{publicId:guid}")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Eliminar(Guid publicId, CancellationToken ct)

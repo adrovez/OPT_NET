@@ -41,7 +41,9 @@ public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
     {
         public int    UsuarioId  => 0;
         public string Rut        => string.Empty;
+        public int    RolId      => 0;
         public int?   SucursalId => null;
+        public IReadOnlyCollection<int> SucursalesAsignadas => Array.Empty<int>();
         public bool   EstaAutenticado => false;
     }
 }

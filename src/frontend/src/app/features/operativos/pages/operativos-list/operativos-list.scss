@@ -1,0 +1,23 @@
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+}
+
+.filtros__busqueda {
+  flex: 1 1 320px;
+}
+
+.filtros__estado {
+  flex: 0 1 200px;
+}
+
+.tabla {
+  width: 100%;
+}
+
+.num {
+  text-align: right;
+}

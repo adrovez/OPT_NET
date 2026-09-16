@@ -1,82 +1,107 @@
-// Ancho de hoja angosta (media carta / rollo ancho), que es el formato en que el legacy
-// imprimía el ticket. Los colores salen de los tokens del tema para que la vista previa en
-// pantalla respete el modo oscuro; al imprimir, el navegador aplica su propio blanco.
+// Ancho de hoja angosta (media carta / rollo ancho), igual que el legacy. Los colores en
+// pantalla salen de los tokens del tema (para que la vista previa respete modo oscuro); al
+// imprimir, la regla global `@media print` de `styles.scss` ya fuerza fondo blanco.
 .ticket {
   display: block;
   max-width: 420px;
+  margin: 0 auto var(--opt-space-lg);
   font-size: 0.8125rem;
   color: var(--mat-sys-on-surface);
 }
 
-.ticket__cabecera {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--opt-space-md);
+// En pantalla solo se ve la primera copia — las demás solo existen para el papel.
+@media screen {
+  .ticket--solo-impresion {
+    display: none;
+  }
+}
+
+// En el papel, cada copia empieza en una hoja nueva (reemplaza al `page-break` + `cloneNode`
+// del legacy).
+@media print {
+  .ticket {
+    max-width: none;
+    page-break-after: always;
+  }
+
+  .ticket:last-of-type {
+    page-break-after: auto;
+  }
+}
+
+.ticket__aviso-copias {
+  margin: 0 0 var(--opt-space-sm);
+  padding: var(--opt-space-2xs) var(--opt-space-xs);
+  border-radius: var(--opt-radius-sm);
+  background-color: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.ticket__empresa {
+  text-align: center;
   padding-bottom: var(--opt-space-xs);
   border-bottom: 2px solid var(--mat-sys-primary);
-}
 
-.ticket__marca {
-  margin: 0;
-  font-weight: 600;
-  color: var(--mat-sys-primary);
-}
-
-.ticket__sucursal,
-.ticket__numero-etiqueta {
-  margin: 0;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.ticket__numero {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-
-  strong {
+  h2 {
+    margin: 0 0 var(--opt-space-2xs);
     font-size: 1.125rem;
+    color: var(--mat-sys-primary);
   }
+}
+
+.ticket__empresa-datos {
+  margin: 0 auto;
+  border-collapse: collapse;
+
+  td {
+    padding: 0 var(--opt-space-2xs);
+    text-align: left;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  td:first-child {
+    font-weight: 500;
+  }
+}
+
+.ticket__titulo {
+  margin: var(--opt-space-sm) 0;
+  text-align: center;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .ticket__datos {
-  margin: var(--opt-space-sm) 0 0;
+  width: 100%;
+  margin-bottom: var(--opt-space-sm);
+  border-collapse: collapse;
 
-  p {
-    display: flex;
-    gap: var(--opt-space-xs);
-    margin: 0 0 2px;
+  td {
+    padding: 1px 0;
+    vertical-align: top;
   }
 
-  span:first-child {
-    flex: 0 0 96px;
+  td:first-child {
+    width: 100px;
     color: var(--mat-sys-on-surface-variant);
   }
 }
 
-.ticket__bloque {
-  margin-top: var(--opt-space-sm);
-  padding-top: var(--opt-space-xs);
-  border-top: 1px solid var(--mat-sys-outline-variant);
-
-  h3 {
-    margin: 0 0 var(--opt-space-2xs);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--mat-sys-on-surface-variant);
-  }
+.ticket__tabla,
+.ticket__totales {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--opt-space-sm);
 }
 
 .ticket__tabla {
-  width: 100%;
-  border-collapse: collapse;
-
   th {
     font-weight: 500;
     color: var(--mat-sys-on-surface-variant);
     text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
   }
 
   th,
@@ -84,38 +109,74 @@
     padding: 2px 0;
     vertical-align: top;
   }
-
-  .num {
-    text-align: right;
-    padding-left: var(--opt-space-xs);
-    white-space: nowrap;
-  }
 }
 
-.ticket__comentario {
-  display: block;
-  color: var(--mat-sys-on-surface-variant);
+.ticket__totales td {
+  padding: 1px 0;
 }
 
-.ticket__totales p {
+.ticket__totales-saldo td {
+  padding-top: 2px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.num {
+  text-align: right;
+  padding-left: var(--opt-space-xs);
+  white-space: nowrap;
+}
+
+.ticket__rx {
   display: flex;
-  justify-content: space-between;
-  margin: 0 0 2px;
+  flex-wrap: wrap;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+  padding-top: var(--opt-space-xs);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
 
-  span {
+.ticket__rx-tabla,
+.ticket__rx-prevision {
+  border-collapse: collapse;
+  font-size: 0.75rem;
+
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-weight: 600;
     color: var(--mat-sys-on-surface-variant);
+    margin-bottom: 2px;
+  }
+
+  th,
+  td {
+    padding: 1px 6px 1px 0;
+    text-align: left;
   }
 }
 
-.ticket__saldo strong {
-  font-size: 1rem;
-}
+.ticket__autorizacion {
+  padding-top: var(--opt-space-xs);
+  border-top: 1px solid var(--mat-sys-outline-variant);
 
-.ticket__pie {
-  margin-top: var(--opt-space-sm);
-  color: var(--mat-sys-on-surface-variant);
+  h3 {
+    margin: 0 0 var(--opt-space-2xs);
+    text-align: center;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
   p {
-    margin: 0;
+    margin: 0 0 var(--opt-space-2xs);
   }
+}
+
+.ticket__firma-linea {
+  margin-top: var(--opt-space-sm);
+}
+
+.ticket__firma-final {
+  margin-top: var(--opt-space-md);
+  text-align: center;
 }

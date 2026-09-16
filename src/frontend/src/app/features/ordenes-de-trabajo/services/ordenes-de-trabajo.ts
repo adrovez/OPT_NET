@@ -113,6 +113,9 @@ export class OrdenesDeTrabajo {
     if (filtros.empresaPublicId) {
       params['empresaPublicId'] = filtros.empresaPublicId;
     }
+    if (filtros.operativoPublicId) {
+      params['operativoPublicId'] = filtros.operativoPublicId;
+    }
     if (filtros.sucursalId) {
       params['sucursalId'] = filtros.sucursalId;
     }

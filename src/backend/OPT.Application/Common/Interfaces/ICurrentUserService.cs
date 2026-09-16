@@ -8,6 +8,10 @@ public interface ICurrentUserService
 {
     int    UsuarioId    { get; }
     string Rut          { get; }
+    int    RolId        { get; }
     int?   SucursalId   { get; }
+
+    /// <summary>Todas las sucursales asignadas al usuario (tabla UsuarioSucursal), no solo la activa.</summary>
+    IReadOnlyCollection<int> SucursalesAsignadas { get; }
     bool   EstaAutenticado { get; }
 }

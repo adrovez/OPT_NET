@@ -63,6 +63,15 @@ vive dónde antes de tocar cualquiera de esos archivos. Reglas al generar UI nue
   `.agents/context/branding-ux-ui.md`) — no agregar lógica de responsive propia por feature salvo
   que la pantalla tenga contenido ancho específico (una tabla con muchas columnas ya hace scroll
   horizontal automático vía `.contenido { overflow-x: auto }` en `shell.scss`).
+- **Selector de sucursal** (2026-09-15): `Shell` agrega, junto al menú de navegación, un selector de
+  sucursal (`mat-menu`, ícono `storefront`) construido en el cliente — el constructor de `Shell` pide
+  `Sucursales.listar()` y lo filtra contra `auth.usuarioActual()?.sucursalesAsignadas`, sin un endpoint
+  "mis sucursales" nuevo. Con una sola sucursal asignada se muestra de solo lectura (`.sucursal-unica`,
+  sin flecha); con más de una, cada ítem llama a `Auth.cambiarSucursal(id)`, que persiste en
+  `sessionStorage` (clave `opt.sucursalActual`) y **no** reemite el JWT — el backend ya autoriza
+  contra cualquiera de las sucursales asignadas al usuario (`AutorizacionSucursal.ValidarAcceso`, no
+  solo la `sucursalId` activa del token). En pantallas angostas colapsa a un `icon-button` con
+  tooltip, igual que el resto de la barra.
 - Encabezado/hover de `mat-table` y título de `MatDialog` ya tienen tratamiento de marca aplicado
   globalmente (`.mat-mdc-table`/`.mat-mdc-dialog-title` en `src/styles.scss`) — no agregar un color
   de fondo o de texto propio a una tabla o un `h2[mat-dialog-title]` nuevos, ya heredan el estilo.
@@ -208,15 +217,23 @@ Cinco features que comparten un solo agregado del backend. Antes de tocar cualqu
   en la ficha clínica del cliente, y el formulario solo ofrece elegir una de las que ese cliente ya tiene
   (`recetaPublicId`). En **edición** hay que reenviar la receta actual: el backend trata `recetaPublicId`
   como estado final —igual que `empresaPublicId`— y omitirla desvincula la receta. Lo que el formulario
-  sigue sin pedir es el N° de OT y el precio (los genera/calcula el backend): no "restaurarlos" para
-  parecerse al legacy. **Al crear** (sesión 2026-09-08, ADR `0010`), el paso Receta preselecciona
+  sigue sin pedir es el precio (lo calcula el backend). El N° de OT sí vuelve a ser un campo manual
+  (sesión 2026-09-11, ver más abajo). **Al crear** (sesión 2026-09-08, ADR `0010`), el paso Receta preselecciona
   automáticamente la más reciente del cliente dentro de los últimos 3 meses (contados desde hoy, no
   desde la fecha de atención) vía el `computed()` `recetasRecientes`; el `mat-radio-group` con el
   historial completo queda detrás de un botón "Ver historial completo" (`mostrarHistorialReceta`), no
   desaparece — sigue siendo necesario cuando la receta que corresponde no es la más nueva.
 - **Cabecera de la OT en el paso Cliente, no en Detalle** (ADR `0010`): `fechaAtencion` (default hoy),
   `fechaEntrega`, `horaEntrega`, `empresa` y `beneficiario` viven en `formCliente`, no en `formOrden` ni
-  repartidos en Detalle como antes. El N° de OT sigue sin ser un campo — lo genera la base de datos.
+  repartidos en Detalle como antes.
+- **N° de OT manual** (sesión 2026-09-11, a pedido del negocio): dejó de generarlo la BD y volvió a ser
+  un campo del paso Cliente (`formCliente.controls.numeroOT`, primer campo del paso) — como en el
+  legacy, pero con la validación de duplicados que el legacy nunca tuvo. Solo se exige un entero > 0 en
+  el frontend; la regla de negocio (único dentro del mismo año entre OT que no estén `ANULADO`, una OT
+  anulada libera su número) la valida `CrearOrdenDeTrabajoCommandHandler` y llega como un 422 con el
+  mensaje ya armado — el `errorInterceptor` lo muestra tal cual en el toast, no hay que interpretarlo.
+  Es **inmutable tras crear la orden**: en edición el control se deshabilita (mismo patrón que
+  `cliente`/`sucursalId`) y `ActualizarOrdenDeTrabajoCommand` no lo recibe.
 - **Tres modalidades de pago, no una casilla** (ADR `0010`): `formPago.modalidadPago` es
   `'total' | 'abonoCuotas' | 'cuotas' | null` — **nulo por defecto y `Validators.required`**, nunca un
   valor por defecto "útil": forzar `'total'` de entrada habría dejado el saldo en 0 antes de que el
@@ -267,6 +284,51 @@ recetas") y el botón "Editar datos" (reabre el `<Entidad>Form` del listado). Re
 - El componente usa `input.required<string>()` para el parámetro de ruta (requiere
   `withComponentInputBinding()`, ya activado en `app.routes.ts`) — en el `.spec.ts`, fijar el valor
   con `fixture.componentRef.setInput('publicId', '...')` antes de `fixture.whenStable()`.
+
+## Módulo Operativo (sesión 2026-09-15, 2ª)
+
+`features/operativos/` — agrupa las OT de una jornada en terreno, sus gastos, y expone
+ganancia/pérdida (`Pagado−Gastos` y `Vendido−Gastos`, ambas devueltas por el backend, ya
+calculadas — no recalcular en el frontend). Backend implementado en la 2ª etapa de la misma
+fecha (ver `CLAUDE.md` raíz, punto 7 de "Pendiente"); esta sesión fue solo el frontend.
+
+- **Alta/edición = diálogo, no página ruteada** (`OperativoForm`), a diferencia de la OT: el
+  formulario es chico (Empresa, Sucursal, Fecha, Observación) y no tiene una tabla de detalle
+  que no quepa en el panel de `MatDialog` — es la regla general de "CRUD simple = diálogo",
+  la OT es la única excepción documentada. Empresa (autocompletado, mismo patrón que
+  `orden-de-trabajo-form` — 491 empresas no caben en un `mat-select`) y Sucursal (`mat-select`,
+  catálogo chico) son **inmutables tras crear**: se deshabilitan en edición, mismo criterio que
+  `cliente`/`sucursalId` en el formulario de OT.
+- **La ficha sí es ruteada** (`operativo-ficha`, `/operativos/:publicId`): agrupa dos
+  historiales de subrecurso a la vez — Órdenes asociadas y Gastos — mismo criterio de "ficha
+  ruteada" que `cliente-ficha`/`orden-de-trabajo-ficha` (ver esa sección más arriba).
+- **Flujo de estados sin retroceso**: a diferencia de la OT (`OrdenDeTrabajo.CambiarEstado`
+  admite avanzar o retroceder una etapa), `EstadosOperativo` del dominio **no admite volver
+  atrás** — Prospecto→Ingresado→Cobranza→Cerrado es de una sola dirección. La ficha por eso
+  solo ofrece "Avanzar", nunca "Retroceder". Anular solo es posible desde Prospecto o
+  Ingresado (`puedeAnularse` lo manda el catálogo `/api/estados-operativo`, no una constante
+  del frontend — mismo criterio que `esTerminal` en `EstadoOT`).
+- **Asociar una OT reutiliza `<app-selector-orden>`**, no un buscador nuevo: `AsociarOrdenDialog`
+  es un envoltorio delgado de ese componente compartido (mismo patrón que ya lo usan
+  Abonos/Pagos/Cuotas) dentro de un `MatDialog` — solo emite la OT elegida, la ficha hace la
+  llamada a `Operativos.asociarOrden(...)` y se queda con el Operativo recalculado que
+  devuelve el backend (mismo contrato "todo comando devuelve el agregado completo" del ADR 0007).
+- **Chip de estado sin tokens de color nuevos**: `EstadoOperativoChip` reutiliza las clases
+  globales `.opt-chip--info/si/alerta` de `styles.scss` (3 tonos: en curso / cerrado / anulado)
+  en vez de crear variables `--opt-estado-operativo-*` como las de `EstadoOT` — un catálogo de
+  5 estados no justificaba abrir el proceso de auditoría WCAG que exige el branding doc para
+  sumar un color nuevo. Si el catálogo crece o el negocio pide distinguir más estados
+  visualmente, ahí sí corresponde crear tokens dedicados (seguir el patrón de
+  `estado-ot-chip`/`theme-tokens.scss`).
+- **Filtro de contexto `operativoPublicId` en el listado de OT**: `FiltrosOrdenesDeTrabajo`,
+  `OrdenesDeTrabajo.buscar()` y `ordenes-de-trabajo-list` ganaron este filtro (mismo mecanismo
+  que `clientePublicId`/`empresaPublicId`, el backend ya lo soportaba desde la etapa de
+  backend) para que el botón "Ver en el listado de OT" de la ficha del Operativo navegue a
+  `/ordenes-de-trabajo?operativoPublicId=...` y la lista lo tome como criterio de contexto (no
+  dispara la carga completa de las 12.000+ OT).
+- Sin filtro por Operativo en Cobranza ni en el reporte de cristales: el backend no expone ese
+  parámetro en `CobranzaController` (el reporte de cristales ni siquiera existe en el sistema
+  nuevo) — no se inventó nada en el frontend para compensarlo.
 
 ## RecetaCristalesForm — diálogo con tablas anchas (sesión 2026-09-08)
 
@@ -333,9 +395,19 @@ reusar en vez de reinventar:
 - **Impresión**: las reglas viven en el bloque `@media print` de `styles.scss`, nunca en el SCSS del
   componente (los estilos encapsulados no pueden ocultar el resto de la app). Quien imprime agrega
   `opt-imprimiendo` al `<body>` mientras dura el `window.print()` y lo quita después; lo que no debe
-  salir en papel se marca con `.opt-no-imprimir`. El comprobante de una OT es
+  salir en papel se marca con `.opt-no-imprimir`. La lógica de marcar/limpiar está factorizada en
+  `shared/utils/impresion.util.ts` (`imprimirConClaseBody()`) — usarla siempre en vez de un
+  `window.print()` suelto. El comprobante de una OT es
   `features/ordenes-de-trabajo/components/ticket-ot/` (`app-ticket-ot`, input `orden`) — reemplaza al
-  reporte `.rdlc` del legacy y se reusa donde haga falta reimprimirlo.
+  reporte `.rdlc` del legacy. Rediseño 2026-09-15: replica el formato de `_ParcialTicketOT.cshtml`
+  (encabezado con los datos fijos de la empresa — constante `EMPRESA` en `ticket-ot.ts`, pendiente de
+  definición final —, texto "Nota de venta y autorización de descuento" con líneas de firma) y se
+  imprime en `NUMERO_DE_COPIAS = 3` copias (una visible en pantalla, tres en el papel vía `@for`) —
+  el legacy generaba 3 para que el cliente firme el compromiso de pago. Para reimprimir el ticket de
+  una OT ya existente (fuera del alta), usar `components/imprimir-ticket-dialog/`
+  (`ImprimirTicketDialog`) en vez de duplicar el diálogo — es la versión de `OrdenCreadaDialog` sin
+  los botones "Nueva OT"/"Ver orden", pensada para abrirse desde la ficha de la OT aunque esté
+  anulada o entregada (reimprimir no modifica nada, así que no queda sujeto al bloqueo de edición).
 
 ## Comandos
 

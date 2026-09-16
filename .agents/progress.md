@@ -1169,3 +1169,182 @@ releer.
 - **`.agents/context/reglas-negocio-legado.md`** — regla nueva sobre el auto-check de Cerca (matiz de mejora sobre una regla ya "Preservada" del legacy).
 - **`Manual_Tecnico_Frontend_OPT.docx`** — nota agregada en la sección del módulo Clínico.
 - **Sin tocar**: `AGENTS.md` (no hubo decisión de arquitectura ni ADR nuevo — solo UI/UX), `Manual_Tecnico_Backend_OPT.docx` (sin cambios de backend) y `Diccionario_Datos_OPT.docx` (sin cambios de esquema).
+
+---
+
+## 2026-09-11 — N° de OT manual, con validación de duplicados por año
+
+**Resumen:**
+- A pedido del negocio, `OPT_OrdenDeTrabajo.NumeroOT` dejó de generarse atómicamente en la base de datos (`SEQ_NumeroOT`, decisión de la sesión 2026-08-19) y vuelve a ingresarse a mano, igual que el legacy — el operador necesita poder tipear el número, no que se lo asigne el sistema. A diferencia del legacy (que nunca validaba duplicados de forma confiable), el sistema nuevo agrega una regla que allá no existía: un `NumeroOT` no puede repetirse con otra OT del **mismo año** (por `CreadoEn`) que **no esté anulada**; si la OT que ya lo tiene está `ANULADO`, el número queda libre para reutilizarse.
+
+**Cambios (backend):**
+- `OrdenDeTrabajo.Crear` pasa a recibir `numeroOT` como primer parámetro (antes lo fijaba el `DEFAULT` de la BD), con guarda de dominio `numeroOT > 0` → `DomainException`.
+- `IOrdenDeTrabajoRepositorio.ExisteNumeroOTVigenteAsync(numeroOT, año)` (nuevo) — `CrearOrdenDeTrabajoCommand` gana el campo `NumeroOT` (validado `> 0` en `CrearOrdenDeTrabajoCommandValidator`) y `CrearOrdenDeTrabajoCommandHandler` lo consulta antes de crear, lanzando `DomainException` (422) si hay choque. Deliberadamente **no** se acumuló en el diccionario `errores` de `ValidationException` — el frontend solo muestra el `title` del problema en el toast, no el detalle por campo.
+- `NumeroOT` queda **inmutable tras crear la orden**: `ActualizarOrdenDeTrabajoCommand` no lo recibe.
+- Esquema: `src/basedatos/008_numero_ot_manual.sql` quita el `DEFAULT (NEXT VALUE FOR SEQ_NumeroOT)` de la columna (constraint sin nombre explícito, se busca dinámicamente por tabla+columna) y reemplaza el índice único global `UQ_OrdenesDeTrabajo_NumeroOT` por uno **filtrado**, `UQ_OrdenesDeTrabajo_NumeroOT_Vigente` (`WHERE EstadoOTId <> 7`), como respaldo de la BD. Ese índice es deliberadamente más estricto que la regla de negocio (no distingue año, solo "no anulada") — decisión tomada con el usuario como defensa adicional; un choque cruzado entre años con una OT antigua todavía activa es un caso extremo sin mensaje amigable (caería en el 500 genérico). `SEQ_NumeroOT` queda creada sin uso, por si hiciera falta de respaldo.
+
+**Cambios (frontend):**
+- `numeroOT` vuelve a ser el primer campo del paso Cliente del asistente de alta (`orden-de-trabajo-form`), obligatorio y `> 0` en el cliente, deshabilitado en edición igual que `cliente`/`sucursalId`. El mensaje de duplicado llega tal cual desde el backend vía el `errorInterceptor` existente, sin lógica nueva en el frontend.
+
+**Verificación:**
+- **No compilado ni probado en esta sesión** — sin acceso a `dotnet build`/`npm test` en el entorno donde se hizo el cambio. Pendiente correr `dotnet build OPT.sln`, `npm run lint`/`build`/`test`, y aplicar `008_numero_ot_manual.sql` contra `dbOPT_NET` antes de dar el cambio por verificado.
+
+**Actualización de documentación (misma sesión, a pedido del usuario):**
+- **`CLAUDE.md` raíz** — párrafo nuevo "N° de OT manual, con validación de duplicados por año" en "Estado actual".
+- **`src/frontend/CLAUDE.md`** — bullet "N° de OT manual" documentando el campo en el paso Cliente del asistente.
+- **`src/basedatos/README.md`** — fila del script `008` en la tabla de scripts aplicados, y nota de que el gotcha de `SEQ_NumeroOT` ya no aplica a esta columna.
+- **`.agents/context/reglas-negocio-legado.md`** — la regla sobre el número de OT calculado en la app (antes clasificada "Mejorar", corregida con `SEQUENCE`) se revirtió a "Preservar, con validación nueva": el ingreso manual vuelve, pero con la validación por año que el legacy nunca tuvo.
+
+**Próximos pasos sugeridos:**
+1. Compilar `OPT.sln` y correr `npm run lint`/`build`/`test` antes de dar el cambio por verificado.
+2. Aplicar `008_numero_ot_manual.sql` contra `dbOPT_NET` y confirmar que el índice filtrado `UQ_OrdenesDeTrabajo_NumeroOT_Vigente` quedó creado.
+3. Actualizar `Diccionario_Datos_OPT.docx` y `Manual_Tecnico_Backend_OPT.docx` con la nueva forma de `NumeroOT` (columna sin `DEFAULT`, índice filtrado) — quedó pendiente en esta sesión y se resolvió recién en la sesión de documentación del 2026-09-15.
+
+---
+
+## 2026-09-15 — Autorización por rol y sucursal (BOLA/IDOR) + selector de sucursal en el menú + rediseño del ticket imprimible
+
+**Resumen:**
+- Sesión de dos partes, ambas resolviendo huecos que quedaban abiertos desde sesiones anteriores. La primera: el legacy nunca tuvo ningún control de autorización en el servidor (el rol de `OPT_Usuario` solo ocultaba ítems de menú en el cliente) y el sistema nuevo, hasta esta sesión, corría con `[Authorize]` genérico — cualquier usuario autenticado podía operar cualquier recurso de cualquier sucursal. Se implementó autorización por rol y control de acceso por sucursal (BOLA/IDOR), resolviendo el punto 5 de "Pendiente" de `CLAUDE.md` señalado desde el ADR `0007`/`0004`. La segunda: un rediseño del ticket imprimible de OT para acercarlo al formato real del legacy (3 copias con firma) y la posibilidad de reimprimirlo desde la ficha de una orden ya existente, cosa que la migración había dejado disponible solo al momento de crear la OT.
+
+**Cambios backend — autorización por rol:**
+- `OPT.API/Authorization/AutorizarRolesAttribute.cs` — `IAuthorizationFilter` propio que lee el claim numérico `rolId` del JWT (no usa `[Authorize(Roles=...)]` porque ese mecanismo compara contra `ClaimTypes.Role`, que el token no emite).
+- `OPT.Domain/Common/RolesOPT.cs` — constantes de los 8 roles reales de `OPT_Rol` (`Administrador=1` … `Externo=8`, sembrados en `002_catalogos.sql`) agrupados por función: `Administracion`, `GestionComercial`, `OperacionClinica`, `OperacionComercial`/`OperacionComercialConCalidad`, `AnulacionComercial`, `Cobranza`, `AccesoTotalSucursales`.
+- Aplicado a: `UsuariosController` (Administrador exclusivo), `SucursalesController`/`EmpresasController` (mutaciones: Administrador/Supervisor), `ClientesController`/`AnamnesisController`/`RecetaCristalesController` (datos clínicos ADR `0004`: Administrador/Supervisor/JefeSucursal/Vendedor/TecnicoMedico/Operador, sin ControlCalidad ni Externo), `OrdenesDeTrabajoController` (por acción: lectura y flujo normal amplio, `Anular`/`AnularCuota` reservado a Administrador/Supervisor/JefeSucursal, `CambiarEstado` suma ControlCalidad), `CobranzaController` (Administrador/Supervisor/JefeSucursal). Los catálogos de solo lectura quedan sin restricción.
+
+**Cambios backend — autorización por sucursal (BOLA/IDOR):**
+- `OPT.Application/Common/Security/AutorizacionSucursal.cs` — `ValidarAcceso(currentUser, sucursalId)`, invocado desde los handlers de `OrdenesDeTrabajo` que cargan o crean una OT: Crear, Actualizar, CambiarEstado, Anular, RegistrarAbono, RegistrarPago, GenerarPlanCuotas, PagarCuota, AnularCuota, ObtenerPorId. Lanza `ForbiddenAccessException` (nueva, mapeada a HTTP 403 en `ExceptionHandlingMiddleware`) si la OT no es de la sucursal activa del usuario ni de ninguna de sus sucursales asignadas.
+- `ICurrentUserService` ganó `RolId` y `SucursalesAsignadas`; `TokenService` agrega el claim `sucursales` (CSV de `UsuarioSucursal`) al JWT emitido en el login.
+- `ObtenerOrdenesDeTrabajoQuery`/su handler restringen de oficio el listado a la sucursal activa del usuario cuando no filtra explícitamente por sucursal y no tiene alcance nacional (`RolesOPT.AccesoTotalSucursales`, hoy solo Administrador).
+
+**Cambios frontend — selector de sucursal en el menú:**
+- `Auth` (`core/services/auth.ts`) gana `sucursalActualId` (signal), `cambiarSucursal(id)` y persistencia en `sessionStorage` (clave `opt.sucursalActual`) — puramente de sesión/UI: como el backend ya autoriza contra cualquiera de las sucursales asignadas al usuario (no solo la activa del JWT), cambiar de sucursal en el menú no requiere reemitir el token. Al hacer login se fija siempre a `sucursalActivaId` (la primera asignada), descartando cualquier elección previa.
+- `JwtClaims`/`UsuarioActual` (`core/models/auth.models.ts`) ganaron `sucursales`/`sucursalesAsignadas`.
+- `Shell` (`layout/shell/`) agrega un selector de sucursal en la barra (`mat-menu`, ícono `storefront`): lee `Sucursales.listar()` en el constructor y lo filtra client-side contra `usuarioActual()?.sucursalesAsignadas` — deliberadamente sin un endpoint "mis sucursales" nuevo. Con una sola sucursal asignada se muestra de solo lectura (`.sucursal-unica`); con más de una, cada ítem del menú llama a `cambiarSucursal`. Colapsa a `icon-button` en pantallas angostas, igual que el resto de la barra.
+
+**Cambios frontend — rediseño del ticket imprimible (sin cambios de backend):**
+- `features/ordenes-de-trabajo/components/ticket-ot/` — replica el formato de `_ParcialTicketOT.cshtml` del legacy: encabezado con los datos fijos de la empresa (constante `EMPRESA` en `ticket-ot.ts` — nombre "Centro Óptico BL", RUT, fono, dirección, con nota en el código de que está pendiente de definición final), texto "Nota de venta y autorización de descuento" con líneas de firma, e impresión en `NUMERO_DE_COPIAS = 3` copias (una visible en pantalla, tres en el papel vía `@for` + reglas de impresión en `ticket-ot.scss`) — el legacy generaba 3 copias para que el cliente firme el compromiso de pago.
+- `shared/utils/impresion.util.ts` (nuevo) — `imprimirConClaseBody()`, extrae la lógica de impresión que antes vivía solo en `orden-creada-dialog` (marca `<body class="opt-imprimiendo">`, llama a `window.print()`, limpia en `afterprint` con un `finally` de respaldo). `OrdenCreadaDialog` se simplificó para usarla y perdió los botones "Nueva OT"/"Ver orden" (quedó solo el ticket a la vista con Imprimir/Cerrar).
+- `features/ordenes-de-trabajo/components/imprimir-ticket-dialog/` (nuevo, `ImprimirTicketDialog`) — reimprime el ticket de una OT ya existente desde el botón "Imprimir ticket" de `orden-de-trabajo-ficha`, disponible aunque la orden esté anulada o entregada (reimprimir no modifica nada, así que no queda sujeto al aviso de bloqueo de edición de la sesión 2026-09-08). Es la versión de `OrdenCreadaDialog` sin los botones de continuar el flujo de alta; comparte `<app-ticket-ot>` y `imprimirConClaseBody()`.
+
+**Verificación:**
+- Backend: `dotnet build OPT.sln` compila limpio. **No** se corrió `dotnet test` ni una sesión autenticada por rol/sucursal contra `dbOPT_NET` real — pendiente antes de dar el punto por cerrado.
+- Frontend: no verificado en esta sesión de documentación (fuera de su alcance) — ver el estado de build/lint/test real en el propio commit de código cuando se revise.
+
+**Actualización de documentación (misma sesión, a pedido del usuario):**
+- **`.agents/context/seguridad-apis.md`** (nuevo) — snapshot completo de controles de seguridad implementados/faltantes, con la decisión de secuencia (ahora vs. antes de producción) y las reglas de forma de trabajo para un agente IA. Referenciado desde `.agents/context/README.md`.
+- **`src/documentos/Manual_Tecnico_Seguridad_OPT.docx`** (nuevo) — checklist de 18 controles de seguridad con estado real verificado en código, incluidas las secciones 3.12/3.13 (autorización por rol y por sucursal, ambas "resuelto 2026-09-15") y 4.1/4.2 (las mismas brechas, marcadas RESUELTO). Referenciado desde `src/documentos/README.md`.
+- **`CLAUDE.md` raíz** — párrafo nuevo en "Estado actual" con el detalle de ambos mecanismos de autorización y el selector de sucursal; punto 5 de "Pendiente" actualizado (la autorización por sucursal deja de estar pendiente, se detalla qué queda realmente pendiente: rate limiting, security headers, logging de seguridad, refresh tokens); frase agregada en el párrafo largo de Comercial sobre el rediseño del ticket y `imprimir-ticket-dialog`.
+- **`src/frontend/CLAUDE.md`** — bullet nuevo sobre el selector de sucursal en la sección de convenciones de UI; bullet de impresión extendido con el rediseño de 3 copias y `ImprimirTicketDialog`.
+- **`.agents/context/reglas-negocio-legado.md`** — regla nueva en "Autenticación y sesión" documentando que el legacy no tenía control de rol server-side (contexto para la sección de seguridad); regla de ticket precisada con el detalle de las 3 copias y la reimpresión; nota agregada al selector de sucursal activa.
+- **`Manual_Tecnico_Backend_OPT.docx`** — sección nueva 8.3 "Autorización por rol y por sucursal (2026-09-15)", nota en 3.2.3/4.3/6.2/7.7 sobre `NumeroOT` manual y la resolución del punto pendiente de autorización por sucursal.
+- **`Manual_Tecnico_Frontend_OPT.docx`** — nota en 3.4 (selector de sucursal en `Shell`), 4.2 (`Auth.cambiarSucursal`), sección 6 extendida con el rediseño del ticket y `ImprimirTicketDialog` (6.7/6.8), y sección 8.4 nueva sobre autorización por rol/sucursal desde la perspectiva del frontend.
+- **Sin tocar**: `Diccionario_Datos_OPT.docx` (sin cambios de esquema en esta sesión) y `Manual_Tecnico_UX_OPT.docx` (sigue en v1.0, sin relación con seguridad).
+- **Edición hecha con `python-docx`, no verificada visualmente** (no hay pandoc/LibreOffice/zip en este entorno de documentación) — releída con `python-docx` tras guardar, no renderizada a PDF ni abierta en Word.
+
+**Próximos pasos sugeridos:**
+1. Correr `dotnet test` y probar en navegador con un usuario de cada rol contra `dbOPT_NET` real, para cerrar la verificación end-to-end de ambos controles de autorización.
+2. Implementar los puntos que `seguridad-apis.md` deja deliberadamente para la pasada final antes de producción: rate limiting en `/api/auth/login`, security headers, logging de eventos de seguridad, refresh tokens/revocación de JWT.
+3. Confirmar visualmente el rediseño del ticket (3 copias, líneas de firma) y el selector de sucursal en un navegador real — ninguno de los dos se verificó fuera de la lectura de código en esta sesión.
+4. `Manual_Tecnico_UX_OPT.docx` sigue en v1.0 y es el documento más desalineado de `src/documentos/` — no refleja ninguna pasada de UX/UI posterior a su primera versión.
+
+---
+
+## 2026-09-15 (2ª sesión) — Módulo Operativo: requerimiento y Etapa 1 (esquema)
+
+**Resumen:**
+- El usuario aportó `OPT_Requerimiento_Modulo_Operativo.md`, un levantamiento funcional para un nuevo "Módulo Operativo" (Operativos Oftalmológicos en terreno): agrupar las OT de una jornada bajo un Operativo, registrar sus gastos, filtrar Cobranza/reporte de cristales por Operativo y calcular ganancia/pérdida.
+- **Hallazgo importante**: el documento estaba escrito para otro proyecto, no para OPT_NET — usaba multi-tenant (`TenantId`), PK `UNIQUEIDENTIFIER DEFAULT NEWSEQUENTIALID()`, `IsDeleted`, un header `X-Sucursal-Id` y módulos "Agenda"/"Atención" que no existen acá, y daba por **no implementada** la entidad `OrdenTrabajo` (en OPT_NET, `OrdenDeTrabajo` está completa desde el 2026-08-27, ADR `0007`). Se tradujeron todas las convenciones antes de diseñar el esquema — tabla completa de la traducción en `.agents/context/modulo-operativo.md` § 2.
+- Se resolvieron con el usuario (`AskUserQuestion`) los 4 puntos abiertos del requerimiento que bloqueaban el diseño de tablas: Correlativo autogenerado (no manual), `Operativo.SucursalId` obligatorio (reusa `AutorizacionSucursal` a futuro), `GastoOperativo` solo Monto+N°Documento+Observación (sin fecha propia ni categoría), y Anular solo permitido desde PROSPECTO/INGRESADO (no desde COBRANZA).
+- Se generó **`src/basedatos/009_modulo_operativo.sql`** (idempotente, escrito a mano — mismo patrón que `004`/`005`/`008`): `OPT_EstadoOperativo` (catálogo, 5 valores), `SEQ_CorrelativoOperativo`, `OPT_Operativo` (`AuditableEntity` + `PublicId`; `MontoTotalVendido`/`MontoTotalPagado`/`MontoTotalGastos` persistidos, a recalcular transaccionalmente igual que `OrdenDeTrabajo.Precio`/`TotalAbonado`/`Saldo`), `OPT_OperativoOT` (relación pura 1→N, índice único en `OrdenDeTrabajoId` — una OT pertenece a lo sumo un Operativo, sin `PublicId` propio) y `OPT_GastoOperativo` (`AuditableEntity`).
+- Alcance de esta sesión: **solo esquema**, a pedido explícito del usuario ("como primera etapa"). No se tocaron entidades de `OPT.Domain` ni `IEntityTypeConfiguration<T>` — el modelo de EF Core y la base quedan desalineados hasta la siguiente sesión, mismo patrón de deuda que dejó `004` con `Pago`/`Cuota`/`EstadoCuota` (resuelto recién en 2026-08-27).
+- **No se aplicó el script a `dbOPT_NET`** — solo se generó y se registró en la documentación; queda pendiente correrlo.
+
+**Decisiones tomadas:** ver tabla completa en `.agents/context/modulo-operativo.md` § 3 (Correlativo, SucursalId, campos de GastoOperativo, transición a Anulado).
+
+**Actualización de documentación (misma sesión, a pedido del usuario "actualiza .md para contexto y Técnico correspondientes"):**
+- **`.agents/context/modulo-operativo.md`** (nuevo) — documento de contexto completo del módulo: problema, tabla de traducción de convenciones, decisiones cerradas, detalle del esquema `009`, puntos que siguen abiertos (fórmula de ganancia/pérdida, permisos, invariantes no modeladas como constraint de BD, migración histórica fuera de alcance) y próximos pasos por capa. Incluye el texto completo del requerimiento original al final, para trazabilidad. Referenciado desde `.agents/context/README.md`.
+- **`src/basedatos/README.md`** — fila nueva para `009_modulo_operativo.sql` en la tabla "Estado actual"; total de tablas actualizado a 27 (pendiente de aplicar).
+- **`CLAUDE.md` raíz** — punto 7 nuevo en "Pendiente" con el resumen del módulo, la advertencia sobre el origen del documento, el detalle del esquema `009` y los próximos pasos.
+- **`Diccionario_Datos_OPT.docx`** y **`Manual_Tecnico_Backend_OPT.docx`** — actualizados con las 4 tablas nuevas (ver detalle abajo).
+
+**Verificación:** ninguna — sesión de solo-esquema y documentación, sin acceso en este entorno a `sqlcmd`/`dotnet build` para aplicar o compilar nada.
+
+**Próximos pasos sugeridos:**
+1. Aplicar `009_modulo_operativo.sql` contra `dbOPT_NET` (verificar primero contra un entorno de desarrollo, no producción).
+2. Sesión de dominio: entidades `Operativo`/`OperativoOT`/`GastoOperativo`/`EstadosOperativo` en `OPT.Domain` + `IEntityTypeConfiguration<T>`, cerrando la deuda de alineación con EF Core.
+3. Sesión de Application/API: `Features/Operativos/`, `OperativosController`, filtro por Operativo en `ObtenerOrdenesDeTrabajoQuery` y en `CobranzaController`.
+4. Sesión de frontend: `features/operativos/`.
+5. Confirmar con el usuario la fórmula de ganancia/pérdida a mostrar (8.3) y los permisos por rol (8.7) antes de la sesión de dominio — ver puntos abiertos en `.agents/context/modulo-operativo.md` § 5.
+
+---
+
+## 2026-09-15 (3ª sesión) — Módulo Operativo: Domain/Application/API completos (ADR 0011)
+
+**Resumen:**
+- Continuación directa de la sesión anterior (mismo día): con el esquema de `009_modulo_operativo.sql` ya escrito, el usuario pidió generar las APIs de backend para el módulo. Se construyó `OPT.Domain`/`OPT.Infrastructure`/`OPT.Application`/`OPT.API` completos, siguiendo al pie el patrón ya aceptado para `OrdenDeTrabajo` (ADR `0007`): agregado con raíz propia, catálogo de estados con reglas de transición, repositorio con `BuscarPaginadoAsync` + whitelist de orden, `DtoFactory` registrado a mano, controller con `AutorizarRoles` por acción.
+- **Decisión de diseño no trivial**: `Operativo` (nuevo agregado) no referencia `OrdenDeTrabajo` en `OPT.Domain`, para no acoplar dos agregados de módulos distintos. Esto obligó a agregar dos columnas que el script `009` original (sesión anterior) no tenía: `OPT_OperativoOT.MontoVendidoSnapshot`/`MontoPagadoSnapshot` — sin ellas, `Operativo` no podía mantener sus totales sin consultar `OrdenDeTrabajo` desde el dominio. El script sigue sin aplicarse a ninguna base, así que extenderlo no rompió nada ya migrado.
+- Se resolvieron sin `AskUserQuestion` (el usuario no estaba disponible para las preguntas puntuales) los 3 puntos abiertos que quedaban del requerimiento: 8.1 (snapshot + refresco manual vía `POST /recalcular-montos`, sin sincronización automática al abonar/pagar una OT ya asociada), 8.3 (ambas fórmulas de ganancia/pérdida, derivadas en el DTO) y 8.7 (reuso directo de los grupos de `RolesOPT` ya existentes — `OperacionComercial`/`AnulacionComercial` — sin crear uno nuevo). Las tres decisiones quedaron documentadas explícitamente como decisión de IA (no de negocio) en el ADR `0011`, para que una sesión futura con el usuario disponible las pueda confirmar o revertir.
+- El módulo **no tiene bitácora propia** (a diferencia de `OrdenDeTrabajo`/`BitacoraOT`): el requerimiento nunca la pidió y agregarla habría sido esquema no solicitado. El motivo de una anulación queda concatenado en `Operativo.Observacion`.
+- El filtro de Cobranza por Operativo (sección 6 del requerimiento) se resolvió agregando `OperativoPublicId` a `ObtenerOrdenesDeTrabajoQuery`/`operativoId` a `IOrdenDeTrabajoRepositorio.BuscarPaginadoAsync` — mismo mecanismo que ya existía para `empresaPublicId`, sin tocar `CobranzaController`. El filtro por Operativo en el "reporte de cristales" del requerimiento no se implementó porque ese reporte no existe como endpoint en el sistema nuevo.
+
+**Piezas construidas:**
+- `OPT.Domain/Entities/Operativo/`: `Operativo` (agregado raíz), `OperativoOT`, `GastoOperativo`, `EstadoOperativo`, `EstadosOperativo` (flujo `Prospecto(1)→Ingresado(2)→Cobranza(3)→Cerrado(4)`, sin retroceso; `Anulado(5)` solo alcanzable desde `Prospecto`/`Ingresado`).
+- `OPT.Domain/Interfaces/Repositories/IOperativoRepositorio.cs`, `IEstadoOperativoRepositorio.cs`; extensión de `IOrdenDeTrabajoRepositorio.BuscarPaginadoAsync` con el parámetro `operativoId`.
+- `OPT.Infrastructure/Persistence/Configurations/Operativo/` (4 configuraciones EF), `Repositories/OperativoRepositorio.cs`, `Repositories/EstadoOperativoRepositorio.cs`; `AppDbContext` con los 4 `DbSet` nuevos y la secuencia `SEQ_CorrelativoOperativo`; `DependencyInjection` con los 2 repos nuevos registrados.
+- `OPT.Application/Features/Operativos/`: `OperativoDto.cs`, `OperativoDtoFactory.cs` (registrada a mano en `AddApplication`, igual que `OrdenDeTrabajoDtoFactory`), y 9 Commands (Crear, Actualizar, CambiarEstado, Anular, AsociarOrden, QuitarOrden, RecalcularMontos, RegistrarGasto, EliminarGasto) + 2 Queries (ObtenerTodos paginado, ObtenerPorId), cada uno con su Validator donde aplica.
+- `OPT.Application/Features/EstadosOperativo/`: catálogo de solo lectura.
+- `OPT.API/Controllers/OperativosController.cs` (`/api/operativos`, siempre por `PublicId`, subrecursos `ordenes`/`gastos`/`estado`/`anular`/`recalcular-montos` anidados) y `EstadosOperativoController.cs`.
+
+**Verificación:**
+- `dotnet build OPT.sln` compila limpio (única advertencia preexistente y no relacionada en `InventarioController.cs`).
+- `dotnet ef dbcontext info --project OPT.Infrastructure --startup-project OPT.API` — el modelo de EF Core valida sin errores (ejercita `OnModelCreating`, incluidas las 4 configuraciones nuevas).
+- **No verificado**: el script `009_modulo_operativo.sql` (con las columnas de snapshot ya agregadas) no se aplicó a ninguna base real; no hubo sesión autenticada de prueba contra `dbOPT_NET`; no se generó el script `dotnet ef migrations script --idempotent` de comparación (se verificó la paridad columna-por-columna a mano contra el `.sql`, dado que no había una migration base previa contra la cual diffear sin el procedimiento largo de `CLAUDE.md`).
+
+**Actualización de documentación (misma sesión, a pedido del usuario "actualiza archivos .md ... y manuales técnicos"):**
+- **`.agents/decisions/0011-api-modulo-operativo.md`** (nuevo ADR) — las 6 decisiones de diseño de esta sesión, con alternativas descartadas y consecuencias/riesgos aceptados explícitos. Indexado en `.agents/decisions/README.md`.
+- **`.agents/context/modulo-operativo.md`** — nueva sección 5 "Dominio, Application y API — completados", detalle de dónde vive cada pieza y qué puntos abiertos del requerimiento quedaron resueltos (remite al ADR `0011` para el porqué); sección 6 "Próximos pasos" reescrita (ya no queda dominio/Application/API pendiente, solo aplicar el script, probar end-to-end y frontend); encabezado actualizado a "Etapas 1 y 2 completadas".
+- **`.agents/context/README.md`** — descripción de `modulo-operativo.md` actualizada.
+- **`src/basedatos/README.md`** — fila de `009_modulo_operativo.sql` actualizada: menciona las columnas de snapshot y que Domain/Application/API ya están completos (sigue sin aplicarse a una base real).
+- **`CLAUDE.md` raíz** — punto 7 de "Pendiente" reescrito en la sesión anterior a esta entrada de progreso (ver el propio `CLAUDE.md`) con el detalle de la Etapa 2; no requirió cambios adicionales en esta pasada de documentación.
+- **`Manual_Tecnico_Backend_OPT.docx`** y **`Diccionario_Datos_OPT.docx`** — actualizados con el detalle de Domain/Application/API y las 2 columnas de snapshot (ver detalle en la entrada de esta sesión más abajo si se agregó una sección aparte, o el propio `.docx`).
+
+**Próximos pasos sugeridos:**
+1. Aplicar `009_modulo_operativo.sql` (ya con las columnas de snapshot) contra `dbOPT_NET` de desarrollo.
+2. Probar `OperativosController` end-to-end con una sesión autenticada real.
+3. Confirmar con el usuario las 3 decisiones que esta sesión tomó sin preguntarle (refresco manual de montos, reuso de roles, ausencia de bitácora) — ADR `0011`.
+4. Sesión de frontend: `features/operativos/`.
+
+---
+
+## 2026-09-15 (4ª sesión) — Módulo Operativo: frontend completo
+
+**Resumen:**
+- Continuación de la sesión anterior (mismo día): con el backend del módulo ya completo (Etapas 1 y 2), el usuario pidió generar el frontend siguiendo el estándar de codificación/arquitectura del proyecto y consultando las APIs disponibles ante cualquier duda.
+- Se investigó primero el contrato real de `OperativosController`/`EstadosOperativoController` (rutas, roles, shape de `OperativoDto`/`OperativoResumenDto`, reglas de `EstadosOperativo`) y los patrones ya establecidos en `src/frontend/CLAUDE.md` para el módulo Comercial (`ordenes-de-trabajo`), en vez de adivinar campos — siguiendo la regla ya escrita en "Antes de escribir código de un feature nuevo".
+- Se construyó `features/operativos/` completo: `models/operativo.model.ts` (espejo exacto de los DTOs verificados), `services/operativos.ts` + `services/estados-operativo.ts`, `operativos.routes.ts`, `pages/operativos-list` (paginado, auto-carga al entrar — a diferencia del listado de OT, Operativo no tiene volumen que lo justifique), `pages/operativo-form` (diálogo de alta/edición; Empresa por autocompletado igual que en `orden-de-trabajo-form`, Sucursal por `mat-select`, ambas inmutables tras crear), `pages/operativo-ficha` (ruteada, cabecera + resumen financiero de 5 cifras + barra de flujo de estados sin retroceso + pestañas Órdenes/Gastos), y los componentes `estado-operativo-chip`, `asociar-orden-dialog` (envuelve `<app-selector-orden>` ya existente) y `gasto-operativo-dialog`.
+- **Decisión de diseño**: el chip de estado no creó tokens de color nuevos (`--opt-estado-operativo-*` al estilo de `EstadoOT`) — reutiliza las clases globales `.opt-chip--info/si/alerta` de `styles.scss`. Evita el proceso de auditoría WCAG que el branding doc exige para sumar un color, que un catálogo de 5 estados no justificaba.
+- **Cambio adicional acotado**: se agregó el filtro de contexto `operativoPublicId` a `FiltrosOrdenesDeTrabajo`/`OrdenesDeTrabajo.buscar()`/`ordenes-de-trabajo-list` (mismo mecanismo que `empresaPublicId`/`clientePublicId`) para que "Ver en el listado de OT" desde la ficha del Operativo funcione — el backend ya lo soportaba desde la Etapa 2. No se tocó `CobranzaController` (no expone ese filtro) ni el reporte de cristales (no existe como endpoint).
+- Registrado en `app.routes.ts` (`/operativos`) y en el grupo "Comercial" del menú de `Shell`.
+- Todos los componentes se generaron con `ng generate` (convención del proyecto), no a mano.
+
+**Verificación:**
+- `npm run lint` — limpio.
+- `npm run build` — limpio (el único warning de budget es preexistente, en `orden-de-trabajo-ficha.scss`, no tocado esta sesión).
+- `npm test` — 65/66 archivos, 105/107 tests. Los 2 tests que fallan son de `orden-de-trabajo-form.spec.ts` (lógica de `sinPlanCuotas`/`primerVencimiento`), preexistentes a esta sesión (ese archivo ya figuraba modificado sin commitear antes de empezar) y no relacionados con Operativo.
+- **No verificado en navegador contra `dbOPT_NET` real** — bloqueado en que se aplique `009_modulo_operativo.sql` (pendiente desde la Etapa 1/2).
+
+**Actualización de documentación (misma sesión, a pedido del usuario "Actualiza archivos .md ... Actualiza Manuales técnicos"):**
+- **`CLAUDE.md` raíz** — punto 7 de "Pendiente" ampliado con la Etapa 3 (frontend); árbol de `Estructura de proyectos` actualizado con `Entities/Operativo/`, `Features/Operativos|EstadosOperativo/` y los 2 controllers nuevos.
+- **`src/frontend/CLAUDE.md`** — nueva sección "Módulo Operativo (sesión 2026-09-15, 2ª)" con las decisiones de UI (diálogo vs. ficha ruteada, flujo sin retroceso, reuso de `selector-orden`, chip sin tokens nuevos, filtro `operativoPublicId`).
+- **`src/frontend/README.md`** — `operativos/` agregado al árbol de `features/`.
+- **`.agents/context/modulo-operativo.md`** — nueva sección 5a "Frontend — completado"; sección 6 "Próximos pasos" y el encabezado actualizados (ya no queda frontend pendiente, solo aplicar el script y verificar end-to-end).
+- **`.agents/context/README.md`** — descripción de `modulo-operativo.md` actualizada.
+- **`.agents/decisions/0011-api-modulo-operativo.md`** — el riesgo aceptado "Sin frontend" marcado como resuelto, con la aclaración de que el refresco de montos quedó manual (botón "Recalcular montos"), no automático.
+- **`Manual_Tecnico_Frontend_OPT.docx`** — nueva sección para el módulo Operativo (ver detalle más abajo).
+
+**Próximos pasos sugeridos:**
+1. Aplicar `009_modulo_operativo.sql` contra `dbOPT_NET` de desarrollo.
+2. Probar `OperativosController` y el frontend end-to-end con una sesión autenticada real.
+3. Confirmar con el usuario las 3 decisiones de la Etapa 2 tomadas sin preguntarle (ADR `0011`) y evaluar si el refresco de montos debe automatizarse.
+4. Migración de OT históricas a Operativos y filtro de Operativo en Cobranza, si el negocio los pide (ambos fuera de alcance hasta ahora).

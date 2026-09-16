@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>Registrar gasto</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Monto</mat-label>
+      <input matInput type="number" formControlName="monto" min="1" />
+      @if (form.controls.monto.hasError('required')) {
+        <mat-error>El monto es obligatorio.</mat-error>
+      }
+      @if (form.controls.monto.hasError('min')) {
+        <mat-error>El monto debe ser mayor a cero.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>N° de boleta o factura</mat-label>
+      <input matInput formControlName="numeroDocumento" />
+      @if (form.controls.numeroDocumento.hasError('maxlength')) {
+        <mat-error>Máximo 50 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Observación</mat-label>
+      <textarea matInput formControlName="observacion" rows="2"></textarea>
+      @if (form.controls.observacion.hasError('maxlength')) {
+        <mat-error>Máximo 500 caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
+      Registrar gasto
+    </button>
+  </mat-dialog-actions>
+</form>

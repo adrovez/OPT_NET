@@ -40,6 +40,17 @@
   flex: 1 1 auto;
 }
 
+// Usuario con una sola sucursal asignada: se muestra de solo lectura, sin flecha de menú
+// (no hay nada entre qué elegir).
+.sucursal-unica {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  color: var(--mat-sys-on-primary);
+  opacity: 0.9;
+}
+
 .contenido {
   // 24 → 20 (Propuesta v2.1 §5): menos "aire" perimetral, más contenido visible por
   // pantalla. En móvil se mantiene en 16.

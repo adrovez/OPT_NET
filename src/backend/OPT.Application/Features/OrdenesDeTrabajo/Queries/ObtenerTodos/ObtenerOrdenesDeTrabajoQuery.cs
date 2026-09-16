@@ -21,4 +21,7 @@ public record ObtenerOrdenesDeTrabajoQuery : ParametrosPaginacion, IRequest<Page
 
     /// <summary>Solo las OT con saldo pendiente (cobranza).</summary>
     public bool? SoloConSaldo    { get; init; }
+
+    /// <summary>OT asociadas a un Operativo — filtro que pide el requerimiento del módulo Operativo (sección 6).</summary>
+    public Guid? OperativoPublicId { get; init; }
 }

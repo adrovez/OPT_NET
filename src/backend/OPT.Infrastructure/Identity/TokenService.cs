@@ -31,6 +31,7 @@ public sealed class TokenService(IConfiguration config) : ITokenService
             new Claim("nombre", $"{usuario.Nombre} {usuario.Apellido}"),
             new Claim("rolId", usuario.RolId.ToString()),
             new Claim("sucursalId", usuario.SucursalActivaId?.ToString() ?? ""),
+            new Claim("sucursales", string.Join(',', usuario.Sucursales.Select(s => s.SucursalId))),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

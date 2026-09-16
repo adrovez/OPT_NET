@@ -1,6 +1,7 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
 using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
 using OPT.Domain.Interfaces.Repositories;
 
 namespace OPT.Application.Features.OrdenesDeTrabajo.Commands.AnularCuota;
@@ -16,6 +17,8 @@ public sealed class AnularCuotaCommandHandler(
     {
         var orden = await ordenRepo.ObtenerCompletaPorPublicIdAsync(request.OrdenPublicId, ct)
             ?? throw new NotFoundException("Orden de Trabajo", request.OrdenPublicId);
+
+        AutorizacionSucursal.ValidarAcceso(currentUser, orden.SucursalId);
 
         orden.AnularCuota(request.Numero, currentUser.UsuarioId);
 

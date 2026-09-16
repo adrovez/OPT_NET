@@ -55,7 +55,6 @@ import { RecetaCristales as RecetaCristalesService } from '../../../receta-crist
 import { Sucursal } from '../../../sucursales/models/sucursal.model';
 import { Sucursales } from '../../../sucursales/services/sucursales';
 import {
-  OrdenCreadaAccion,
   OrdenCreadaDialog,
   OrdenCreadaDialogData,
 } from '../../components/orden-creada-dialog/orden-creada-dialog';
@@ -109,9 +108,10 @@ const PATRON_RUT = /^\d{1,3}(\.?\d{3}){1,2}-[\dkK]$/;
  *   legacy lanzaba una excepción y no ofrecía salida; el sistema nuevo sí permite cobrar con
  *   pagos sueltos, así que se pide confirmarlo en vez de bloquearlo.
  *
- * Qué NO se recupera, porque la migración ya lo mejoró: el N° de OT no se teclea (lo genera
- * la base de datos; el legacy lo pedía y validaba duplicados a mano) y el precio no se
- * escribe (es la suma del detalle).
+ * Qué NO se recupera, porque la migración ya lo mejoró: el precio no se escribe (es la suma
+ * del detalle). El N° de OT sí volvió a ser un campo manual (decisión 2026-09-11, a pedido
+ * del negocio): el backend valida que no se repita dentro del mismo año en una OT vigente
+ * (no anulada) — una OT anulada libera su número.
  *
  * Es una página ruteada, no un diálogo (excepción documentada al patrón "CRUD simple =
  * diálogo" de src/frontend/CLAUDE.md): el detalle es una tabla editable y no cabe en un panel
@@ -167,7 +167,13 @@ export class OrdenDeTrabajoForm {
   protected readonly cargando = signal(false);
   protected readonly guardando = signal(false);
 
-  protected readonly sucursales = signal<Sucursal[]>([]);
+  /** Nombre de la sucursal de una orden ya creada — de solo lectura (ver `cargarOrden`). */
+  protected readonly sucursalNombre = signal<string | null>(null);
+  private readonly misSucursales = signal<Sucursal[]>([]);
+  /** Sucursal actual del menú (`Shell`), con nombre — para mostrarla al crear, sin volver a elegirla. */
+  protected readonly sucursalActualNombre = computed(
+    () => this.misSucursales().find((s) => s.id === this.auth.sucursalActualId())?.nombre ?? null,
+  );
   protected readonly formasPago = signal<FormaPago[]>([]);
   protected readonly sugerenciasCliente = signal<Cliente[]>([]);
   protected readonly sugerenciasEmpresa = signal<Empresa[]>([]);
@@ -207,6 +213,13 @@ export class OrdenDeTrabajoForm {
    */
   protected readonly recetasCliente = signal<RecetaCristalesModel[]>([]);
   protected readonly recetaPublicId = signal<string | null>(null);
+
+  /**
+   * `observaciones` ya no se edita desde el asistente (queda solo `comentario` por línea, a
+   * pedido del negocio) — pero una OT editada debe conservar el valor migrado del legacy en vez
+   * de perderlo, así que se guarda tal cual se cargó y se reenvía sin cambios al guardar.
+   */
+  private observacionesActual: string | null = null;
 
   protected readonly recetaElegida = computed(
     () => this.recetasCliente().find((receta) => receta.publicId === this.recetaPublicId()) ?? null,
@@ -249,8 +262,11 @@ export class OrdenDeTrabajoForm {
   // de cabecera que el mesón levanta junto con el cliente, no del detalle de productos
   // (observaciones 2/3/5, ADR 0010).
   protected readonly formCliente = this.fb.nonNullable.group({
+    // Ingreso manual, igual que el legacy (decisión 2026-09-11): fijo una vez creada la OT
+    // (se deshabilita en edición, ver `cargarOrden`). El duplicado del mismo año se valida
+    // en el backend — acá solo se exige un número positivo.
+    numeroOT: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
     cliente: this.fb.control<Cliente | string | null>(null, Validators.required),
-    sucursalId: this.fb.control<number | null>(null, Validators.required),
     fechaAtencion: this.fb.control<Date | null>(new Date()),
     fechaEntrega: this.fb.control<Date | null>(this.fechaEntregaSugerida(), Validators.required),
     horaEntrega: ['', Validators.maxLength(5)],
@@ -260,7 +276,6 @@ export class OrdenDeTrabajoForm {
 
   // ── Paso 3: detalle de productos ────────────────────────────────────────────
   protected readonly formOrden = this.fb.nonNullable.group({
-    observaciones: ['', Validators.maxLength(500)],
     // Espejo de `lineas()` para que el paso no se pueda dar por terminado sin detalle:
     // `mat-step` valida por control, no por signal.
     hayDetalle: [false, Validators.requiredTrue],
@@ -360,15 +375,7 @@ export class OrdenDeTrabajoForm {
   });
 
   constructor() {
-    this.sucursalesService.listar().subscribe((sucursales) => {
-      this.sucursales.set(sucursales);
-      if (!this.esEdicion() && this.formCliente.controls.sucursalId.value === null) {
-        // Sucursal activa de la sesión, igual que el legacy la tomaba de la cookie.
-        this.formCliente.controls.sucursalId.setValue(
-          this.auth.usuarioActual()?.sucursalActivaId ?? null,
-        );
-      }
-    });
+    this.sucursalesService.listar().subscribe((sucursales) => this.misSucursales.set(sucursales));
     this.catalogos.listarFormasPago().subscribe((formas) => this.formasPago.set(formas));
 
     this.escucharBusquedaCliente();
@@ -632,7 +639,6 @@ export class OrdenDeTrabajoForm {
     }
 
     const cabecera = this.formCliente.getRawValue();
-    const valores = this.formOrden.getRawValue();
     const detalles: LineaDetalleOT[] = this.lineas().map((linea) => ({
       productoId: linea.productoId,
       cantidad: linea.cantidad,
@@ -645,7 +651,7 @@ export class OrdenDeTrabajoForm {
       detalles,
       empresaPublicId: this.empresaElegida()?.publicId ?? null,
       recetaPublicId: this.recetaPublicId(),
-      observaciones: valores.observaciones || null,
+      observaciones: this.observacionesActual,
       beneficiario: cabecera.beneficiario || null,
       fechaAtencion: cabecera.fechaAtencion ? aFechaIso(cabecera.fechaAtencion) : null,
       horaEntrega: cabecera.horaEntrega ? aHoraIso(cabecera.horaEntrega) : null,
@@ -671,6 +677,14 @@ export class OrdenDeTrabajoForm {
       return;
     }
 
+    // Sucursal actual del menú (ver `Auth.cambiarSucursal`), no un campo del formulario:
+    // el legacy la tomaba de la cookie de sesión, acá se toma del selector del `Shell`.
+    const sucursalId = this.auth.sucursalActualId();
+    if (!sucursalId) {
+      this.toast.error('No hay una sucursal seleccionada en el menú.');
+      return;
+    }
+
     if (this.formPago.invalid) {
       this.formPago.markAllAsTouched();
       this.toast.error('Revisa el paso de pago: falta definir el plan de cuotas.');
@@ -682,8 +696,9 @@ export class OrdenDeTrabajoForm {
     this.ordenesService
       .crear({
         ...comunes,
+        numeroOT: cabecera.numeroOT!,
         clientePublicId: cliente.publicId,
-        sucursalId: this.formCliente.controls.sucursalId.value!,
+        sucursalId,
         abonoInicial: pago.abonoInicial,
         formaPagoAbono: pago.abonoInicial ? pago.formaPagoAbono : null,
         referenciaAbono: pago.abonoInicial ? pago.referenciaAbono || null : null,
@@ -699,65 +714,19 @@ export class OrdenDeTrabajoForm {
       });
   }
 
-  /** Cierre del alta: ticket a la vista, con la opción de imprimirlo o encadenar otra OT. */
+  /** Cierre del alta: ticket a la vista, con la opción de imprimirlo antes de ver la orden. */
   private confirmarCreacion(orden: OrdenDeTrabajo): void {
     this.toast.exito(`OT N° ${orden.numeroOT} creada.`);
 
     this.dialog
-      .open<OrdenCreadaDialog, OrdenCreadaDialogData, OrdenCreadaAccion | undefined>(
-        OrdenCreadaDialog,
-        { data: { orden }, disableClose: true },
-      )
+      .open<OrdenCreadaDialog, OrdenCreadaDialogData, void>(OrdenCreadaDialog, {
+        data: { orden },
+        disableClose: true,
+      })
       .afterClosed()
-      .subscribe((accion) => {
-        if (accion === 'nueva') {
-          this.reiniciar();
-          return;
-        }
+      .subscribe(() => {
         this.router.navigate(['/ordenes-de-trabajo', orden.publicId]);
       });
-  }
-
-  /** Deja el asistente listo para la siguiente OT sin recargar la página. */
-  private reiniciar(): void {
-    const sucursalId = this.formCliente.controls.sucursalId.value;
-
-    this.formCliente.reset({
-      cliente: null,
-      sucursalId,
-      fechaAtencion: new Date(),
-      fechaEntrega: this.fechaEntregaSugerida(),
-      horaEntrega: '',
-      beneficiario: '',
-      empresa: null,
-    });
-    this.formOrden.reset({
-      observaciones: '',
-      hayDetalle: false,
-    });
-    this.formLinea.reset({ producto: null, cantidad: 1, valorUnitario: null, comentario: '' });
-    this.formPago.reset({
-      modalidadPago: null,
-      abonoInicial: null,
-      formaPagoAbono: null,
-      referenciaAbono: '',
-      numeroCuotas: null,
-      primerVencimiento: null,
-      sinPlanCuotas: false,
-    });
-
-    this.lineas.set([]);
-    this.clienteElegido.set(null);
-    this.clienteResumen.set(null);
-    this.empresaElegida.set(null);
-    this.productoElegido.set(null);
-    this.recetasCliente.set([]);
-    this.recetaPublicId.set(null);
-    this.mostrarHistorialReceta.set(false);
-    this.sugerenciasCliente.set([]);
-    this.busquedaCliente.set('');
-
-    this.stepper()?.reset();
   }
 
   protected cancelar(): void {
@@ -769,21 +738,21 @@ export class OrdenDeTrabajoForm {
     this.cargando.set(true);
     this.ordenesService.obtener(publicId).subscribe({
       next: (orden) => {
-        this.formOrden.patchValue({
-          observaciones: orden.observaciones ?? '',
-        });
+        this.observacionesActual = orden.observaciones ?? null;
         this.formCliente.patchValue({
           fechaEntrega: new Date(orden.fechaEntrega),
           fechaAtencion: orden.fechaAtencion ? new Date(`${orden.fechaAtencion}T00:00:00`) : null,
           horaEntrega: aHoraCorta(orden.horaEntrega),
           beneficiario: orden.beneficiario ?? '',
         });
-        this.formCliente.controls.sucursalId.setValue(orden.sucursalId);
+        this.sucursalNombre.set(orden.sucursalNombre);
+        this.formCliente.controls.numeroOT.setValue(orden.numeroOT);
 
-        // Cliente y sucursal no son editables (ActualizarOrdenDeTrabajoCommand no los recibe).
+        // Cliente y N° de OT no son editables una vez creada la orden (la sucursal tampoco,
+        // pero ya no es un control del formulario — ver `sucursalNombre`, de solo lectura).
         this.formCliente.controls.cliente.setValue(`${orden.clienteRut} — ${orden.clienteNombre}`);
         this.formCliente.controls.cliente.disable();
-        this.formCliente.controls.sucursalId.disable();
+        this.formCliente.controls.numeroOT.disable();
         this.clienteResumen.set({
           publicId: orden.cliente.publicId,
           rut: orden.cliente.rut,

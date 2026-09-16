@@ -1,6 +1,7 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
 using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
 using OPT.Domain.Interfaces.Repositories;
 
 namespace OPT.Application.Features.OrdenesDeTrabajo.Commands.PagarCuota;
@@ -17,6 +18,8 @@ public sealed class PagarCuotaCommandHandler(
     {
         var orden = await ordenRepo.ObtenerCompletaPorPublicIdAsync(request.OrdenPublicId, ct)
             ?? throw new NotFoundException("Orden de Trabajo", request.OrdenPublicId);
+
+        AutorizacionSucursal.ValidarAcceso(currentUser, orden.SucursalId);
 
         if (request.FormaPagoId is not null &&
             !await formaPagoRepo.ExisteAsync(request.FormaPagoId.Value, ct))

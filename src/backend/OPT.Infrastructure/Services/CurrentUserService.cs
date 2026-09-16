@@ -17,6 +17,17 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     public string Rut
         => User?.FindFirstValue("rut") ?? string.Empty;
 
+    public int RolId
+        => int.TryParse(User?.FindFirstValue("rolId"), out var rid) ? rid : 0;
+
     public int? SucursalId
         => int.TryParse(User?.FindFirstValue("sucursalId"), out var sid) ? sid : null;
+
+    public IReadOnlyCollection<int> SucursalesAsignadas
+        => (User?.FindFirstValue("sucursales") ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => int.TryParse(s, out var id) ? id : (int?)null)
+            .Where(id => id is not null)
+            .Select(id => id!.Value)
+            .ToArray();
 }

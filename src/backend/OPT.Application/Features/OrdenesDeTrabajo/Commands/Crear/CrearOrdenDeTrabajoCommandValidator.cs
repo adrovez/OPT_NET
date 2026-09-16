@@ -6,6 +6,7 @@ public class CrearOrdenDeTrabajoCommandValidator : AbstractValidator<CrearOrdenD
 {
     public CrearOrdenDeTrabajoCommandValidator()
     {
+        RuleFor(x => x.NumeroOT).GreaterThan(0).WithMessage("El número de orden es obligatorio.");
         RuleFor(x => x.ClientePublicId).NotEmpty().WithMessage("El cliente es obligatorio.");
         RuleFor(x => x.SucursalId).GreaterThan(0).WithMessage("La sucursal es obligatoria.");
         RuleFor(x => x.FechaEntrega).NotEmpty().WithMessage("La fecha de entrega es obligatoria.");

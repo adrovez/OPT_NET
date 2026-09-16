@@ -19,6 +19,8 @@ export interface JwtClaims {
   nombre: string;
   rolId: string;
   sucursalId: string;
+  /** Ids de todas las sucursales asignadas al usuario (UsuarioSucursal), separados por coma. */
+  sucursales: string;
   exp: number;
 }
 
@@ -28,5 +30,8 @@ export interface UsuarioActual {
   nombreCompleto: string;
   rut: string;
   rolId: number;
+  /** Sucursal activa al momento de iniciar sesión (la primera asignada, regla del legacy). */
   sucursalActivaId: number;
+  /** Todas las sucursales asignadas al usuario — la base del selector del menú. */
+  sucursalesAsignadas: number[];
 }

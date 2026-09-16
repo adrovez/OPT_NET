@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OPT.Domain.Common;
 using OPT.Domain.Entities.Clinico;
 using OPT.Domain.Entities.Comercial;
+using OPT.Domain.Entities.Operativo;
 using OPT.Domain.Interfaces.Repositories;
 using OPT.Infrastructure.Persistence.Extensions;
 
@@ -67,6 +68,7 @@ public sealed class OrdenDeTrabajoRepositorio(AppDbContext context)
         int? estadoOTId = null,
         bool? soloConSaldo = null,
         int? empresaId = null,
+        int? operativoId = null,
         CancellationToken ct = default)
     {
         var query = Activos;
@@ -76,6 +78,14 @@ public sealed class OrdenDeTrabajoRepositorio(AppDbContext context)
         if (estadoOTId.HasValue) query = query.Where(o => o.EstadoOTId == estadoOTId.Value);
         if (soloConSaldo == true) query = query.Where(o => o.Saldo > 0);
         if (empresaId.HasValue)  query = query.Where(o => o.EmpresaId == empresaId.Value);
+
+        if (operativoId.HasValue)
+        {
+            var ordenesDelOperativo = Contexto.Set<OperativoOT>()
+                .Where(r => r.OperativoId == operativoId.Value)
+                .Select(r => r.OrdenDeTrabajoId);
+            query = query.Where(o => ordenesDelOperativo.Contains(o.Id));
+        }
 
         var busqueda = parametros.Busqueda?.Trim();
         if (!string.IsNullOrWhiteSpace(busqueda))
@@ -102,6 +112,13 @@ public sealed class OrdenDeTrabajoRepositorio(AppDbContext context)
 
         return await query.PaginarAsync(parametros, ct);
     }
+
+    public async Task<bool> ExisteNumeroOTVigenteAsync(
+        int numeroOT, int anio, CancellationToken ct = default)
+        => await Activos.AnyAsync(o =>
+            o.NumeroOT == numeroOT &&
+            o.CreadoEn.Year == anio &&
+            o.EstadoOTId != EstadosOT.Anulado, ct);
 
     public async Task<IReadOnlyList<ResumenDeudaEmpresa>> ObtenerDeudaPorEmpresaAsync(
         CancellationToken ct = default)

@@ -1,6 +1,7 @@
 using MediatR;
 using OPT.Application.Common.Exceptions;
 using OPT.Application.Common.Interfaces;
+using OPT.Application.Common.Security;
 using OPT.Domain.Interfaces.Repositories;
 
 namespace OPT.Application.Features.OrdenesDeTrabajo.Commands.CambiarEstado;
@@ -17,6 +18,8 @@ public sealed class CambiarEstadoOrdenDeTrabajoCommandHandler(
     {
         var orden = await ordenRepo.ObtenerCompletaPorPublicIdAsync(request.PublicId, ct)
             ?? throw new NotFoundException("Orden de Trabajo", request.PublicId);
+
+        AutorizacionSucursal.ValidarAcceso(currentUser, orden.SucursalId);
 
         if (!await estadoRepo.ExisteAsync(request.NuevoEstadoId, ct))
             throw new ValidationException(new Dictionary<string, string[]>
