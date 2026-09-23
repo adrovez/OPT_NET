@@ -53,7 +53,7 @@ public sealed class ObtenerOperativosQueryHandler(
             var gananciaVendido = o.MontoTotalVendido - o.MontoTotalGastos;
 
             return new OperativoResumenDto(
-                o.PublicId, o.Correlativo,
+                o.PublicId, o.Correlativo, o.Nombre,
                 empresa?.PublicId ?? Guid.Empty, empresa?.Nombre ?? string.Empty,
                 o.SucursalId, sucursales.TryGetValue(o.SucursalId, out var s) ? s : string.Empty,
                 o.EstadoOperativoId, estados.TryGetValue(o.EstadoOperativoId, out var e) ? e : string.Empty,

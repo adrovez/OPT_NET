@@ -6,6 +6,9 @@ namespace OPT.Application.Features.OrdenesDeTrabajo;
 /// Fila del listado paginado de Órdenes de Trabajo. La OT se direcciona por
 /// <c>PublicId</c>, nunca por el Id interno (ADR 0004). <c>NumeroOT</c> es el correlativo
 /// visible que se comunica al cliente — se muestra, pero no se usa como identificador de ruta.
+/// <c>OperativoPublicId</c>/<c>OperativoNombre</c> son 100% derivados de <c>OPT_OperativoOT</c>
+/// (HU-OT-02): no se persiste ningún campo de "línea de negocio" en la OT — si es null, la
+/// orden es venta de Sucursal.
 /// </summary>
 public record OrdenDeTrabajoResumenDto(
     Guid           PublicId,
@@ -21,7 +24,9 @@ public record OrdenDeTrabajoResumenDto(
     decimal        TotalAbonado,
     decimal        Saldo,
     DateTimeOffset FechaEntrega,
-    DateTimeOffset CreadoEn);
+    DateTimeOffset CreadoEn,
+    Guid?          OperativoPublicId,
+    string?        OperativoNombre);
 
 /// <summary>
 /// Vista completa de la OT: cabecera + detalle + movimientos de dinero + plan de cuotas +
@@ -52,6 +57,9 @@ public record OrdenDeTrabajoDto(
     DateOnly?      FechaAtencion,
     TimeOnly?      HoraEntrega,
     int?           NumeroCuotas,
+    Guid?          OperativoPublicId,
+    int?           OperativoCorrelativo,
+    string?        OperativoNombre,
     ClienteOTDto   Cliente,
     IReadOnlyList<RecetaCristalesDto> Recetas,
     IReadOnlyList<DetalleOTDto>  Detalles,

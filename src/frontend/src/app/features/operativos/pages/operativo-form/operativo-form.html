@@ -3,6 +3,17 @@
 <form [formGroup]="form" (ngSubmit)="guardar()">
   <mat-dialog-content>
     <mat-form-field appearance="outline" class="campo">
+      <mat-label>Nombre del Operativo</mat-label>
+      <input matInput formControlName="nombre" placeholder="Ej: Operativo Empresa X — Septiembre" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>El nombre es obligatorio.</mat-error>
+      }
+      @if (form.controls.nombre.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
       <mat-label>Empresa</mat-label>
       <input
         matInput
@@ -20,6 +31,8 @@
       </mat-autocomplete>
       @if (esEdicion) {
         <mat-hint>La empresa no se puede modificar tras crear el Operativo.</mat-hint>
+      } @else if (form.controls.empresa.hasError('empresaNoSeleccionada')) {
+        <mat-error>Elige una empresa de la lista de sugerencias.</mat-error>
       }
     </mat-form-field>
 
@@ -50,6 +63,35 @@
       <textarea matInput formControlName="observacion" rows="2"></textarea>
       @if (form.controls.observacion.hasError('maxlength')) {
         <mat-error>Máximo 500 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <p class="opt-form-section">Contacto en la Empresa</p>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Nombre de contacto</mat-label>
+      <input matInput formControlName="nombreContacto" placeholder="Opcional" />
+      @if (form.controls.nombreContacto.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Mail de contacto</mat-label>
+      <input matInput type="email" formControlName="mailContacto" placeholder="Opcional" />
+      @if (form.controls.mailContacto.hasError('email')) {
+        <mat-error>Ingresa un correo válido.</mat-error>
+      }
+      @if (form.controls.mailContacto.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Teléfono de contacto</mat-label>
+      <input matInput formControlName="telefonoContacto" placeholder="Ej: +56 9 1234 5678" />
+      @if (form.controls.telefonoContacto.hasError('maxlength')) {
+        <mat-error>Máximo 30 caracteres.</mat-error>
       }
     </mat-form-field>
   </mat-dialog-content>

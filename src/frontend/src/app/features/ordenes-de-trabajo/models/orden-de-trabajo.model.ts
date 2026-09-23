@@ -23,6 +23,12 @@ export interface OrdenDeTrabajoResumen {
   saldo: number;
   fechaEntrega: string;
   creadoEn: string;
+  /**
+   * Operativo asociado, si lo tiene — 100% derivado de `OPT_OperativoOT` (HU-OT-02): no es un
+   * campo persistido en la OT. `null` significa venta de Sucursal.
+   */
+  operativoPublicId: string | null;
+  operativoNombre: string | null;
 }
 
 /**
@@ -109,6 +115,10 @@ export interface OrdenDeTrabajo extends OrdenDeTrabajoResumen {
   fechaAtencion: string | null;
   horaEntrega: string | null;
   numeroCuotas: number | null;
+  /** Operativo al que pertenece esta OT, si corresponde (HU-OT-03) — `null` en venta de Sucursal. */
+  operativoPublicId: string | null;
+  operativoCorrelativo: number | null;
+  operativoNombre: string | null;
   cliente: ClienteOT;
   /**
    * Recetas materializadas en esta OT (legacy `OPT_RecetaCristales.idOT`): la prescripción
@@ -219,4 +229,6 @@ export interface FiltrosOrdenesDeTrabajo {
   sucursalId?: number | null;
   estadoOTId?: number | null;
   soloConSaldo?: boolean | null;
+  /** Solo OT de venta en Sucursal, sin Operativo asociado (HU-OT-02). */
+  soloSucursal?: boolean | null;
 }

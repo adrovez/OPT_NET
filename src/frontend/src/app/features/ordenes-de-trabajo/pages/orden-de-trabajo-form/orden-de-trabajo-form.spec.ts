@@ -45,17 +45,33 @@ describe('OrdenDeTrabajoForm', () => {
     expect(interno.rutTecleado()).toBeNull();
   });
 
-  it('exige un plan de cuotas cuando queda saldo, salvo que se declare cobro directo', async () => {
+  it('exige elegir una modalidad de pago cuando hay saldo pendiente (ADR 0010)', async () => {
     interno.lineas.set([{ productoId: 1, cantidad: 1, valorUnitario: 45000 }]);
+    await fixture.whenStable();
+
+    // Sin modalidad elegida, `modalidadPago` (required) mantiene el grupo inválido — nada se
+    // fuerza a "paga el total" por defecto (ADR 0010, observación 6).
+    expect(interno.formPago.controls['modalidadPago'].hasError('required')).toBe(true);
+    expect(interno.formPago.valid).toBe(false);
+
+    // "Paga el total" es la única modalidad que deja saldo en 0 sin pedir un plan de cuotas:
+    // el `effect` de la modalidad fija `abonoInicial` al total y limpia cuotas/vencimiento.
+    interno.formPago.patchValue({ modalidadPago: 'total' });
+    await fixture.whenStable();
+
+    expect(interno.formPago.hasError('planRequerido')).toBe(false);
+    expect(interno.formPago.valid).toBe(true);
+  });
+
+  it('la modalidad "cuotas" exige número de cuotas y primer vencimiento', async () => {
+    interno.lineas.set([{ productoId: 1, cantidad: 1, valorUnitario: 45000 }]);
+    await fixture.whenStable();
+
+    interno.formPago.patchValue({ modalidadPago: 'cuotas' });
     await fixture.whenStable();
 
     expect(interno.formPago.hasError('planRequerido')).toBe(true);
 
-    interno.formPago.patchValue({ sinPlanCuotas: true });
-    expect(interno.formPago.valid).toBe(true);
-  });
-
-  it('pide el primer vencimiento cuando se indican cuotas', () => {
     interno.formPago.patchValue({ numeroCuotas: 3 });
     expect(interno.formPago.hasError('vencimientoRequerido')).toBe(true);
 

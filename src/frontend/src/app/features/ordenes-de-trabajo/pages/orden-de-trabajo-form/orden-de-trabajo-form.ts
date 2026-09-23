@@ -45,6 +45,7 @@ import { Empresa } from '../../../empresas/models/empresa.model';
 import { Empresas } from '../../../empresas/services/empresas';
 import { Producto } from '../../../inventario/models/producto.model';
 import { Productos } from '../../../inventario/services/productos';
+import { Operativos } from '../../../operativos/services/operativos';
 import { RecetaGraduacion } from '../../../receta-cristales/components/receta-graduacion/receta-graduacion';
 import { RecetaCristales as RecetaCristalesModel } from '../../../receta-cristales/models/receta-cristales.model';
 import {
@@ -151,6 +152,7 @@ export class OrdenDeTrabajoForm {
   private readonly sucursalesService = inject(Sucursales);
   private readonly productosService = inject(Productos);
   private readonly recetasService = inject(RecetaCristalesService);
+  private readonly operativosService = inject(Operativos);
   private readonly catalogos = inject(CatalogosComercial);
   private readonly auth = inject(Auth);
   private readonly toast = inject(Toast);
@@ -187,6 +189,17 @@ export class OrdenDeTrabajoForm {
   protected readonly clienteResumen = signal<ClienteResumen | null>(null);
   protected readonly empresaElegida = signal<Empresa | null>(null);
   protected readonly productoElegido = signal<Producto | null>(null);
+
+  /**
+   * HU-OP-04: contexto de creación desde el botón "Nueva OT" de la ficha de un Operativo
+   * (`/ordenes-de-trabajo/nueva?operativoPublicId=…&empresaPublicId=…&sucursalId=…`). Empresa y
+   * Sucursal quedan preasignadas y no editables; al crear la OT se la asocia al Operativo en una
+   * segunda llamada (el backend no tiene un comando combinado — ver `guardar()`).
+   */
+  protected readonly operativoContexto = signal<{
+    operativoPublicId: string;
+    sucursalId: number;
+  } | null>(null);
 
   /**
    * Ofrecer "crear cliente" solo cuando la búsqueda ya terminó sin resultados — evita que el
@@ -428,7 +441,29 @@ export class OrdenDeTrabajoForm {
     if (publicId) {
       this.publicId.set(publicId);
       this.cargarOrden(publicId);
+    } else {
+      this.cargarContextoOperativo();
     }
+  }
+
+  /** HU-OP-04: precarga y bloquea Empresa cuando se llega desde "Nueva OT" de un Operativo. */
+  private cargarContextoOperativo(): void {
+    const query = this.route.snapshot.queryParamMap;
+    const operativoPublicId = query.get('operativoPublicId');
+    const empresaPublicId = query.get('empresaPublicId');
+    const sucursalId = Number(query.get('sucursalId'));
+
+    if (!operativoPublicId || !empresaPublicId || !sucursalId) {
+      return;
+    }
+
+    this.operativoContexto.set({ operativoPublicId, sucursalId });
+    this.formCliente.controls.empresa.disable();
+
+    this.empresasService.obtener(empresaPublicId).subscribe((empresa) => {
+      this.empresaElegida.set(empresa);
+      this.formCliente.controls.empresa.setValue(empresa);
+    });
   }
 
   // ── Validación del plan de cuotas ──────────────────────────────────────────
@@ -678,8 +713,10 @@ export class OrdenDeTrabajoForm {
     }
 
     // Sucursal actual del menú (ver `Auth.cambiarSucursal`), no un campo del formulario:
-    // el legacy la tomaba de la cookie de sesión, acá se toma del selector del `Shell`.
-    const sucursalId = this.auth.sucursalActualId();
+    // el legacy la tomaba de la cookie de sesión, acá se toma del selector del `Shell`. Si se
+    // llegó desde "Nueva OT" de un Operativo (HU-OP-04), la sucursal preasignada del Operativo
+    // manda en vez de la activa del menú — pueden no coincidir.
+    const sucursalId = this.operativoContexto()?.sucursalId ?? this.auth.sucursalActualId();
     if (!sucursalId) {
       this.toast.error('No hay una sucursal seleccionada en el menú.');
       return;
@@ -708,14 +745,37 @@ export class OrdenDeTrabajoForm {
       .subscribe({
         next: (orden) => {
           this.guardando.set(false);
-          this.confirmarCreacion(orden);
+          const operativo = this.operativoContexto();
+          if (operativo) {
+            this.asociarAOperativoYConfirmar(orden, operativo.operativoPublicId);
+          } else {
+            this.confirmarCreacion(orden);
+          }
         },
         error: () => this.guardando.set(false),
       });
   }
 
+  /**
+   * HU-OP-04: la OT ya se creó — el paso de asociarla al Operativo es una segunda llamada
+   * (el backend no ofrece un comando combinado). Si falla, la OT creada no se pierde: queda un
+   * aviso claro y el usuario puede asociarla a mano después (HU-OP-05, desde la ficha del
+   * Operativo con "Asociar orden").
+   */
+  private asociarAOperativoYConfirmar(orden: OrdenDeTrabajo, operativoPublicId: string): void {
+    this.operativosService.asociarOrden(operativoPublicId, { ordenPublicId: orden.publicId }).subscribe({
+      next: () => this.confirmarCreacion(orden, operativoPublicId),
+      error: () => {
+        this.toast.error(
+          `La OT N° ${orden.numeroOT} se creó, pero no se pudo asociar automáticamente al Operativo. Asóciala manualmente desde su ficha.`,
+        );
+        this.confirmarCreacion(orden, operativoPublicId);
+      },
+    });
+  }
+
   /** Cierre del alta: ticket a la vista, con la opción de imprimirlo antes de ver la orden. */
-  private confirmarCreacion(orden: OrdenDeTrabajo): void {
+  private confirmarCreacion(orden: OrdenDeTrabajo, operativoPublicId?: string): void {
     this.toast.exito(`OT N° ${orden.numeroOT} creada.`);
 
     this.dialog
@@ -725,7 +785,11 @@ export class OrdenDeTrabajoForm {
       })
       .afterClosed()
       .subscribe(() => {
-        this.router.navigate(['/ordenes-de-trabajo', orden.publicId]);
+        if (operativoPublicId) {
+          this.router.navigate(['/operativos', operativoPublicId]);
+        } else {
+          this.router.navigate(['/ordenes-de-trabajo', orden.publicId]);
+        }
       });
   }
 

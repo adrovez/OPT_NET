@@ -61,6 +61,16 @@
         <dt>Sucursal</dt>
         <dd>{{ ot.sucursalNombre }}</dd>
       </div>
+      @if (ot.operativoPublicId) {
+        <div class="campo campo--ancho">
+          <dt>Operativo</dt>
+          <dd>
+            <a [routerLink]="['/operativos', ot.operativoPublicId]">
+              N° {{ ot.operativoCorrelativo }} — {{ ot.operativoNombre }}
+            </a>
+          </dd>
+        </div>
+      }
       <div class="campo">
         <dt>Estado</dt>
         <dd>

@@ -35,10 +35,14 @@ public static class RolesOPT
     public static readonly int[] OperacionComercial =
         [Administrador, Supervisor, JefeSucursal, Vendedor, Operador];
 
-    /// <summary>Igual que <see cref="OperacionComercial"/> más Control Calidad, para el paso de
-    /// estado por la etapa CALIDAD del flujo de la OT.</summary>
+    /// <summary>
+    /// Igual que <see cref="OperacionComercial"/> más Control Calidad (paso de estado por la
+    /// etapa CALIDAD del flujo de la OT) y Técnico Médico (submenú Recepción del módulo
+    /// Operativo, HU-OP-03 a HU-OP-08: es quien avanza las OT por Ingresado/Montaje/Laboratorio/
+    /// Despacho en terreno).
+    /// </summary>
     public static readonly int[] OperacionComercialConCalidad =
-        [Administrador, Supervisor, JefeSucursal, Vendedor, Operador, ControlCalidad];
+        [Administrador, Supervisor, JefeSucursal, Vendedor, Operador, ControlCalidad, TecnicoMedico];
 
     /// <summary>Anular una OT o una cuota es de mayor impacto financiero — se reserva a supervisión.</summary>
     public static readonly int[] AnulacionComercial = [Administrador, Supervisor, JefeSucursal];

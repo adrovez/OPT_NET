@@ -25,8 +25,17 @@
   flex: 0 1 200px;
 }
 
-.filtros__saldo {
+.filtros__saldo,
+.filtros__sucursal {
   flex: 0 0 auto;
+}
+
+// El chip "Operativo" es clicable (navega a su ficha) — reset de los estilos nativos de
+// <button> para que se vea igual que el chip de solo lectura ".opt-chip" de la fila Sucursal.
+.chip-operativo {
+  border: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 .tabla {

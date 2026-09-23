@@ -23,6 +23,15 @@ public interface IOperativoRepositorio : IRepositorioBase<Operativo>
     Task<bool> OrdenYaAsociadaAsync(int ordenDeTrabajoId, CancellationToken ct = default);
 
     /// <summary>
+    /// Operativo asociado a cada una de las OT (por Id interno), para las que tengan uno —
+    /// una OT pertenece a lo sumo un Operativo (regla de negocio). Usado por el listado y la
+    /// ficha de OT para mostrar a qué Operativo pertenece, sin un `Include` desde el agregado
+    /// OrdenDeTrabajo (HU-OT-02/HU-OT-03, módulo OT).
+    /// </summary>
+    Task<IReadOnlyDictionary<int, Operativo>> ObtenerPorOrdenesDeTrabajoIdsAsync(
+        IEnumerable<int> ordenDeTrabajoIds, CancellationToken ct = default);
+
+    /// <summary>
     /// Listado paginado. <see cref="ParametrosPaginacion.Busqueda"/> hace match contra el
     /// Correlativo (si el término es numérico) y la Observación. Los filtros son acumulativos
     /// y opcionales.

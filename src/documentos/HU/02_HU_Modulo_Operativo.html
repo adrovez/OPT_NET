@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Historias de Usuario — Módulo Operativo (Recepción / Cobranza / Gastos)</title>
+<style>
+  :root{
+    --azul:#1d4ed8; --azul-suave:#eef2ff; --verde:#15803d; --verde-suave:#ecfdf5;
+    --rojo:#b91c1c; --rojo-suave:#fef2f2; --amb:#b45309; --amb-suave:#fffbeb;
+    --morado:#7c3aed; --morado-suave:#f5f3ff;
+    --gris:#475569; --gris-suave:#f1f5f9; --borde:#e2e8f0; --texto:#1e293b;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Calibri,Arial,sans-serif;color:var(--texto);max-width:980px;margin:0 auto;padding:40px 24px 80px;line-height:1.55;font-size:15px;background:#fff}
+  h1{font-size:26px;margin-bottom:4px;color:#0f172a}
+  .subtitulo{color:var(--gris);font-size:14px;margin-bottom:28px}
+  h2.epica{font-size:18px;margin-top:52px;padding:10px 16px;border-left:5px solid var(--azul);color:#0f172a;border-radius:4px}
+  h2.epica.recepcion{background:var(--azul-suave);border-left-color:var(--azul)}
+  h2.epica.cobranza{background:var(--rojo-suave);border-left-color:var(--rojo)}
+  h2.epica.gastos{background:var(--verde-suave);border-left-color:var(--verde)}
+  h2.epica.prospecto{background:#f5f3ff;border-left-color:var(--morado)}
+  p{margin:10px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  table.meta-hu{width:100%;border-collapse:collapse;margin:6px 0 0}
+  table.meta-hu td{border:none;padding:2px 0;font-size:12.5px;color:var(--gris)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;margin-right:4px}
+  .b-nuevo{background:var(--rojo-suave);color:var(--rojo)}
+  .b-ajuste{background:var(--amb-suave);color:var(--amb)}
+  .b-existente{background:var(--verde-suave);color:var(--verde)}
+  .b-alta{background:#fee2e2;color:#991b1b}
+  .b-media{background:#fef3c7;color:#92400e}
+  .b-baja{background:#e0f2fe;color:#075985}
+  .hu{border:1px solid var(--borde);border-radius:8px;padding:20px 24px;margin:18px 0;background:#fff}
+  .hu h3{margin:0 0 6px;font-size:16px;color:#0f172a}
+  .hu .id{color:var(--morado);font-weight:700;font-size:13px;letter-spacing:.03em}
+  .historia{background:var(--morado-suave);border-radius:6px;padding:10px 14px;margin:12px 0;font-style:italic}
+  .hu h4{margin:16px 0 6px;font-size:13.5px;color:var(--gris);text-transform:uppercase;letter-spacing:.04em}
+  .hu ul{margin-top:4px}
+  .dep{font-size:13px;color:var(--gris)}
+  .nota{background:var(--amb-suave);border-left:4px solid var(--amb);border-radius:4px;padding:8px 12px;font-size:13.5px;margin-top:12px}
+  code{background:var(--gris-suave);padding:1px 6px;border-radius:4px;font-size:13px;font-family:Consolas,monospace}
+  footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--borde);font-size:12px;color:var(--gris)}
+  .toc{background:var(--gris-suave);border:1px solid var(--borde);border-radius:6px;padding:16px 24px;margin:24px 0}
+  .toc a{color:var(--azul);text-decoration:none}
+  .toc ul{margin:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Historias de Usuario</h1>
+<div class="subtitulo">Módulo Operativo — submenús Operativo (Prospecto/Recepción), Cobranza y Gastos<br>
+Sistema OPT · 2026-09-21</div>
+
+<div class="toc">
+<strong>Épicas de este documento</strong>
+<ul>
+<li><a href="#epica-prospecto">Épica A — Alta y cabecera del Operativo (Prospecto)</a></li>
+<li><a href="#epica-recepcion">Épica B — Submenú Recepción</a></li>
+<li><a href="#epica-cobranza">Épica C — Submenú Cobranza</a></li>
+<li><a href="#epica-gastos">Épica D — Submenú Gastos</a></li>
+</ul>
+</div>
+
+<h2 class="epica prospecto" id="epica-prospecto">Épica A — Alta y cabecera del Operativo (Prospecto)</h2>
+
+<div class="hu">
+<span class="id">HU-OP-01</span>
+<h3>Registrar un Operativo (Prospecto) con datos de contacto</h3>
+<div class="historia">Como Supervisor, quiero registrar un nuevo Operativo indicando Nombre, Fecha, Empresa, Observaciones y los datos de la persona de contacto (Nombre, Mail, Teléfono), para dejar planificada la jornada antes de salir a terreno.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste (campos nuevos)</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Depende de resolver dónde viven los campos de contacto (ver Análisis de Impacto, pregunta abierta N.º 3)</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El formulario de alta ya existente (<code>OperativoForm</code>) incorpora tres campos nuevos: Nombre Contacto, Mail Contacto, Teléfono Contacto.</li>
+<li>Mail Contacto se valida con formato de correo; Teléfono Contacto acepta formato chileno (+56 9 XXXX XXXX u otro que defina el equipo).</li>
+<li>Los tres campos son opcionales al guardar como Prospecto (puede no haber contacto confirmado aún) pero se recomienda completarlos antes de pasar a Ingresado.</li>
+<li>Nombre, Fecha, Empresa, Sucursal y Observaciones se mantienen exactamente como funcionan hoy (sin cambios).</li>
+</ul>
+<div class="nota">Supuesto de trabajo mientras se resuelve la pregunta abierta: los campos se agregan a <code>OPT_Operativo</code> (contacto propio de cada jornada, no de la Empresa). Si el negocio decide que el contacto pertenece a la Empresa, esta historia se reemplaza por una de mantenimiento en la ficha de Empresa.</div>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-02</span>
+<h3>Editar los datos de contacto de un Operativo</h3>
+<div class="historia">Como Supervisor, quiero poder actualizar los datos de contacto de un Operativo mientras no esté Cerrado ni Anulado, para corregir un error de tipeo o reflejar un cambio de interlocutor en la Empresa.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep">Depende de HU-OP-01</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Reutiliza el método <code>Operativo.Actualizar</code> existente, extendido con los tres campos de contacto.</li>
+<li>La regla de bloqueo por estado terminal (<code>GarantizarModificable</code>) ya existente aplica igual — no editable si está Cerrado o Anulado.</li>
+</ul>
+</div>
+
+<h2 class="epica recepcion" id="epica-recepcion">Épica B — Submenú Recepción</h2>
+<p class="nota" style="margin-bottom:20px">Todas las historias de esta épica reutilizan el flujo de estados <code>EstadoOT</code> ya existente (<code>INGRESADO → EN PROCESO → MONTAJE → LABORATORIO → CALIDAD → DESPACHO → ENTREGADO</code>). No se propone ningún catálogo ni regla de transición nueva — ver Análisis de Impacto, sección 2.</p>
+
+<div class="hu">
+<span class="id">HU-OP-03</span>
+<h3>Ver el listado de OT de un Operativo desde Recepción</h3>
+<div class="historia">Como Técnico Médico u Operador de Recepción, quiero ver todas las OT asociadas a un Operativo con su estado actual, para saber en qué etapa está cada una sin tener que revisarlas de a una.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Pantalla nueva, API existente</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Reutiliza <code>GET /api/ordenes-de-trabajo?operativoPublicId=</code></td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Pantalla nueva <code>Operativo → Recepción</code> que, dentro de la ficha de un Operativo, lista sus OT agrupadas o filtrables por estado.</li>
+<li>Cada fila muestra al menos: N.º OT, Cliente, estado actual, fecha de atención.</li>
+<li>Permite filtrar por estado (p. ej. ver solo las que están en Montaje) para priorizar el trabajo del día.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-04</span>
+<h3>Crear una OT nueva directamente desde el Operativo</h3>
+<div class="historia">Como Vendedor u Operador en terreno, quiero crear una Orden de Trabajo desde la pantalla de Recepción del Operativo, quedando automáticamente asociada a él y a su Empresa, para no tener que crearla aparte y asociarla después en un segundo paso.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste de flujo</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Encadena <code>CrearOrdenDeTrabajoCommand</code> + <code>AsociarOrden</code> existentes</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El botón "Nueva OT" dentro de la ficha del Operativo abre el mismo asistente de alta de OT ya existente, con Empresa y Sucursal preasignadas y no editables.</li>
+<li>Al confirmar la creación, la OT queda asociada al Operativo en la misma operación de negocio (desde la perspectiva del usuario es un solo paso, aunque internamente se resuelva con dos llamadas).</li>
+<li>Si la asociación falla después de creada la OT (caso borde), el usuario recibe un aviso claro y puede asociarla manualmente (ver HU-OP-05) sin perder la OT ya creada.</li>
+<li>No se permite crear la OT si el Operativo está Cerrado o Anulado.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-05</span>
+<h3>Asociar una OT ya existente al Operativo</h3>
+<div class="historia">Como Operador de Recepción, quiero buscar y asociar una OT que ya fue creada (por ejemplo, desde Sucursal por error, o traspasada de otro contexto) a este Operativo, para mantener agrupadas todas las órdenes de la jornada.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep"><code>POST /api/operativos/{publicId}/ordenes</code> (AsociarOrden) ya implementado</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Se reutiliza el buscador de OT ya existente (<code>&lt;app-selector-orden&gt;</code>) para elegir la orden a asociar.</li>
+<li>El sistema respeta la regla ya existente: una OT solo puede pertenecer a un Operativo a la vez (índice único).</li>
+<li>Se valida (regla ya implementada en <code>AsociarOrdenAOperativoCommandHandler</code>) que la OT tenga Empresa asociada antes de permitir la asociación.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-06</span>
+<h3>Desasociar una OT del Operativo</h3>
+<div class="historia">Como Supervisor, quiero poder quitar una OT de un Operativo sin eliminarla ni anularla, para corregir una asociación hecha por error.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-baja">Prioridad Baja</span></td>
+<td class="dep"><code>DELETE /api/operativos/{publicId}/ordenes/{ordenId}</code> (QuitarOrden) ya implementado</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>La acción "Desasociar" está disponible desde la ficha de la OT dentro de Recepción, con confirmación explícita (no es una acción de un solo clic).</li>
+<li>Al desasociar, los montos totales del Operativo se recalculan automáticamente (comportamiento ya existente en <code>Operativo.QuitarOrden</code>).</li>
+<li>La OT en sí no se modifica ni se anula — solo desaparece del listado de este Operativo.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-07</span>
+<h3>Anular una OT desde el Operativo</h3>
+<div class="historia">Como Supervisor o Jefe de Sucursal, quiero anular una OT directamente desde la pantalla de Recepción cuando el cliente desiste, para no tener que salir a la ficha general de OT a hacerlo.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep"><code>POST /api/ordenes-de-trabajo/{publicId}/anular</code> ya implementado, reservado a Administrador/Supervisor/JefeSucursal</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El botón "Anular OT" aparece en la fila de cada OT listada en Recepción, respetando el mismo control de rol ya existente para anulación.</li>
+<li>Exige motivo de anulación, igual que en la ficha de OT independiente.</li>
+<li>Una OT anulada permanece visible en el listado de Recepción con su estado <code>ANULADO</code>, no desaparece (para trazabilidad y para el cálculo de "Pérdidas" del Operativo).</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-08</span>
+<h3>Avanzar una OT por las etapas de Recepción</h3>
+<div class="historia">Como Técnico Médico, quiero avanzar el estado de una OT (Ingresado → En Proceso → Montaje → Laboratorio → Calidad → Despacho → Entregado) desde la pantalla de Recepción, para reflejar en qué punto real del proceso físico se encuentra cada orden.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep"><code>OrdenDeTrabajo.CambiarEstado</code> ya implementado; rol Control Calidad ya habilitado para la etapa CALIDAD</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Cada fila de la OT en Recepción tiene una acción "Avanzar etapa" que llama al mismo endpoint de cambio de estado ya usado en la ficha de OT.</li>
+<li>Se respeta la regla ya existente: solo se avanza un estado a la vez, sin saltos, y el retroceso exige observación obligatoria.</li>
+<li>La etapa CALIDAD solo puede confirmarla un usuario con rol Control Calidad (u otro con ese permiso), igual que hoy.</li>
+<li>Al llegar a DESPACHO/ENTREGADO, la OT queda disponible para el submenú Cobranza.</li>
+</ul>
+<div class="nota">Pregunta abierta relacionada: si el negocio quiere ver etiquetas de negocio ("Solicitar cristales", "Control de calidad de montaje") en vez de los nombres técnicos del catálogo, se resuelve con una etiqueta de presentación en el frontend, sin tocar <code>OPT_EstadoOT</code> (ver Análisis de Impacto, pregunta abierta N.º 2).</div>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-09</span>
+<h3>Pasar el Operativo de Prospecto a Ingresado</h3>
+<div class="historia">Como Supervisor, quiero que el Operativo pase de estado Prospecto a Ingresado cuando comienza la recepción real de OT en terreno, para diferenciar la planificación de la ejecución.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep">Depende de definir el disparador — ver Análisis de Impacto, pregunta abierta N.º 4</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Existe una acción explícita "Iniciar recepción" en la ficha del Operativo que ejecuta la transición Prospecto → Ingresado.</li>
+<li>La acción solo está disponible si el Operativo está en Prospecto (regla ya existente de avance secuencial sin saltos).</li>
+<li><em>A validar con negocio:</em> si en vez de una acción manual se prefiere que el sistema dispare la transición automáticamente al crear/asociar la primera OT — de definirse así, se ajusta esta historia antes de construir.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-10</span>
+<h3>Generar el Reporte de Cristales del Operativo</h3>
+<div class="historia">Como Técnico Médico o Supervisor, quiero generar un reporte con el detalle de los cristales de todas las OT asociadas a un Operativo, para enviarlo al laboratorio y hacer seguimiento de lo que falta fabricar o revisar.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Los datos ya están disponibles: Receta ↔ OT (script 006) y OT ↔ Operativo (script 009)</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Pantalla dentro de Recepción que lista, por cada OT del Operativo, los datos de graduación de su(s) receta(s) vinculada(s) (reutiliza el componente compartido <code>receta-graduacion</code> ya existente).</li>
+<li>La lista es filtrable/ordenable por estado de la OT (p. ej. ver solo las que aún no están en Laboratorio).</li>
+<li>Incluye una opción de exportación a PDF y a Excel con el mismo detalle mostrado en pantalla.</li>
+<li>El formato exacto de columnas del export se valida con el usuario antes de construirlo (no hay plantilla de referencia del legacy para este reporte específico).</li>
+</ul>
+</div>
+
+<h2 class="epica cobranza" id="epica-cobranza">Épica C — Submenú Cobranza</h2>
+<p class="nota" style="margin-bottom:20px">Esta épica concentra el mayor esfuerzo de análisis: introduce los conceptos de <strong>vínculo laboral / desvinculación</strong> y <strong>pérdida</strong>, que hoy no existen en el sistema. Las historias siguientes asumen las decisiones de diseño registradas en el Análisis de Impacto (sección 5) como punto de partida, sujetas a confirmación.</p>
+
+<div class="hu">
+<span class="id">HU-OP-11</span>
+<h3>Ver los Operativos con OT Entregadas pendientes de cobro</h3>
+<div class="historia">Como usuario de Cobranza, quiero ver un listado de Operativos que ya tienen OT en estado Entregado, para saber a cuáles debo iniciar el proceso de cobro.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Pantalla nueva, API existente</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Reutiliza filtros existentes de OT por estado y Operativo</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El listado muestra, por Operativo, el total de OT Entregadas, el monto total vendido/pagado, y el saldo pendiente.</li>
+<li>Permite entrar al detalle de cuotas de cada Operativo desde esta misma pantalla.</li>
+<li>Respeta el control de acceso ya existente (grupo <code>RolesOPT.Cobranza</code>: Administrador/Supervisor/JefeSucursal).</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-12</span>
+<h3>Generar y enviar el listado de cuotas a RRHH de la Empresa</h3>
+<div class="historia">Como usuario de Cobranza, quiero generar un listado de las cuotas vigentes de un Operativo para enviarlo a Recursos Humanos de la Empresa, para que puedan aplicar el descuento por planilla a cada trabajador.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Requiere definir alcance: solo exportar, o exportar + enviar por correo (ver riesgo en Análisis de Impacto)</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El sistema genera un archivo (Excel y/o PDF) con: nombre del trabajador/cliente, RUT, N.º de cuota, monto, fecha de vencimiento, por cada OT del Operativo.</li>
+<li>El archivo se puede descargar desde la pantalla de Cobranza para que el usuario lo envíe manualmente por su propio correo.</li>
+<li><em>Alcance a confirmar:</em> si además se requiere que el sistema lo envíe automáticamente al mail de contacto de RRHH, se trata como historia separada (requiere configurar envío de correo saliente, hoy inexistente en el proyecto).</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-13</span>
+<h3>Registrar el pago de una cuota (total o parcial) desde Cobranza</h3>
+<div class="historia">Como usuario de Cobranza, quiero registrar el pago de una cuota, total o parcial, desde la pantalla de Cobranza del Operativo, para llevar el estado de cada cuota al día sin salir a la ficha de la OT.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep"><code>POST /api/ordenes-de-trabajo/{publicId}/cuotas/{numero}/pagar</code> ya implementado</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Desde el detalle de cuotas de un Operativo (agrupado por OT/cliente) se puede pagar una cuota puntual, total o parcial, reutilizando la lógica ya existente de <code>PagarCuota</code>.</li>
+<li>El sobrepago sigue permitido, tal como ya está decidido a nivel de negocio para la OT.</li>
+<li>El listado refleja el nuevo estado de la cuota (<code>PAGADA</code> o el saldo restante) sin recargar toda la pantalla.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-14</span>
+<h3>Marcar a un cliente como desvinculado de la Empresa</h3>
+<div class="historia">Como usuario de Cobranza, quiero marcar que un cliente ya no trabaja en la Empresa asociada al Operativo, para que el sistema deje de esperar el descuento por planilla y habilite el cobro directo a esa persona.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Requiere nuevo concepto de dominio (vínculo laboral) — ver Análisis de Impacto, sección 5 y pregunta abierta N.º 6</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Desde la pantalla de Cobranza, junto a cada cliente con cuotas pendientes de un Operativo, existe la acción "Marcar como desvinculado".</li>
+<li>Al marcarlo, se registra la fecha de desvinculación y queda visible un indicador claro en el listado (p. ej. chip "Desvinculado").</li>
+<li>El registro de desvinculación es específico a la relación Cliente–Empresa–Operativo (no un atributo global del Cliente), para no afectar su historial en otros Operativos o líneas de negocio.</li>
+<li>La acción es reversible por un Administrador (para corregir un error de ingreso), dejando trazabilidad de quién y cuándo la marcó.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-15</span>
+<h3>Registrar el cobro directo a un cliente desvinculado</h3>
+<div class="historia">Como usuario de Cobranza, quiero registrar el resultado de contactar directamente a un cliente desvinculado, indicando si pagó todo, parte, o nada de su deuda, para dejar constancia de la gestión de cobro personal.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo (flujo) sobre backend existente (pago)</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Depende de HU-OP-14; el registro del pago reutiliza <code>PagarCuota</code></td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Un cliente marcado como desvinculado (HU-OP-14) habilita en su fila la acción "Registrar cobro directo".</li>
+<li>Si paga todo o parte, se registra como pago de cuota igual que hoy (reutiliza <code>PagarCuota</code>).</li>
+<li>Si no paga nada, el usuario de Cobranza puede dejarlo así y avanzar a registrar la pérdida correspondiente (ver HU-OP-16) en vez de forzar un pago de $0.</li>
+<li>Queda un registro de que la gestión fue "cobro directo" (y no descuento por planilla), para diferenciarlo en reportes.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-16</span>
+<h3>Registrar una pérdida (cuota no pagada)</h3>
+<div class="historia">Como usuario de Cobranza, quiero marcar una cuota como pérdida cuando confirmo que no se va a cobrar (cliente desvinculado que no pagó, o gestión de cobro agotada), para que el cálculo de Pérdidas y Ganancia del Operativo sea correcto y pueda cerrar el Operativo.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Requiere agregar el valor <code>PERDIDA</code> a <code>OPT_EstadoCuota</code></td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Desde una cuota <code>PENDIENTE</code>, el usuario de Cobranza puede marcarla como <code>PERDIDA</code>, indicando un motivo (texto libre, similar a la anulación de cuota ya existente).</li>
+<li>Una cuota en <code>PERDIDA</code> no se puede volver a pagar directamente — si el cliente aparece después, requiere una acción explícita de reversión (a definir con negocio si aplica).</li>
+<li>El monto de las cuotas en <code>PERDIDA</code> se resta del cálculo de "Ganancia" del Operativo (ajuste a la fórmula ya existente <code>Pagado − Gastos</code>), y se refleja también OT completas Anuladas como pérdida, tal como pide la reunión.</li>
+<li>Se distingue visualmente de <code>ANULADA</code> (que hoy significa que la cuota se dejó sin efecto por otro motivo administrativo, no por incobrabilidad).</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-17</span>
+<h3>Cerrar el Operativo desde Cobranza</h3>
+<div class="historia">Como usuario de Cobranza, quiero cerrar el Operativo una vez que ya no queda gestión de cobro pendiente, para que no se puedan seguir ingresando ni modificando datos de esa jornada.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Backend ya existe</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep"><code>Operativo.CambiarEstado</code> a CERRADO ya implementado; depende de la regla a confirmar en la pregunta abierta N.º 5</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>La acción "Cerrar Operativo" solo está disponible cuando el Operativo está en estado Cobranza.</li>
+<li><em>A confirmar con negocio:</em> si el sistema exige que todas las cuotas estén en <code>PAGADA</code> o <code>PERDIDA</code> (sin ninguna <code>PENDIENTE</code>) antes de permitir el cierre, o si permite cerrar igual dejando el saldo pendiente visible como indicador.</li>
+<li>Una vez Cerrado, ningún dato del Operativo (cabecera, OT asociadas, gastos, cuotas) admite modificación — comportamiento ya garantizado por <code>GarantizarModificable</code>.</li>
+</ul>
+</div>
+
+<h2 class="epica gastos" id="epica-gastos">Épica D — Submenú Gastos</h2>
+
+<div class="hu">
+<span class="id">HU-OP-18</span>
+<h3>Ver el listado de Operativos para registrar sus gastos</h3>
+<div class="historia">Como Supervisor u Operador, quiero ver un listado de Operativos desde el submenú Gastos, para entrar al que corresponde y registrar los gastos de esa jornada.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Pantalla nueva, API existente</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Reutiliza el listado paginado de Operativos ya existente</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El listado muestra Nombre, Fecha, Empresa y el total de gastos acumulado de cada Operativo.</li>
+<li>Permite filtrar por estado del Operativo y por rango de fechas.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-19</span>
+<h3>Registrar un gasto con categoría y fecha</h3>
+<div class="historia">Como Operador en terreno, quiero registrar un gasto del Operativo indicando su categoría (Traslado, Alimentación, Gastos Generales, Otros) y la fecha real en que se generó, para poder desglosar los gastos por tipo y no solo ver un monto total.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo (2 campos + catálogo)</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Requiere agregar <code>CategoriaGastoId</code> y <code>Fecha</code> a <code>OPT_GastoOperativo</code>, y el catálogo <code>OPT_CategoriaGastoOperativo</code></td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El formulario de registro de gasto (ya existente: Monto, N.º Documento, Observación) incorpora un selector de Categoría (Traslado / Alimentación / Gastos Generales / Otros) y un campo de Fecha, con Fecha por defecto igual a la fecha del Operativo.</li>
+<li>La Categoría es obligatoria; la Fecha es obligatoria y no puede ser posterior a la fecha actual.</li>
+<li>Se mantiene la regla ya existente: no se puede registrar un gasto si el Operativo está Anulado.</li>
+<li>El catálogo de categorías es administrable como catálogo simple (mismo patrón que <code>EstadoOT</code>/<code>FormaPago</code>), sin necesidad de pantalla de mantenedor en esta primera versión — valores sembrados por script.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-20</span>
+<h3>Ver el desglose de gastos por categoría</h3>
+<div class="historia">Como Supervisor, quiero ver el total de gastos de un Operativo desglosado por categoría, para identificar en qué se está gastando más en cada jornada.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste (consulta)</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep">Depende de HU-OP-19</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>La ficha del Operativo, pestaña Gastos, muestra un resumen agrupado por categoría (suma de montos) además del listado detallado ya existente.</li>
+<li>El total general sigue coincidiendo con <code>MontoTotalGastos</code>, sin duplicar el cálculo (el desglose es una vista adicional sobre los mismos datos).</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-21</span>
+<h3>Editar y eliminar un gasto ya registrado</h3>
+<div class="historia">Como Operador, quiero poder corregir o eliminar un gasto que ingresé con un dato incorrecto (monto, categoría o fecha), para mantener la información exacta antes de que Cobranza cierre el Operativo.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep">Eliminar ya existe (<code>EliminarGasto</code>); editar es nuevo</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>La eliminación reutiliza <code>Operativo.EliminarGasto</code> (borrado lógico) ya implementado.</li>
+<li>La edición es una funcionalidad nueva: se agrega un caso de uso <code>ActualizarGasto</code> siguiendo el mismo patrón que el resto del módulo (Domain → Application → API).</li>
+<li>Ambas acciones respetan la regla ya existente: no disponibles si el Operativo está Anulado o Cerrado.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OP-22</span>
+<h3>Ver Ventas, Pérdidas, Gastos y Ganancia de un Operativo en un solo lugar</h3>
+<div class="historia">Como Supervisor o Administrador, quiero ver en la ficha del Operativo un resumen de Ventas, Pérdidas, Gastos y Ganancia, para evaluar el resultado de la jornada sin tener que sumar manualmente los datos de cada pestaña.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste (mayormente ya calculado)</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Depende de HU-OP-16 (Pérdidas) para estar completo; Ventas/Gastos/Ganancia ya se calculan hoy</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Se muestra: <strong>Ventas</strong> (<code>MontoTotalVendido</code>, ya existente), <strong>Gastos</strong> (<code>MontoTotalGastos</code>, ya existente), <strong>Pérdidas</strong> (suma de cuotas en estado <code>PERDIDA</code> + OT Anuladas del Operativo, nuevo) y <strong>Ganancia</strong> (ya existente como dos fórmulas derivadas: Pagado − Gastos, y Vendido − Gastos; se evalúa si conviene mostrar una tercera variante que también reste Pérdidas explícitamente).</li>
+<li>El resumen es de solo lectura — ningún valor se edita directamente ahí, todos se derivan de las pestañas Detalle/Abonos/Pagos/Cuotas/Gastos.</li>
+<li>Se ubica de forma visible en la cabecera de la ficha del Operativo, no solo al final de una pestaña.</li>
+</ul>
+</div>
+
+<footer>
+Documento 3 de 3 — ver también <code>00_Analisis_Impacto.html</code> y <code>01_HU_Modulo_OT.html</code>.
+</footer>
+
+</body>
+</html>

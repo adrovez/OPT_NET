@@ -8,7 +8,11 @@ namespace OPT.Application.Features.Operativos.Commands.Crear;
 /// El correlativo NO se recibe: lo asigna la base de datos (decisión 2026-09-15, punto 8.5).
 /// </summary>
 public record CrearOperativoCommand(
+    string   Nombre,
     Guid     EmpresaPublicId,
     int      SucursalId,
     DateOnly Fecha,
-    string?  Observacion = null) : IRequest<OperativoDto>;
+    string?  Observacion = null,
+    string?  NombreContacto = null,
+    string?  MailContacto = null,
+    string?  TelefonoContacto = null) : IRequest<OperativoDto>;

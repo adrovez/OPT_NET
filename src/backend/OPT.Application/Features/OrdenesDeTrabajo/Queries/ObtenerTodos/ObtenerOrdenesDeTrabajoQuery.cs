@@ -24,4 +24,7 @@ public record ObtenerOrdenesDeTrabajoQuery : ParametrosPaginacion, IRequest<Page
 
     /// <summary>OT asociadas a un Operativo — filtro que pide el requerimiento del módulo Operativo (sección 6).</summary>
     public Guid? OperativoPublicId { get; init; }
+
+    /// <summary>Solo OT de venta en Sucursal — sin ningún Operativo asociado (HU-OT-02).</summary>
+    public bool? SoloSucursal { get; init; }
 }

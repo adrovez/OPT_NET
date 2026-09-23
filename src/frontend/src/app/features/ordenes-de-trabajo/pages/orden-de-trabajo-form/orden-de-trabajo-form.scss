@@ -85,6 +85,17 @@
   align-self: flex-start;
 }
 
+.aviso-operativo {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-xs);
+  margin-top: var(--opt-space-xs);
+  padding: var(--opt-space-sm);
+  border-radius: var(--opt-radius-sm);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface-variant);
+}
+
 .tabla {
   width: 100%;
 }

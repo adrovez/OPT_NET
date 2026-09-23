@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,6 +44,7 @@ import { OrdenesDeTrabajo } from '../../services/ordenes-de-trabajo';
   selector: 'app-orden-de-trabajo-ficha',
   imports: [
     DatePipe,
+    RouterLink,
     MatButtonModule,
     MatIconModule,
     MatTableModule,

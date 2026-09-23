@@ -326,9 +326,50 @@ fecha (ver `CLAUDE.md` raíz, punto 7 de "Pendiente"); esta sesión fue solo el 
   backend) para que el botón "Ver en el listado de OT" de la ficha del Operativo navegue a
   `/ordenes-de-trabajo?operativoPublicId=...` y la lista lo tome como criterio de contexto (no
   dispara la carga completa de las 12.000+ OT).
-- Sin filtro por Operativo en Cobranza ni en el reporte de cristales: el backend no expone ese
-  parámetro en `CobranzaController` (el reporte de cristales ni siquiera existe en el sistema
-  nuevo) — no se inventó nada en el frontend para compensarlo.
+- Sin filtro por Operativo en Cobranza: el backend no expone ese parámetro en `CobranzaController`
+  — no se inventó nada en el frontend para compensarlo. El Operativo sí tiene su propio Reporte de
+  Cristales (ver el punto siguiente), separado del reporte general del sistema, que sigue sin existir.
+
+### Submenú Recepción y Reporte de Cristales (sesión 2026-09-22)
+
+`02_HU_Modulo_Operativo.html` (HU-OP-03 a HU-OP-10) — la pestaña "Órdenes" de `operativo-ficha` se
+renombró a **"Recepción"**, sigue mostrando lo financiero (vendido/pagado) pero suma fecha de
+atención, un filtro por estado de OT (`mat-select`, **cliente-side** — el volumen de OT por
+Operativo es de jornada, no de sistema completo, así que no amerita paginación server-side como
+el listado general de OT) y dos acciones por fila que actúan sobre la **OT**, no sobre el
+Operativo: "Avanzar etapa" (reutiliza `OrdenesDeTrabajo.cambiarEstado`) y "Anular OT" en el menú
+de más acciones (reutiliza `OrdenesDeTrabajo.anular` + `MotivoDialog`) — ambas sin navegar a la
+ficha de la OT. Como estas acciones no devuelven el `Operativo` completo (devuelven la
+`OrdenDeTrabajo`), el patrón es distinto al resto de la ficha: tras ejecutar, se relee el
+Operativo con `Operativos.obtener(...)` sin pasar por el signal `cargando` (evita el flash del
+skeleton completo — ver `ejecutarSobreOrden` en `operativo-ficha.ts`).
+
+**"Nueva OT" desde Recepción** (HU-OP-04): no hay comando combinado en el backend, así que es un
+flujo de dos llamadas encadenadas en el frontend. `orden-de-trabajo-form` gana un tercer origen de
+contexto (además de "alta libre" y "edición"): query params `operativoPublicId`/`empresaPublicId`/
+`sucursalId` (leídos en el constructor, no en `ngOnInit` — mismo patrón que `paramMap` de edición).
+Con ese contexto presente: Empresa se precarga y su control se deshabilita (con un aviso
+`.aviso-operativo` en vez del hint habitual), y **la sucursal usada al crear es la del contexto,
+no `Auth.sucursalActualId()`** — pueden no coincidir si el usuario tiene el menú en otra sucursal.
+Tras crear la OT con éxito, se llama a `Operativos.asociarOrden(...)` antes de abrir
+`OrdenCreadaDialog`; si la asociación falla, se avisa con un toast pero el flujo sigue igual (la OT
+ya está creada, no se pierde) y la navegación final va a `/operativos/:publicId` en vez de a la
+ficha de la OT. Si se agrega un cuarto origen de contexto a este formulario en el futuro, seguir
+este mismo patrón (signal de contexto + rama en `guardar()`), no bifurcar el componente.
+
+**Reporte de Cristales** (HU-OP-10, `GET /api/operativos/{publicId}/reporte-cristales`): pestaña
+nueva de `operativo-ficha` que **carga bajo demanda** al entrar a la pestaña (`(click)` en el
+`mat-tab`, no en `cargar()` de la ficha) — evita pagar el costo en las otras pestañas, que se usan
+más seguido. Reutiliza `app-receta-graduacion` tal cual (una card por OT, una tabla de graduación
+por receta). Dos exportaciones, ninguna suma una librería nueva al proyecto:
+- **"Exportar a Excel"** genera un **CSV** client-side (con BOM UTF-8, para que Excel en Windows no
+  rompa las tildes) — no hay librería de `.xlsx` instalada y no se justificó agregar una para esto.
+  El formato de columnas es una primera versión razonable: el propio HU señala que "se valida con
+  el usuario antes de construirlo", no está cerrado.
+- **"Exportar a PDF"** abre `components/reporte-cristales-imprimible/` (`ReporteCristalesImprimible`),
+  un diálogo que reutiliza `imprimirConClaseBody()` — el mismo mecanismo ya establecido para el
+  ticket de OT (`shared/utils/impresion.util.ts`). "Guardar como PDF" lo hace el navegador desde el
+  diálogo nativo de impresión; no hay generación de PDF real en ninguna capa.
 
 ## RecetaCristalesForm — diálogo con tablas anchas (sesión 2026-09-08)
 

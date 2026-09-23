@@ -1,3 +1,5 @@
+import type { RecetaCristales } from '../../receta-cristales/models/receta-cristales.model';
+
 /**
  * Refleja OperativoDto / OperativoResumenDto (OPT.Application/Features/Operativos) y el
  * catálogo OPT_EstadoOperativo. El Operativo se identifica por `publicId` (Guid) — no está
@@ -29,6 +31,7 @@ export const ESTADOS_OPERATIVO = {
 export interface OperativoResumen {
   publicId: string;
   correlativo: number;
+  nombre: string;
   empresaPublicId: string;
   empresaNombre: string;
   sucursalId: number;
@@ -54,6 +57,7 @@ export interface OperativoOT {
   clienteNombre: string;
   estadoOTId: number;
   estadoOT: string;
+  fechaAtencion: string | null;
   /** Snapshot al momento de asociar/recalcular — no se actualiza solo. */
   montoVendido: number;
   montoPagado: number;
@@ -71,22 +75,38 @@ export interface GastoOperativo {
 /** Vista completa: es la respuesta de TODO comando del agregado, no solo del GET. */
 export interface Operativo extends OperativoResumen {
   observacion: string | null;
+  /**
+   * Datos de contacto de la persona de la Empresa a cargo de la jornada — propios de este
+   * Operativo, no de la Empresa (HU-OP-01/02: pueden cambiar de una jornada a otra aunque sea
+   * la misma Empresa). Opcionales, se recomiendan completos antes de pasar a Ingresado.
+   */
+  nombreContacto: string | null;
+  mailContacto: string | null;
+  telefonoContacto: string | null;
   ordenes: OperativoOT[];
   gastos: GastoOperativo[];
 }
 
 /** Campos de CrearOperativoCommand. Empresa y sucursal son inmutables tras crear. */
 export interface OperativoCrear {
+  nombre: string;
   empresaPublicId: string;
   sucursalId: number;
   fecha: string;
   observacion?: string | null;
+  nombreContacto?: string | null;
+  mailContacto?: string | null;
+  telefonoContacto?: string | null;
 }
 
 /** Campos de ActualizarOperativoCommand — empresa y sucursal no son editables. */
 export interface OperativoActualizar {
+  nombre: string;
   fecha: string;
   observacion?: string | null;
+  nombreContacto?: string | null;
+  mailContacto?: string | null;
+  telefonoContacto?: string | null;
 }
 
 /** Avance de una etapa (Prospecto→Ingresado→Cobranza→Cerrado). Sin retroceso ni salto. */
@@ -113,4 +133,20 @@ export interface FiltrosOperativos {
   empresaPublicId?: string | null;
   sucursalId?: number | null;
   estadoOperativoId?: number | null;
+}
+
+/**
+ * HU-OP-10: fila del Reporte de Cristales — refleja ReporteCristalesItemDto
+ * (OPT.Application/Features/Operativos/Queries/ObtenerReporteCristales). `recetas` reutiliza tal
+ * cual el modelo de `features/receta-cristales` que ya consume `app-receta-graduacion`.
+ */
+export interface ReporteCristalesItem {
+  ordenPublicId: string;
+  numeroOT: number;
+  clientePublicId: string;
+  clienteNombre: string;
+  estadoOTId: number;
+  estadoOT: string;
+  fechaAtencion: string | null;
+  recetas: RecetaCristales[];
 }

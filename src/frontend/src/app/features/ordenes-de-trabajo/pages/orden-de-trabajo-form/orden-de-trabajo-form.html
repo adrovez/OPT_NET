@@ -141,10 +141,14 @@
                 </mat-option>
               }
             </mat-autocomplete>
-            <mat-hint>Déjalo vacío si la orden es particular.</mat-hint>
+            @if (operativoContexto()) {
+              <mat-hint>Preasignada por el Operativo — no se puede modificar.</mat-hint>
+            } @else {
+              <mat-hint>Déjalo vacío si la orden es particular.</mat-hint>
+            }
           </mat-form-field>
 
-          @if (empresaElegida()) {
+          @if (empresaElegida() && !operativoContexto()) {
             <button
               mat-stroked-button
               type="button"
@@ -156,6 +160,13 @@
             </button>
           }
         </div>
+
+        @if (operativoContexto()) {
+          <div class="aviso-operativo">
+            <mat-icon>info</mat-icon>
+            <span>Esta orden se creará asociada al Operativo y a su sucursal.</span>
+          </div>
+        }
 
         <!-- Cabecera de la orden: junto al cliente, no en el paso Detalle (observaciones 2/3/5,
              ADR 0010) — es donde el mesón la levanta y donde la ficha ya la muestra agrupada. -->

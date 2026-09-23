@@ -87,6 +87,7 @@ export class OrdenesDeTrabajoList {
     'fechaEntrega',
     'cliente',
     'sucursal',
+    'lineaNegocio',
     'estado',
     'precio',
     'saldo',
@@ -97,6 +98,8 @@ export class OrdenesDeTrabajoList {
   protected readonly estadosOT = signal<EstadoOT[]>([]);
   protected readonly filtroEstadoId = signal<number | null>(null);
   protected readonly filtroSoloConSaldo = signal(false);
+  /** Filtro rápido "Solo Sucursal" (HU-OT-02) — mutuamente excluyente con el contexto de Operativo. */
+  protected readonly filtroSoloSucursal = signal(false);
 
   /** Filtros de contexto que llegan por query param (ficha de cliente / Cobranza / Operativo). */
   protected readonly clientePublicId = signal<string | null>(null);
@@ -126,6 +129,7 @@ export class OrdenesDeTrabajoList {
       sucursalId: this.auth.sucursalActualId(),
       estadoOTId: this.filtroEstadoId(),
       soloConSaldo: this.filtroSoloConSaldo(),
+      soloSucursal: this.filtroSoloSucursal(),
     }),
   );
 
@@ -208,6 +212,11 @@ export class OrdenesDeTrabajoList {
 
   protected verCliente(orden: OrdenDeTrabajoResumen): void {
     this.router.navigate(['/clientes', orden.clientePublicId]);
+  }
+
+  /** Navega a la ficha del Operativo desde el chip "Operativo" de una fila (HU-OT-02). */
+  protected verOperativo(operativoPublicId: string): void {
+    this.router.navigate(['/operativos', operativoPublicId]);
   }
 
   /** Una OT anulada no admite ninguna modificación (regla del dominio, no de la pantalla). */

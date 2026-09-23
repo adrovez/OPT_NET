@@ -9,6 +9,7 @@ namespace OPT.Application.Features.Operativos;
 public record OperativoResumenDto(
     Guid    PublicId,
     int     Correlativo,
+    string  Nombre,
     Guid    EmpresaPublicId,
     string  EmpresaNombre,
     int     SucursalId,
@@ -30,6 +31,7 @@ public record OperativoResumenDto(
 public record OperativoDto(
     Guid    PublicId,
     int     Correlativo,
+    string  Nombre,
     Guid    EmpresaPublicId,
     string  EmpresaNombre,
     int     SucursalId,
@@ -38,6 +40,9 @@ public record OperativoDto(
     string  EstadoOperativo,
     DateOnly Fecha,
     string? Observacion,
+    string? NombreContacto,
+    string? MailContacto,
+    string? TelefonoContacto,
     decimal MontoTotalVendido,
     decimal MontoTotalPagado,
     decimal MontoTotalGastos,
@@ -52,14 +57,15 @@ public record OperativoDto(
 /// de la OT — ver <c>OperativoOT.MontoVendidoSnapshot</c>/<c>MontoPagadoSnapshot</c>.
 /// </summary>
 public record OperativoOTDto(
-    Guid    OrdenPublicId,
-    int     NumeroOT,
-    Guid    ClientePublicId,
-    string  ClienteNombre,
-    int     EstadoOTId,
-    string  EstadoOT,
-    decimal MontoVendido,
-    decimal MontoPagado);
+    Guid     OrdenPublicId,
+    int      NumeroOT,
+    Guid     ClientePublicId,
+    string   ClienteNombre,
+    int      EstadoOTId,
+    string   EstadoOT,
+    DateOnly? FechaAtencion,
+    decimal  MontoVendido,
+    decimal  MontoPagado);
 
 public record GastoOperativoDto(
     int            Id,

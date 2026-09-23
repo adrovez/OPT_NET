@@ -68,6 +68,7 @@ export class OperativosList {
 
   protected readonly columnas = [
     'correlativo',
+    'nombre',
     'fecha',
     'empresa',
     'sucursal',

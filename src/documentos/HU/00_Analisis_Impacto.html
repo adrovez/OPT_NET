@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Análisis de Impacto — Módulo OT y Módulo Operativo</title>
+<style>
+  :root{
+    --azul:#1d4ed8; --azul-suave:#eef2ff; --verde:#15803d; --verde-suave:#ecfdf5;
+    --rojo:#b91c1c; --rojo-suave:#fef2f2; --amb:#b45309; --amb-suave:#fffbeb;
+    --gris:#475569; --gris-suave:#f1f5f9; --borde:#e2e8f0; --texto:#1e293b;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Calibri,Arial,sans-serif;color:var(--texto);max-width:980px;margin:0 auto;padding:40px 24px 80px;line-height:1.55;font-size:15px;background:#fff}
+  h1{font-size:26px;margin-bottom:4px;color:#0f172a}
+  .subtitulo{color:var(--gris);font-size:14px;margin-bottom:28px}
+  h2{font-size:19px;margin-top:44px;padding-bottom:8px;border-bottom:2px solid var(--azul);color:#0f172a}
+  h3{font-size:16px;margin-top:26px;color:#0f172a}
+  h4{font-size:14px;margin-top:18px;color:var(--gris)}
+  p{margin:10px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin:14px 0 20px;font-size:13.5px}
+  th,td{border:1px solid var(--borde);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--gris-suave);font-weight:600}
+  tr:nth-child(even) td{background:#fafbfc}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+  .b-nuevo{background:var(--rojo-suave);color:var(--rojo)}
+  .b-ajuste{background:var(--amb-suave);color:var(--amb)}
+  .b-existente{background:var(--verde-suave);color:var(--verde)}
+  .b-abierta{background:var(--azul-suave);color:var(--azul)}
+  .caja{border:1px solid var(--borde);border-left:4px solid var(--azul);background:var(--azul-suave);padding:14px 18px;border-radius:4px;margin:16px 0}
+  .caja.alerta{border-left-color:var(--amb);background:var(--amb-suave)}
+  .caja.critica{border-left-color:var(--rojo);background:var(--rojo-suave)}
+  .caja.ok{border-left-color:var(--verde);background:var(--verde-suave)}
+  .caja h4{margin-top:0;color:inherit}
+  code{background:var(--gris-suave);padding:1px 6px;border-radius:4px;font-size:13px;font-family:Consolas,monospace}
+  .meta{font-size:12.5px;color:var(--gris)}
+  .toc{background:var(--gris-suave);border:1px solid var(--borde);border-radius:6px;padding:16px 24px;margin:24px 0}
+  .toc ol{margin:4px 0}
+  .toc a{color:var(--azul);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--borde);font-size:12px;color:var(--gris)}
+  .pregunta{counter-reset:none}
+  .num-p{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--azul);color:#fff;font-size:12px;font-weight:700;margin-right:8px}
+</style>
+</head>
+<body>
+
+<h1>Análisis de Impacto</h1>
+<div class="subtitulo">Observaciones levantadas en reunión con los encargados del proyecto — Módulo Orden de Trabajo (OT) y Módulo Operativo (Operativo / Cobranza / Gastos)<br>
+Sistema OPT · Preparado por Product Owner / Analista de Sistemas · 2026-09-21</div>
+
+<div class="toc">
+<strong>Contenido</strong>
+<ol>
+<li><a href="#resumen">Resumen ejecutivo</a></li>
+<li><a href="#hallazgo">Hallazgo clave: buena parte de "Recepción" ya existe en el sistema</a></li>
+<li><a href="#lineas">Las dos líneas de negocio y su efecto en el modelo actual</a></li>
+<li><a href="#detalle">Impacto detallado por área</a></li>
+<li><a href="#bd">Resumen de impacto en base de datos</a></li>
+<li><a href="#preguntas">Preguntas abiertas / decisiones pendientes</a></li>
+<li><a href="#riesgos">Riesgos y consideraciones</a></li>
+<li><a href="#siguientes">Próximos pasos sugeridos</a></li>
+</ol>
+</div>
+
+<h2 id="resumen">1. Resumen ejecutivo</h2>
+<p>Las observaciones de la reunión no cambian el modelo de negocio central de OPT: la Orden de Trabajo (OT) sigue siendo la misma entidad, con el mismo flujo de estados, para cualquier canal de venta. Lo que se pide es principalmente <strong>de organización y exposición</strong>: separar claramente las dos líneas de negocio (venta en Sucursal vs. venta en Operativo oftalmológico en empresas), y dar al módulo Operativo una superficie de trabajo por rol (Recepción / Cobranza / Gastos) que hoy existe a nivel de API pero no como experiencia de usuario dedicada.</p>
+<p>Revisando el código y esquema actuales (<code>CLAUDE.md</code>, entidades de dominio, script <code>009_modulo_operativo.sql</code>), se confirma que:</p>
+<ul>
+<li>El catálogo <code>OPT_EstadoOT</code> ya contiene, en el mismo orden que pide el negocio, los pasos de Recepción: <code>INGRESADO → EN PROCESO → MONTAJE → LABORATORIO → CALIDAD → DESPACHO → ENTREGADO</code>. No hace falta un flujo de estados nuevo.</li>
+<li>El módulo Operativo ya tiene backend completo para crear el Operativo, asociar/quitar OT, registrar gastos y llevar los tres montos totales (vendido, pagado, gastos), con las fórmulas de ganancia ya calculadas.</li>
+<li>Los vacíos reales están en: (a) el concepto de <strong>cliente desvinculado</strong> de la empresa y el <strong>cobro directo</strong> post-desvinculación — no existe hoy en ninguna entidad; (b) <strong>pérdidas</strong> como concepto explícito (hoy "pérdida" no es un estado, solo se puede inferir); (c) <strong>categoría y fecha</strong> del gasto — el modelo actual las excluyó a propósito; (d) el <strong>envío a RRHH</strong> de un listado de cuotas — no existe ningún mecanismo de exportación/envío; (e) el <strong>Reporte de Cristales</strong> — no existe como reporte, aunque los datos (Receta ↔ OT ↔ Operativo) ya están vinculados desde el script <code>006</code>.</li>
+</ul>
+<p>En síntesis: <strong>bajo impacto en Domain/BD para Recepción</strong> (reutiliza lo existente), <strong>impacto medio en Cobranza</strong> (2-3 conceptos nuevos), <strong>impacto bajo en Gastos</strong> (2 columnas nuevas) y <strong>ningún impacto negativo</strong> sobre lo que ya funciona en el módulo OT — el cambio ahí es de experiencia de usuario, no de reglas de negocio.</p>
+
+<h2 id="hallazgo">2. Hallazgo clave: "Recepción" ya existe, solo falta exponerlo</h2>
+<p>La reunión describe el submenú <strong>Operativo → Recepción</strong> como: ingresar las OT, solicitar creación de cristales y montaje, realizar calidad de montaje, y enviar a despacho. Comparado con el catálogo real:</p>
+<table>
+<tr><th>Paso pedido en la reunión</th><th>Estado real en <code>OPT_EstadoOT</code></th><th>¿Existe hoy?</th></tr>
+<tr><td>Ingresar la OT</td><td><code>INGRESADO</code> (id 0, estado inicial)</td><td><span class="badge b-existente">Existe</span></td></tr>
+<tr><td>Solicitar creación de cristales</td><td><code>EN PROCESO</code> (id 1) / <code>LABORATORIO</code> (id 3)</td><td><span class="badge b-existente">Existe</span></td></tr>
+<tr><td>Montaje</td><td><code>MONTAJE</code> (id 2)</td><td><span class="badge b-existente">Existe</span></td></tr>
+<tr><td>Calidad de montaje</td><td><code>CALIDAD</code> (id 4)</td><td><span class="badge b-existente">Existe</span></td></tr>
+<tr><td>Despacho</td><td><code>DESPACHO</code> (id 5)</td><td><span class="badge b-existente">Existe</span></td></tr>
+<tr><td>Entrega al cliente</td><td><code>ENTREGADO</code> (id 6, terminal)</td><td><span class="badge b-existente">Existe</span></td></tr>
+</table>
+<div class="caja ok">
+<h4>Conclusión</h4>
+<p>No se requiere un catálogo de estados nuevo ni tocar <code>OrdenDeTrabajo.CambiarEstado</code>. Lo que falta es <strong>una pantalla</strong> (submenú Recepción) que liste las OT de un Operativo y permita avanzarlas por este mismo flujo, con los nombres de negocio que ya coinciden. El único ajuste a evaluar es cosmético: si el usuario de Recepción debe ver la etiqueta "Solicitar creación de cristales" en vez de "EN PROCESO"/"LABORATORIO" en la interfaz (ver pregunta abierta N.º 2).</p>
+</div>
+
+<h2 id="lineas">3. Las dos líneas de negocio y su efecto en el modelo actual</h2>
+<p>La reunión aclara que existen dos líneas de negocio distintas:</p>
+<ol>
+<li><strong>Venta por Operativo Oftalmológico en Empresas</strong>: una OT nace asociada (directa o indirectamente) a un Operativo y a una Empresa convenio.</li>
+<li><strong>Venta desde Sucursal (Ópticas)</strong>: una OT de mostrador, sin Empresa ni Operativo.</li>
+</ol>
+<p>El modelo actual ya soporta esto sin cambios de esquema: <code>OrdenDeTrabajo.EmpresaId</code> es opcional (<code>nullable</code>) desde su diseño original, y la asociación a un Operativo es una relación aparte (<code>OPT_OperativoOT</code>) que solo se crea cuando corresponde. Es decir, <strong>una OT de Sucursal ya puede existir hoy sin Empresa ni Operativo</strong> — el gap no es de datos, es de experiencia: el asistente de alta de OT (<code>mat-stepper</code> de 4 pasos) muestra siempre el campo Empresa, lo cual puede llevar al personal de Sucursal a completarlo por error o a sentir que el flujo "les sobra".</p>
+<p>Definido con el usuario: el cambio pedido es <strong>solo de UX/flujo</strong>, no de modelo de datos — ver decisión registrada en la pregunta abierta N.º 1 (resuelta).</p>
+
+<h2 id="detalle">4. Impacto detallado por área</h2>
+
+<h3>4.1 Módulo Orden de Trabajo (OT)</h3>
+<table>
+<tr><th>Elemento</th><th>Impacto</th><th>Detalle</th></tr>
+<tr><td>Reglas de negocio del agregado <code>OrdenDeTrabajo</code> (estados, montos, cuotas)</td><td><span class="badge b-existente">Sin cambio</span></td><td>Confirmado en la reunión: "la OT funciona correctamente". No se toca dominio ni BD.</td></tr>
+<tr><td>Asistente de alta de OT (paso Cliente)</td><td><span class="badge b-ajuste">Ajuste UX</span></td><td>Ocultar/hacer condicional el paso de selección de Empresa cuando la venta se origina desde Sucursal (fuera del contexto de un Operativo).</td></tr>
+<tr><td>Listado de OT</td><td><span class="badge b-ajuste">Ajuste menor</span></td><td>Ya soporta filtro por <code>empresaPublicId</code> y <code>operativoPublicId</code>; se evalúa agregar un indicador visual de "línea de negocio" (derivado de si tiene Operativo asociado o no) para reportería.</td></tr>
+</table>
+
+<h3>4.2 Módulo Operativo — cabecera / Prospecto</h3>
+<table>
+<tr><th>Elemento</th><th>Impacto</th><th>Detalle</th></tr>
+<tr><td><code>Operativo.Nombre</code>, <code>Fecha</code>, <code>Observacion</code></td><td><span class="badge b-existente">Ya existen</span></td><td>Cubren "Nombre Operativo", "Fecha" y "Observaciones" pedidos para el alta de Prospecto.</td></tr>
+<tr><td>Nombre Contacto, Mail Contacto, Teléfono Contacto</td><td><span class="badge b-nuevo">Nuevo</span></td><td>No existen en <code>OPT_Operativo</code> ni en <code>OPT_Empresa</code> con ese detalle. Requiere decisión de diseño — ver pregunta abierta N.º 3.</td></tr>
+</table>
+
+<h3>4.3 Submenú Recepción</h3>
+<table>
+<tr><th>Elemento</th><th>Impacto</th><th>Detalle</th></tr>
+<tr><td>Avance de etapa (Ingresado→…→Entregado)</td><td><span class="badge b-existente">Sin cambio de dominio</span></td><td>Reutiliza <code>OrdenDeTrabajo.CambiarEstado</code> y <code>EstadosOT</code> tal cual. Ver hallazgo clave (sección 2).</td></tr>
+<tr><td>Crear OT nueva desde el Operativo</td><td><span class="badge b-ajuste">Ajuste</span></td><td>La API ya permite crear una OT con <code>operativoPublicId</code>… <em>a confirmar</em>: hoy <code>CrearOrdenDeTrabajoCommand</code> no asocia directamente a un Operativo en el mismo paso — se crea la OT y luego se asocia con <code>AsociarOrden</code>. Se necesita: (a) exponerlo como un solo paso desde la UI de Recepción, encadenando ambas llamadas, o (b) evaluar si conviene que el backend lo haga transaccional. Bajo impacto, sin cambio de esquema.</td></tr>
+<tr><td>Asociar OT existente / Desasociar / Anular</td><td><span class="badge b-existente">Ya existe</span></td><td><code>AsociarOrden</code>, <code>QuitarOrden</code> (Application) y <code>Anular</code> (a nivel de OT) ya están implementados. Falta exponerlos en una pantalla de Recepción dedicada.</td></tr>
+<tr><td>Reporte de Cristales por Operativo</td><td><span class="badge b-nuevo">Nuevo</span></td><td>No existe como reporte. Los datos ya están disponibles (Receta vinculada a OT desde script <code>006</code>, y OT vinculada a Operativo desde script <code>009</code>) — el trabajo es de consulta/reporte, no de modelo.</td></tr>
+<tr><td>Transición Prospecto → Ingresado</td><td><span class="badge b-existente">Ya existe</span></td><td><code>Operativo.CambiarEstado</code> ya soporta el avance; falta el gatillo de negocio (manual vs. automático al ingresar la primera OT) — ver pregunta abierta N.º 4.</td></tr>
+</table>
+
+<h3>4.4 Submenú Cobranza</h3>
+<div class="caja critica">
+<h4>Zona de mayor impacto</h4>
+<p>Es la única parte de la reunión que introduce conceptos de negocio realmente nuevos: <strong>vínculo laboral cliente–empresa</strong>, <strong>desvinculación</strong>, <strong>cobro directo</strong> y <strong>pérdida</strong> como estado explícito.</p>
+</div>
+<table>
+<tr><th>Elemento</th><th>Impacto</th><th>Detalle</th></tr>
+<tr><td>Listado de Operativos con OT Entregadas</td><td><span class="badge b-ajuste">Ajuste</span></td><td>Se arma con filtros ya existentes (<code>EstadoOTId=ENTREGADO</code> + <code>operativoPublicId</code>). Sin cambio de esquema.</td></tr>
+<tr><td>Pago total/parcial de cuota</td><td><span class="badge b-existente">Ya existe</span></td><td><code>PagarCuota</code> ya soporta pagos totales y parciales sobre <code>OPT_Cuota</code>/<code>OPT_Pago</code>.</td></tr>
+<tr><td>Envío de listado de cuotas a RRHH</td><td><span class="badge b-nuevo">Nuevo</span></td><td>No existe ningún mecanismo de exportación o envío de correo en el sistema hoy. Requiere: generación de archivo (Excel/PDF) y, si se pide envío automático, integración de correo saliente (hoy no hay SMTP configurado en el proyecto, según <code>CLAUDE.md</code> — es infraestructura nueva).</td></tr>
+<tr><td>Cliente desvinculado de la Empresa</td><td><span class="badge b-nuevo">Nuevo</span></td><td>No existe ningún campo que registre la relación laboral cliente-empresa ni su vigencia. Es un concepto de negocio que hoy no se modela en ningún lado del sistema.</td></tr>
+<tr><td>Cobro directo al cliente desvinculado (todo/parcial/nada)</td><td><span class="badge b-nuevo">Nuevo</span></td><td>Se apoya en <code>PagarCuota</code> para el registro del pago, pero necesita el marcador de "desvinculado" para habilitar el flujo distinto (cobro personal en vez de descuento por planilla).</td></tr>
+<tr><td>Registrar pérdidas (cuotas no pagadas)</td><td><span class="badge b-nuevo">Nuevo</span></td><td><code>OPT_EstadoCuota</code> hoy solo tiene <code>PENDIENTE/PAGADA/ANULADA</code>. No hay forma de marcar una cuota como "pérdida" (incobrable) distinta de anulada. Se propone agregar un cuarto valor al catálogo.</td></tr>
+<tr><td>Cierre del Operativo (bloqueo total)</td><td><span class="badge b-existente">Ya existe</span></td><td><code>Operativo.CambiarEstado</code> a <code>CERRADO</code> ya es terminal y <code>GarantizarModificable()</code> ya bloquea cambios. Falta decidir la regla de negocio: ¿se puede cerrar con saldo pendiente sin marcarlo como pérdida? (ver pregunta abierta N.º 5).</td></tr>
+</table>
+
+<h3>4.5 Submenú Gastos</h3>
+<table>
+<tr><th>Elemento</th><th>Impacto</th><th>Detalle</th></tr>
+<tr><td>Registrar gasto (monto, N.º documento, observación)</td><td><span class="badge b-existente">Ya existe</span></td><td><code>Operativo.RegistrarGasto</code> / <code>EliminarGasto</code> ya implementados de punta a punta (Domain → API).</td></tr>
+<tr><td>Categoría de gasto (Traslado / Alimentación / Gastos Generales / Otros)</td><td><span class="badge b-nuevo">Nuevo</span></td><td><code>GastoOperativo</code> fue diseñado deliberadamente <strong>sin</strong> categoría (decisión registrada en el script <code>009</code>, punto 8.4, siguiendo el requerimiento original). La reunión actual la pide explícitamente — es un cambio de alcance respecto a esa decisión previa, no un bug.</td></tr>
+<tr><td>Fecha propia del gasto</td><td><span class="badge b-nuevo">Nuevo</span></td><td>Mismo caso: se excluyó a propósito ("sin fecha propia"). Hoy el gasto solo tiene la fecha de auditoría (<code>CreadoEn</code>), que no necesariamente coincide con la fecha real en que se incurrió el gasto (p. ej. bencina cargada un día antes del operativo).</td></tr>
+<tr><td>Listado de Operativos para navegar a sus gastos</td><td><span class="badge b-ajuste">Ajuste UX</span></td><td>Pantalla nueva de navegación; no requiere endpoints nuevos.</td></tr>
+</table>
+
+<h3>4.6 Transversal: seguridad y roles</h3>
+<p>Hoy <code>RolesOPT</code> agrupa permisos por función de negocio (<code>OperacionComercial</code>, <code>AnulacionComercial</code>, <code>Cobranza</code>, etc.), reutilizados para <code>OperativosController</code>. La separación en tres submenús (Recepción / Cobranza / Gastos) es principalmente de <strong>navegación</strong>; el control de acceso por rol que ya existe (por ejemplo, <code>Cobranza</code> reservado a Administrador/Supervisor/JefeSucursal) es coherente con separar Cobranza como pantalla propia. No se detecta la necesidad de crear roles nuevos, salvo que el negocio quiera decir explícitamente "el rol Técnico Médico ve Recepción pero no Cobranza ni Gastos" — hoy ese matiz no está tan granular. Se deja como punto a validar (no bloqueante).</p>
+
+<h2 id="bd">5. Resumen de impacto en base de datos</h2>
+<table>
+<tr><th>Tabla</th><th>Cambio propuesto</th><th>Tipo</th></tr>
+<tr><td><code>OPT_Operativo</code></td><td>Agregar <code>NombreContacto</code>, <code>MailContacto</code>, <code>TelefonoContacto</code> (nullable) — <em>sujeto a la pregunta abierta N.º 3</em></td><td><span class="badge b-nuevo">Nueva columna</span></td></tr>
+<tr><td><code>OPT_GastoOperativo</code></td><td>Agregar <code>CategoriaGastoId</code> (FK a catálogo nuevo) y <code>Fecha</code> (date, nullable o con default a hoy)</td><td><span class="badge b-nuevo">Nueva columna + catálogo</span></td></tr>
+<tr><td><code>OPT_CategoriaGastoOperativo</code> (nueva)</td><td>Catálogo: Traslado, Alimentación, Gastos Generales, Otros</td><td><span class="badge b-nuevo">Tabla nueva</span></td></tr>
+<tr><td><code>OPT_EstadoCuota</code></td><td>Agregar valor <code>PERDIDA</code> (o <code>INCOBRABLE</code>) al catálogo existente (hoy: PENDIENTE/PAGADA/ANULADA)</td><td><span class="badge b-nuevo">Nuevo valor de catálogo</span></td></tr>
+<tr><td>Vínculo laboral Cliente–Empresa (nueva, nombre a definir, p. ej. <code>OPT_ClienteEmpresaVinculo</code> u otra alternativa)</td><td>Registrar si un Cliente sigue vinculado a la Empresa convenio y desde cuándo dejó de estarlo</td><td><span class="badge b-nuevo">Tabla nueva</span></td></tr>
+<tr><td><code>OPT_EstadoOT</code>, <code>OPT_EstadoOperativo</code>, <code>OPT_OrdenDeTrabajo</code>, <code>OPT_OperativoOT</code></td><td>Sin cambios — cubren lo pedido en Recepción</td><td><span class="badge b-existente">Sin cambio</span></td></tr>
+</table>
+<p class="meta">Nota: todo cambio de esquema debe seguir el procedimiento ya establecido en <code>CLAUDE.md</code> (generar migration temporal → exportar script idempotente a <code>src/basedatos/</code> → remover la migration), nunca <code>dotnet ef database update</code> directo.</p>
+
+<h2 id="preguntas">6. Preguntas abiertas / decisiones pendientes</h2>
+
+<div class="caja">
+<h4><span class="num-p">1</span>OT de Sucursal vs. Empresa/Operativo <span class="badge b-existente">Resuelta en esta revisión</span></h4>
+<p>Decisión tomada: es un cambio de UX/flujo únicamente. El campo Empresa ya es opcional en el modelo — el asistente de alta de OT deja de mostrarlo/forzarlo cuando la venta es de Sucursal, sin tocar esquema ni reglas de dominio.</p>
+</div>
+
+<div class="caja">
+<h4><span class="num-p">2</span>Nombres de etapa visibles en Recepción</h4>
+<p>Los estados <code>EstadoOT</code> ya cubren el flujo pedido (ver sección 2), pero sus nombres actuales (<code>EN PROCESO</code>, <code>LABORATORIO</code>) no calzan literalmente con "Solicitar creación de cristales". <strong>¿Se debe agregar un nombre visible alternativo por contexto (Recepción) sin tocar el <code>Nombre</code> real del catálogo, o simplemente se reutiliza el nombre actual en la UI?</strong> Se recomienda una etiqueta de presentación en el frontend (sin tocar BD) para no romper lo que ya usa <code>EstadoOT.Nombre</code> en otras pantallas.</p>
+</div>
+
+<div class="caja alerta">
+<h4><span class="num-p">3</span>Dónde viven los datos de contacto del Operativo <span class="badge b-abierta">Pendiente</span></h4>
+<p>Quedó explícitamente como pregunta abierta: <strong>¿Nombre/Mail/Teléfono de contacto son propios de cada Operativo (pueden cambiar de una jornada a otra aunque sea la misma Empresa), o pertenecen a la ficha de Empresa como su contacto habitual?</strong> Esto determina si se agrega a <code>OPT_Operativo</code> o a <code>OPT_Empresa</code>. Se sugiere resolverlo antes de tocar esquema, ya que cambiarlo después implica migrar datos.</p>
+</div>
+
+<div class="caja">
+<h4><span class="num-p">4</span>Transición Prospecto → Ingresado</h4>
+<p>¿Se dispara automáticamente al asociar/crear la primera OT del Operativo, o requiere una acción manual del usuario de Recepción ("Iniciar recepción")? Afecta el diseño de la HU de creación de OT desde Recepción.</p>
+</div>
+
+<div class="caja alerta">
+<h4><span class="num-p">5</span>Cierre del Operativo con saldo pendiente</h4>
+<p>¿Cobranza puede cerrar un Operativo mientras existan cuotas <code>PENDIENTE</code> (no pagadas ni marcadas como pérdida), o el sistema debe exigir que todo saldo quede en <code>PAGADA</code> o <code>PERDIDA</code> antes de permitir el cierre? Impacta directamente la regla <code>Operativo.CambiarEstado</code> a <code>CERRADO</code>.</p>
+</div>
+
+<div class="caja alerta">
+<h4><span class="num-p">6</span>Cómo se define y quién marca la desvinculación</h4>
+<p>¿La desvinculación la informa Recursos Humanos de la Empresa por algún canal manual (Cobranza la ingresa a mano en el sistema), o existe/existirá una integración? Para esta ronda de historias se asume registro manual por parte de Cobranza.</p>
+</div>
+
+<h2 id="riesgos">7. Riesgos y consideraciones</h2>
+<ul>
+<li><strong>Alcance de "vínculo laboral":</strong> modelar la desvinculación mal (por ejemplo, como un simple booleano en <code>Cliente</code>) rompería el historial si el mismo cliente participa en Operativos de distintas empresas en momentos distintos. Se recomienda modelarlo por Operativo/Empresa, no de forma global al Cliente.</li>
+<li><strong>Envío a RRHH:</strong> si se pide envío automático por correo, es una pieza de infraestructura nueva (SMTP) que no está configurada en el proyecto — mayor esfuerzo que si el alcance real es solo "generar el archivo para que Cobranza lo envíe manualmente".</li>
+<li><strong>Reporte de Cristales:</strong> validar con negocio el formato exacto esperado (columnas, agrupación) antes de construirlo — hoy no existe una plantilla de referencia como sí la hay para el ticket de OT (<code>_ParcialTicketOT.cshtml</code> del legacy).</li>
+<li><strong>No romper lo ya verificado:</strong> Recepción, Cobranza y Gastos deben construirse reutilizando <code>OrdenDeTrabajo.CambiarEstado</code>, <code>PagarCuota</code> y <code>Operativo.RegistrarGasto</code> tal cual existen — no crear un camino paralelo que duplique la lógica de negocio ya probada.</li>
+<li><strong>Seguridad de datos personales (Ley 21.719):</strong> el cobro directo a un cliente desvinculado expone datos de contacto personal fuera del canal RRHH habitual; evaluar si corresponde <code>PublicId</code> también para cualquier entidad nueva de vínculo laboral, siguiendo el criterio ya usado en el resto del sistema (ADR 0004).</li>
+</ul>
+
+<h2 id="siguientes">8. Próximos pasos sugeridos</h2>
+<ol>
+<li>Resolver las preguntas abiertas N.º 3, 4, 5 y 6 con el negocio antes de iniciar el desarrollo de Cobranza (son las que más cambian el diseño).</li>
+<li>Priorizar el submenú <strong>Recepción</strong> primero — es el de menor esfuerzo (reutiliza casi todo lo existente) y desbloquea el submenú Gastos y el Reporte de Cristales.</li>
+<li>Diseñar el modelo de "vínculo laboral / desvinculación" en una sesión de análisis dedicada antes de construir Cobranza — es la pieza de mayor incertidumbre.</li>
+<li>Revisar con el usuario si <code>OPT_EstadoCuota.PERDIDA</code> requiere ADR propio, dado que introduce una nueva transición financiera (afecta cálculo de Ganancia/Pérdida del Operativo).</li>
+<li>Ver las historias de usuario detalladas en <code>01_HU_Modulo_OT.html</code> y <code>02_HU_Modulo_Operativo.html</code>.</li>
+</ol>
+
+<footer>
+Documento generado a partir de las observaciones de reunión aportadas por Alexis y la revisión del estado real del repositorio OPT_NET (CLAUDE.md, entidades de dominio y scripts de base de datos vigentes al 2026-09-21).
+</footer>
+
+</body>
+</html>

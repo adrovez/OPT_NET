@@ -167,7 +167,33 @@
 
 .panel__acciones {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: var(--opt-space-xs);
+}
+
+.filtro-estado {
+  width: 200px;
+  // Sin margen inferior de mat-form-field dentro de una barra de acciones en línea.
+  margin-bottom: -1.25em;
+}
+
+.reporte-ot {
+  padding-top: var(--opt-space-sm);
+  margin-top: var(--opt-space-sm);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.reporte-ot__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-xs);
+  font-weight: 600;
+}
+
+.reporte-ot__sin-receta {
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .panel__conteo {

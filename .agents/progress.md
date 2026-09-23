@@ -1348,3 +1348,79 @@ releer.
 2. Probar `OperativosController` y el frontend end-to-end con una sesión autenticada real.
 3. Confirmar con el usuario las 3 decisiones de la Etapa 2 tomadas sin preguntarle (ADR `0011`) y evaluar si el refresco de montos debe automatizarse.
 4. Migración de OT históricas a Operativos y filtro de Operativo en Cobranza, si el negocio los pide (ambos fuera de alcance hasta ahora).
+
+---
+
+## 2026-09-16 — Módulo Operativo: se aplicó el script `009`, se corrigió el alta silenciosa y se agregó `Nombre`
+
+**Resumen:**
+- El usuario reportó que el diálogo "Nuevo Operativo" no guardaba registro. Se aplicó `009_modulo_operativo.sql` contra `dbOPT_NET` (verificado con `sqlcmd` antes y después: la tabla `OPT_Operativo` ya existía y estaba vacía, así que ese script no era la causa — quedó aplicado igual, cerrando el pendiente de la Etapa 1/2). La causa real estaba en `operativo-form.ts`: el control `empresa` no tenía ningún `Validator`, así que `form.invalid` no reflejaba que el usuario no había elegido una empresa del autocompletado (solo tipeado texto) — `guardar()` bloqueaba el envío con `!this.esEdicion && !this.empresaElegida()` pero retornaba **sin ningún error visible**, dando la sensación de que el botón "no hacía nada".
+- **Fix**: se agregó `empresaSeleccionadaValidator` (exige que el valor del control sea el objeto `Empresa` elegido, no un string) al `FormControl` de empresa — con eso `form.invalid` ya refleja el estado real y se agregó un `<mat-error>` en el template ("Elige una empresa de la lista de sugerencias"). Se quitó el chequeo redundante y silencioso de `guardar()`.
+- **Nuevo campo `Nombre` en `Operativo`** (a pedido del usuario, no estaba en el requerimiento original): columna `nvarchar(200) NOT NULL` (script `010_operativo_nombre.sql`, aplicado), propiedad en la entidad de dominio (`Operativo.Crear`/`Actualizar` la reciben como primer parámetro obligatorio), `IEntityTypeConfiguration` actualizada, `CrearOperativoCommand`/`ActualizarOperativoCommand` + validadores (`NotEmpty`, `MaximumLength(200)`), `OperativoDto`/`OperativoResumenDto`/`OperativoDtoFactory`/`ObtenerOperativosQueryHandler` actualizados, y `OperativoRepositorio` ahora también busca (`busqueda`) y ordena (`ordenarPor=nombre`) por este campo. Frontend: campo de texto nuevo (primero del diálogo) en `operativo-form`, columna "Nombre" en `operativos-list`, y el título/cabecera de `operativo-ficha` pasa a mostrar el nombre en vez de solo "Operativo N° {correlativo}".
+- Tabla `OPT_Operativo` estaba vacía en `dbOPT_NET` al momento de agregar la columna — no hizo falta backfill.
+
+**Verificación:**
+- `dotnet build OPT.sln` — limpio.
+- `npm run build` / `npm run lint` — limpios.
+- `npm test` — 65/66 archivos, 105/107 tests; los 2 que fallan son los mismos preexistentes de `orden-de-trabajo-form.spec.ts` de la sesión anterior, no relacionados.
+- **No se probó en navegador con sesión autenticada real** (sigue pendiente, ver punto 2 de la entrada anterior).
+
+**Próximos pasos sugeridos:**
+1. Probar el alta de un Operativo en el navegador contra `dbOPT_NET` con una sesión autenticada real — confirmar que el fix del validador resuelve el caso reportado.
+2. Seguir con los puntos 2-4 de la entrada anterior (verificación end-to-end de todo el módulo, confirmar decisiones del ADR `0011`, migración de OT históricas).
+
+---
+
+## 2026-09-22 — Módulo OT: HU-OT-01 a HU-OT-05 (`src/documentos/HU/01_HU_Modulo_OT.html`)
+
+**Resumen:**
+Se analizaron las 5 historias de usuario de `01_HU_Modulo_OT.html` (y el `00_Analisis_Impacto.html` que las origina) — todas de bajo impacto, sin tocar reglas de negocio del agregado `OrdenDeTrabajo` (confirmado explícitamente en el propio documento). Estado de cada una:
+
+- **HU-OT-01** (Empresa opcional en Sucursal) — **ya estaba resuelta**: el campo Empresa del asistente de alta (`orden-de-trabajo-form`) ya es opcional (`Validators` sin `required`, etiqueta "Empresa convenio (opcional)", hint "Déjalo vacío si la orden es particular"). No se tocó código. El criterio sobre precargar Empresa al crear desde la ficha de un Operativo queda fuera de alcance de este documento (pertenece al submenú Recepción de `02_HU_Modulo_Operativo.html`, todavía no construido).
+- **HU-OT-04** (bloqueo de edición en OT `Entregado`/anulada) — **ya estaba resuelta**: el aviso `.aviso--bloqueo` vive en la ficha de la OT (`orden-de-trabajo-ficha`), independiente de la pantalla desde la que se navegue a ella. Sin cambios.
+- **HU-OT-05** (combinar `operativoPublicId` + `estadoOTId` en el listado) — **verificado, ya funcionaba**: `OrdenDeTrabajoRepositorio.BuscarPaginadoAsync` aplica ambos filtros como `Where` independientes (AND), no son mutuamente excluyentes. Sin cambios.
+- **HU-OT-02** (distinguir origen Sucursal/Operativo en el listado) — **implementado**: `OrdenDeTrabajoResumenDto` gana `OperativoPublicId`/`OperativoNombre` (100% derivados, sin persistir nada nuevo — ver comentario en `OrdenDeTrabajoDto.cs`), poblados con un lookup por página vía el método nuevo `IOperativoRepositorio.ObtenerPorOrdenesDeTrabajoIdsAsync(ids)` (mismo patrón que el lookup de clientes/sucursales/estados que ya hacía el handler). `ObtenerOrdenesDeTrabajoQuery` gana `SoloSucursal` (bool?) y `OrdenDeTrabajoRepositorio.BuscarPaginadoAsync` un parámetro homónimo que excluye las OT con alguna fila en `OPT_OperativoOT`. Frontend: columna nueva "Origen" en `ordenes-de-trabajo-list` (chip `Sucursal` de solo lectura o chip clicable con el nombre del Operativo, que navega a `/operativos/:publicId`) y checkbox "Solo Sucursal" (deshabilitado cuando ya hay un filtro de contexto `operativoPublicId`, para no combinar dos filtros contradictorios).
+- **HU-OT-03** (ver el Operativo desde la ficha de la OT) — **implementado**: `OrdenDeTrabajoDto` gana `OperativoPublicId`/`OperativoCorrelativo`/`OperativoNombre`, poblados por `OrdenDeTrabajoDtoFactory` (mismo método nuevo del repositorio, con un solo Id). Frontend: la cabecera de `orden-de-trabajo-ficha` muestra un campo "Operativo" con enlace a `/operativos/:publicId` **solo si** la OT tiene uno asociado (no se muestra la sección vacía, como pide el criterio de aceptación).
+
+**Decisiones tomadas sin preguntar (de bajo riesgo, documentadas acá por transparencia):**
+- El campo "Operativo" en el listado se llamó columna **"Origen"** (no "Línea de negocio", que es el término del documento de análisis) — más corto para el ancho de columna y consistente con el lenguaje ya usado en pantalla.
+- El chip del Operativo en el listado es clicable y navega directo a su ficha (no solo un texto) — la HU no lo pedía explícitamente para el listado (sí para la ficha de la OT en HU-OT-03), pero es consistente con el mismo patrón ya aplicado en la ficha.
+
+**Verificación:**
+- `dotnet build OPT.sln` — limpio.
+- `npm run build` — limpio (el único warning de budget, en `orden-de-trabajo-ficha.scss`, es preexistente — confirmado comparando contra el `git stash` previo a esta sesión).
+- `npm run lint` — limpio.
+- `npm test` — 66/66 archivos, 105/105 tests (los 2 tests preexistentes de `orden-de-trabajo-form.spec.ts` que fallaban en las dos sesiones anteriores ya no aparecen — ese archivo seguía modificado sin commitear de antes, no se investigó más a fondo por estar fuera de alcance de esta HU).
+- **No verificado en navegador contra `dbOPT_NET` real con sesión autenticada** (mismo bloqueo estructural de sesiones anteriores).
+
+**Próximos pasos sugeridos:**
+1. Verificar en navegador con sesión autenticada real: el chip "Origen" del listado, el filtro "Solo Sucursal" y el enlace "Operativo" de la ficha de la OT.
+2. Cuando se construya el submenú Recepción del módulo Operativo (`02_HU_Modulo_Operativo.html`), retomar el criterio pendiente de HU-OT-01 (precargar y bloquear Empresa al crear una OT desde ese contexto).
+
+---
+
+## 2026-09-22 (2ª) — Módulo Operativo: HU-OP-01 a HU-OP-10 (`src/documentos/HU/02_HU_Modulo_Operativo.html`)
+
+**Resumen:**
+Se analizaron las 22 HU del módulo Operativo (4 épicas) junto con `00_Analisis_Impacto.html`. Dado el riesgo de diseño de la Épica C (Cobranza: introduce "vínculo laboral", "desvinculación" y "pérdida" — conceptos de negocio nuevos, con 4 preguntas abiertas sin resolver en el propio análisis), se preguntó al usuario el alcance de la sesión — eligió **Épica A (contacto) + Épica B (submenú Recepción)**, dejando C y D para después. También se resolvió la pregunta abierta N.º 5 (cierre de Operativo con saldo pendiente → "exigir todo resuelto", queda documentada para cuando se aborde la Épica C).
+
+Implementado: HU-OP-01/02 (`NombreContacto`/`MailContacto`/`TelefonoContacto` en `Operativo`, propios de cada jornada) y HU-OP-03 a HU-OP-10 (listado de OT del Operativo con estado y fecha de atención, crear/asociar/desasociar/anular/avanzar etapa de una OT sin salir de la ficha, transición Prospecto→Ingresado renombrada a "Iniciar recepción", y Reporte de Cristales con exportación a Excel/PDF). Detalle completo de diseño, decisiones y archivos tocados en `.agents/context/modulo-operativo.md` § 10 (no se duplica acá).
+
+**Piezas nuevas de nota:**
+- `IRecetaCristalesRepositorio.ObtenerPorOrdenesAsync` (bulk, nuevo) para que el Reporte de Cristales no haga una consulta por cada OT del Operativo.
+- `RolesOPT.OperacionComercialConCalidad` ahora incluye `TecnicoMedico` (HU-OP-08 lo pide explícitamente) — se aplicó a los endpoints de OT/Operativo que ya usaban ese grupo, sin crear uno nuevo.
+- Exportación del reporte: Excel = CSV client-side (sin librería nueva), PDF = diálogo imprimible reutilizando `imprimirConClaseBody()` (mismo mecanismo del ticket de OT) — "Guardar como PDF" lo hace el navegador. El formato de columnas del Excel queda como primera versión, no validada con el usuario (el propio HU lo señala pendiente).
+- `orden-de-trabajo-form` acepta contexto `operativoPublicId`/`empresaPublicId`/`sucursalId` por query param: precarga y bloquea Empresa, usa la Sucursal del Operativo (no la activa del menú) y asocia la OT recién creada automáticamente, con aviso si la asociación falla sin perder la OT ya creada.
+
+**Verificación:**
+- `dotnet build OPT.sln` — limpio.
+- `dotnet ef dbcontext info` — modelo EF válido.
+- Script `012_operativo_contacto.sql` — **aplicado a `dbOPT_NET`** y columnas verificadas con `sqlcmd`.
+- `npm run build` / `npm run lint` — limpios.
+- `npm test` — 66/66 archivos, 105/105 tests (sin regresiones).
+- **No verificado en navegador contra `dbOPT_NET` con sesión autenticada real** (mismo bloqueo estructural de sesiones anteriores: usuarios migrados con clave de 4 caracteres, validador exige 6).
+
+**Próximos pasos sugeridos:**
+1. Épica C (Cobranza) en sesión dedicada — resolver primero las preguntas abiertas 4-6 del análisis (disparador Prospecto→Ingresado — aunque HU-OP-09 ya quedó resuelto con acción manual explícita en esta sesión —, y sobre todo cómo se registra la desvinculación) antes de modelar `OPT_EstadoCuota.PERDIDA` y el vínculo laboral Cliente-Empresa-Operativo.
+2. Épica D (Gastos: categoría + fecha) — bajo esfuerzo, quedó fuera solo por alcance de esta sesión.
+3. Verificar en navegador con sesión autenticada real todo lo construido hoy.

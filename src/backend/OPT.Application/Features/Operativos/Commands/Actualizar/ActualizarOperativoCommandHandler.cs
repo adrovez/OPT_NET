@@ -20,7 +20,8 @@ public sealed class ActualizarOperativoCommandHandler(
 
         AutorizacionSucursal.ValidarAcceso(currentUser, operativo.SucursalId);
 
-        operativo.Actualizar(request.Fecha, request.Observacion, currentUser.UsuarioId);
+        operativo.Actualizar(request.Nombre, request.Fecha, request.Observacion, currentUser.UsuarioId,
+            request.NombreContacto, request.MailContacto, request.TelefonoContacto);
 
         operativoRepo.Actualizar(operativo);
         await uow.CommitAsync(ct);

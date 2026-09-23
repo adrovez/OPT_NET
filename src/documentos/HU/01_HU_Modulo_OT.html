@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Historias de Usuario — Módulo Orden de Trabajo (OT)</title>
+<style>
+  :root{
+    --azul:#1d4ed8; --azul-suave:#eef2ff; --verde:#15803d; --verde-suave:#ecfdf5;
+    --rojo:#b91c1c; --rojo-suave:#fef2f2; --amb:#b45309; --amb-suave:#fffbeb;
+    --morado:#7c3aed; --morado-suave:#f5f3ff;
+    --gris:#475569; --gris-suave:#f1f5f9; --borde:#e2e8f0; --texto:#1e293b;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Calibri,Arial,sans-serif;color:var(--texto);max-width:980px;margin:0 auto;padding:40px 24px 80px;line-height:1.55;font-size:15px;background:#fff}
+  h1{font-size:26px;margin-bottom:4px;color:#0f172a}
+  .subtitulo{color:var(--gris);font-size:14px;margin-bottom:28px}
+  h2.epica{font-size:18px;margin-top:48px;padding:10px 16px;background:var(--azul-suave);border-left:5px solid var(--azul);color:#0f172a;border-radius:4px}
+  p{margin:10px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  table.meta-hu{width:100%;border-collapse:collapse;margin:6px 0 0}
+  table.meta-hu td{border:none;padding:2px 0;font-size:12.5px;color:var(--gris)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;margin-right:4px}
+  .b-nuevo{background:var(--rojo-suave);color:var(--rojo)}
+  .b-ajuste{background:var(--amb-suave);color:var(--amb)}
+  .b-existente{background:var(--verde-suave);color:var(--verde)}
+  .b-alta{background:#fee2e2;color:#991b1b}
+  .b-media{background:#fef3c7;color:#92400e}
+  .b-baja{background:#e0f2fe;color:#075985}
+  .hu{border:1px solid var(--borde);border-radius:8px;padding:20px 24px;margin:18px 0;background:#fff}
+  .hu h3{margin:0 0 6px;font-size:16px;color:#0f172a}
+  .hu .id{color:var(--morado);font-weight:700;font-size:13px;letter-spacing:.03em}
+  .historia{background:var(--morado-suave);border-radius:6px;padding:10px 14px;margin:12px 0;font-style:italic}
+  .hu h4{margin:16px 0 6px;font-size:13.5px;color:var(--gris);text-transform:uppercase;letter-spacing:.04em}
+  .hu ul{margin-top:4px}
+  .dep{font-size:13px;color:var(--gris)}
+  code{background:var(--gris-suave);padding:1px 6px;border-radius:4px;font-size:13px;font-family:Consolas,monospace}
+  footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--borde);font-size:12px;color:var(--gris)}
+  .toc{background:var(--gris-suave);border:1px solid var(--borde);border-radius:6px;padding:16px 24px;margin:24px 0}
+  .toc a{color:var(--azul);text-decoration:none}
+</style>
+</head>
+<body>
+
+<h1>Historias de Usuario</h1>
+<div class="subtitulo">Módulo Orden de Trabajo (OT) — ajustes derivados de la separación de líneas de negocio (Sucursal vs. Operativo)<br>
+Sistema OPT · 2026-09-21</div>
+
+<div class="toc">
+<strong>Épicas de este documento</strong>
+<ul>
+<li><a href="#epica1">Épica 1 — Venta en Sucursal sin Empresa ni Operativo</a></li>
+<li><a href="#epica2">Épica 2 — Trazabilidad de la OT dentro de un Operativo</a></li>
+</ul>
+<p style="margin-top:10px">Nota: el módulo OT en sí mismo <strong>no cambia sus reglas de negocio</strong> (confirmado por el equipo: "la OT funciona correctamente"). Las historias de usuario para crear/gestionar OT dentro del flujo de Recepción del Operativo están en <code>02_HU_Modulo_Operativo.html</code>, para no duplicar contenido.</p>
+</div>
+
+<h2 class="epica" id="epica1">Épica 1 — Venta en Sucursal sin Empresa ni Operativo</h2>
+
+<div class="hu">
+<span class="id">HU-OT-01</span>
+<h3>Alta de OT en Sucursal sin exigir Empresa</h3>
+<div class="historia">Como vendedor de Sucursal (Óptica), quiero iniciar una Orden de Trabajo sin que se me pida asociar una Empresa u Operativo, para que la venta de mostrador sea rápida y no incluya pasos que no le corresponden a este canal.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste UX</span></td>
+<td><span class="badge b-alta">Prioridad Alta</span></td>
+<td class="dep">Sin cambio de esquema — <code>OrdenDeTrabajo.EmpresaId</code> ya es opcional</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Dado que inicio el asistente de alta de OT desde el listado general de Sucursal (no desde la ficha de un Operativo), el paso Cliente no exige seleccionar Empresa.</li>
+<li>Dado que inicio el asistente de alta de OT desde la ficha de un Operativo (submenú Recepción), el campo Empresa viene preasignado con la del Operativo y no es editable, tal como ya ocurre hoy.</li>
+<li>Si el vendedor de Sucursal igualmente quiere asociar una Empresa (caso excepcional, p. ej. convenio vigente atendido en local), el campo sigue disponible como opcional, no oculto por completo.</li>
+<li>El comportamiento actual de edición de una OT ya existente (Empresa como "estado final": si no se reenvía, la orden queda sin Empresa) no cambia.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OT-02</span>
+<h3>Distinguir el origen de la OT en el listado</h3>
+<div class="historia">Como Administrador o Supervisor, quiero identificar de un vistazo en el listado de OT si una orden corresponde a venta de Sucursal o a un Operativo, para poder analizar cada línea de negocio por separado.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-ajuste">Ajuste UX</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep">Derivado de la relación existente con <code>OPT_OperativoOT</code>, sin nueva columna</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El listado de OT muestra una columna o chip "Operativo" / "Sucursal" calculado a partir de si la OT tiene una fila asociada en <code>OPT_OperativoOT</code>.</li>
+<li>El filtro existente por <code>operativoPublicId</code> se complementa con un filtro rápido "Solo Sucursal" (OT sin Operativo asociado).</li>
+<li>No se persiste ningún campo nuevo — el dato es 100% derivado, para no introducir inconsistencias si una OT se asocia o desasocia de un Operativo después de creada.</li>
+</ul>
+</div>
+
+<h2 class="epica" id="epica2">Épica 2 — Trazabilidad de la OT dentro de un Operativo</h2>
+
+<div class="hu">
+<span class="id">HU-OT-03</span>
+<h3>Ver a qué Operativo pertenece una OT desde su propia ficha</h3>
+<div class="historia">Como usuario de cualquier rol comercial, quiero ver en la ficha de la OT (si corresponde) el Operativo al que está asociada, con acceso directo a su ficha, para entender el contexto completo de la venta sin cambiar de pantalla a buscarlo manualmente.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-nuevo">Nuevo (solo UI)</span></td>
+<td><span class="badge b-media">Prioridad Media</span></td>
+<td class="dep">Depende de: consulta ya existente de OT↔Operativo</td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Si la OT tiene un Operativo asociado, la ficha de la OT muestra su nombre/correlativo con un enlace a <code>/operativos/:publicId</code>.</li>
+<li>Si la OT no tiene Operativo asociado, no se muestra la sección (no un campo vacío).</li>
+<li>No se agrega ningún endpoint nuevo si el dato ya viaja en el DTO de la OT; si no viaja, se evalúa agregarlo a <code>OrdenDeTrabajoDto</code>.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OT-04</span>
+<h3>Mantener el bloqueo de edición para OT en etapas avanzadas del Operativo</h3>
+<div class="historia">Como Administrador, quiero que una OT que ya fue Entregada o Anulada siga sin poder editarse aunque se acceda desde la pantalla de Recepción del Operativo, para no perder la consistencia que ya existe en la ficha de OT independiente.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Confirmación, sin cambio de dominio</span></td>
+<td><span class="badge b-baja">Prioridad Baja</span></td>
+<td class="dep">Reutiliza <code>OrdenDeTrabajo.GarantizarModificable</code></td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>El aviso de bloqueo (<code>.aviso--bloqueo</code>) ya existente en la ficha de OT se respeta también cuando se navega a la OT desde la pantalla de Recepción del Operativo.</li>
+<li>No se crea ninguna ruta ni lógica de edición paralela para OT vistas desde el contexto Operativo.</li>
+</ul>
+</div>
+
+<div class="hu">
+<span class="id">HU-OT-05</span>
+<h3>Filtrar OT por estado dentro del contexto de un Operativo (para uso interno de Recepción)</h3>
+<div class="historia">Como desarrollador del módulo Operativo, necesito que el endpoint de listado de OT permita combinar el filtro <code>operativoPublicId</code> con <code>estadoOTId</code>, para poder construir las vistas de Recepción sin traer todas las OT del Operativo cada vez.</div>
+<table class="meta-hu"><tr>
+<td><span class="badge b-existente">Ya existe (a confirmar)</span></td>
+<td><span class="badge b-baja">Prioridad Baja</span></td>
+<td class="dep">Verificar combinación de filtros en <code>ObtenerOrdenesDeTrabajoQuery</code></td>
+</tr></table>
+<h4>Criterios de aceptación</h4>
+<ul>
+<li>Se confirma (o se agrega si falta) que <code>GET /api/ordenes-de-trabajo?operativoPublicId={id}&amp;estadoOTId={id}</code> combina ambos filtros correctamente.</li>
+<li>No requiere historia de negocio propia si ya funciona — se deja documentada como verificación técnica previa a construir el submenú Recepción.</li>
+</ul>
+</div>
+
+<footer>
+Documento 2 de 3 — ver también <code>00_Analisis_Impacto.html</code> y <code>02_HU_Modulo_Operativo.html</code>.
+</footer>
+
+</body>
+</html>

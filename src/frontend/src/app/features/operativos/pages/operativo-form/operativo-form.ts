@@ -1,6 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
@@ -21,6 +27,17 @@ import { Operativo, OperativoResumen } from '../../models/operativo.model';
 import { Operativos } from '../../services/operativos';
 
 const TAMANIO_SUGERENCIAS = 10;
+
+/**
+ * Exige que el control de empresa contenga la `Empresa` elegida en el autocompletado, no un
+ * texto suelto tipeado por el usuario. Sin este validador, `form.invalid` no reflejaba que
+ * faltaba elegir una empresa: el botón Guardar quedaba habilitado igual y `guardar()` retornaba
+ * en silencio (sin ningún error visible) — el bug reportado de "no guarda registro".
+ */
+function empresaSeleccionadaValidator(control: AbstractControl): ValidationErrors | null {
+  const valor = control.value;
+  return valor && typeof valor === 'object' ? null : { empresaNoSeleccionada: true };
+}
 
 export interface OperativoFormDialogData {
   operativo?: OperativoResumen;
@@ -76,7 +93,10 @@ export class OperativoForm {
   );
 
   protected readonly form = this.fb.nonNullable.group({
-    empresa: this.fb.control<Empresa | string | null>(this.empresaElegida()),
+    nombre: [this.data.operativo?.nombre ?? '', [Validators.required, Validators.maxLength(200)]],
+    empresa: this.fb.control<Empresa | string | null>(this.empresaElegida(), [
+      empresaSeleccionadaValidator,
+    ]),
     sucursalId: this.fb.control<number | null>(this.data.operativo?.sucursalId ?? null, [
       Validators.required,
     ]),
@@ -85,6 +105,9 @@ export class OperativoForm {
       [Validators.required],
     ),
     observacion: ['', [Validators.maxLength(500)]],
+    nombreContacto: ['', [Validators.maxLength(200)]],
+    mailContacto: ['', [Validators.maxLength(200), Validators.email]],
+    telefonoContacto: ['', [Validators.maxLength(30)]],
   });
 
   constructor() {
@@ -98,9 +121,12 @@ export class OperativoForm {
     }
 
     if (this.data.operativo) {
-      this.operativosService
-        .obtener(this.data.operativo.publicId)
-        .subscribe((completo) => this.form.controls.observacion.setValue(completo.observacion ?? ''));
+      this.operativosService.obtener(this.data.operativo.publicId).subscribe((completo) => {
+        this.form.controls.observacion.setValue(completo.observacion ?? '');
+        this.form.controls.nombreContacto.setValue(completo.nombreContacto ?? '');
+        this.form.controls.mailContacto.setValue(completo.mailContacto ?? '');
+        this.form.controls.telefonoContacto.setValue(completo.telefonoContacto ?? '');
+      });
     }
   }
 
@@ -121,7 +147,16 @@ export class OperativoForm {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((valor) => {
-          if (typeof valor !== 'string' || valor.trim().length < 2) {
+          if (typeof valor !== 'string') {
+            // El valor es la `Empresa` recién elegida en el autocompletado (`elegirEmpresa` ya
+            // actualizó el signal) — no un texto de búsqueda. Si esto se trata como "sin
+            // búsqueda" y se limpia `empresaElegida` acá, la carrera entre este observable
+            // debounced y la selección deja el signal en null ~300ms después de elegir una
+            // empresa, y `guardar()` revienta con `TypeError: Cannot read properties of null
+            // (reading 'publicId')` aunque el formulario se vea válido.
+            return of(null);
+          }
+          if (valor.trim().length < 2) {
             this.empresaElegida.set(null);
             return of(null);
           }
@@ -137,24 +172,33 @@ export class OperativoForm {
   }
 
   protected guardar(): void {
-    if (this.form.invalid || this.guardando() || (!this.esEdicion && !this.empresaElegida())) {
+    if (this.form.invalid || this.guardando()) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.guardando.set(true);
-    const { sucursalId, fecha, observacion } = this.form.getRawValue();
+    const { nombre, sucursalId, fecha, observacion, nombreContacto, mailContacto, telefonoContacto } =
+      this.form.getRawValue();
 
     const peticion = this.esEdicion
       ? this.operativosService.actualizar(this.data.operativo!.publicId, {
+          nombre,
           fecha: aFechaIso(fecha!),
           observacion: observacion || null,
+          nombreContacto: nombreContacto || null,
+          mailContacto: mailContacto || null,
+          telefonoContacto: telefonoContacto || null,
         })
       : this.operativosService.crear({
+          nombre,
           empresaPublicId: this.empresaElegida()!.publicId,
           sucursalId: sucursalId!,
           fecha: aFechaIso(fecha!),
           observacion: observacion || null,
+          nombreContacto: nombreContacto || null,
+          mailContacto: mailContacto || null,
+          telefonoContacto: telefonoContacto || null,
         });
 
     peticion.subscribe({

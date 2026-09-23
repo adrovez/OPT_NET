@@ -14,7 +14,7 @@
   </app-empty-state>
 } @else if (operativo(); as op) {
   <app-page-header
-    [title]="'Operativo N° ' + op.correlativo"
+    [title]="op.nombre + ' (N° ' + op.correlativo + ')'"
     [subtitle]="op.empresaNombre + ' · ' + op.sucursalNombre"
     backTo="/operativos"
     backLabel="Volver al listado"
@@ -36,6 +36,10 @@
         <dt>N° Operativo</dt>
         <dd class="opt-mono">{{ op.correlativo }}</dd>
       </div>
+      <div class="campo campo--ancho">
+        <dt>Nombre</dt>
+        <dd>{{ op.nombre }}</dd>
+      </div>
       <div class="campo">
         <dt>Fecha</dt>
         <dd class="opt-mono">{{ op.fecha | date: 'dd-MM-yyyy' }}</dd>
@@ -54,6 +58,20 @@
           <app-estado-operativo-chip [estadoId]="op.estadoOperativoId" [nombre]="op.estadoOperativo" />
         </dd>
       </div>
+      @if (op.nombreContacto || op.mailContacto || op.telefonoContacto) {
+        <div class="campo campo--ancho">
+          <dt>Contacto en la Empresa</dt>
+          <dd>
+            {{ op.nombreContacto ?? '—' }}
+            @if (op.mailContacto) {
+              · {{ op.mailContacto }}
+            }
+            @if (op.telefonoContacto) {
+              · {{ op.telefonoContacto }}
+            }
+          </dd>
+        </div>
+      }
     </dl>
 
     @if (op.observacion) {
@@ -118,10 +136,10 @@
         </p>
       } @else if (esTerminal()) {
         <p class="flujo__nota">El Operativo llegó al final del flujo ({{ op.estadoOperativo }}).</p>
-      } @else if (estadoSiguiente(); as siguiente) {
+      } @else if (estadoSiguiente()) {
         <button mat-flat-button color="primary" [disabled]="procesando()" (click)="avanzar()">
           <mat-icon>arrow_forward</mat-icon>
-          Avanzar a {{ siguiente.nombre }}
+          {{ textoAvanzar() }}
         </button>
       }
       @if (sePuedeAnular()) {
@@ -140,16 +158,28 @@
 
   <!-- ───────── Pestañas ───────── -->
   <mat-tab-group class="pestanias">
-    <!-- Órdenes asociadas -->
+    <!-- Recepción: OT asociadas + flujo Ingresado→…→Entregado (HU-OP-03 a HU-OP-09) -->
     <mat-tab>
       <ng-template mat-tab-label>
-        Órdenes
+        Recepción
         <span class="tab-contador">{{ op.ordenes.length }}</span>
       </ng-template>
 
       <div class="panel__barra">
-        <span class="panel__conteo">{{ op.ordenes.length }} orden(es) asociada(s)</span>
+        <span class="panel__conteo">{{ ordenesFiltradas().length }} de {{ op.ordenes.length }} orden(es)</span>
         <div class="panel__acciones">
+          <mat-form-field appearance="outline" class="filtro-estado">
+            <mat-label>Filtrar por estado</mat-label>
+            <mat-select
+              [value]="filtroEstadoOT()"
+              (selectionChange)="filtroEstadoOT.set($event.value)"
+            >
+              <mat-option [value]="null">Todos los estados</mat-option>
+              @for (estado of estadosOT(); track estado.id) {
+                <mat-option [value]="estado.id">{{ estado.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
           <button mat-button (click)="verTodasLasOrdenes()">
             <mat-icon>list</mat-icon>
             Ver en el listado de OT
@@ -157,6 +187,10 @@
           <button mat-stroked-button [disabled]="esTerminal()" (click)="asociarOrden()">
             <mat-icon>add</mat-icon>
             Asociar orden
+          </button>
+          <button mat-flat-button color="primary" [disabled]="esTerminal()" (click)="nuevaOrden()">
+            <mat-icon>add_circle</mat-icon>
+            Nueva OT
           </button>
         </div>
       </div>
@@ -168,7 +202,7 @@
           message="Todavía no se ha asociado ninguna orden de trabajo a este Operativo."
         />
       } @else {
-        <table mat-table [dataSource]="op.ordenes" class="tabla">
+        <table mat-table [dataSource]="ordenesFiltradas()" class="tabla">
           <ng-container matColumnDef="numeroOT">
             <th mat-header-cell *matHeaderCellDef>N° OT</th>
             <td mat-cell *matCellDef="let orden" class="opt-mono">{{ orden.numeroOT }}</td>
@@ -181,6 +215,12 @@
             <th mat-header-cell *matHeaderCellDef>Estado</th>
             <td mat-cell *matCellDef="let orden">
               <app-estado-ot-chip [estadoId]="orden.estadoOTId" [nombre]="orden.estadoOT" />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="fechaAtencion">
+            <th mat-header-cell *matHeaderCellDef>Fecha atención</th>
+            <td mat-cell *matCellDef="let orden" class="opt-mono">
+              {{ orden.fechaAtencion ? (orden.fechaAtencion | date: 'dd-MM-yyyy') : '—' }}
             </td>
           </ng-container>
           <ng-container matColumnDef="vendido">
@@ -206,21 +246,114 @@
               >
                 <mat-icon>folder_open</mat-icon>
               </button>
+              @if (!ordenEsTerminal(orden.estadoOTId)) {
+                <button
+                  mat-icon-button
+                  [attr.aria-label]="'Avanzar etapa de la OT N° ' + orden.numeroOT"
+                  matTooltip="Avanzar etapa"
+                  [disabled]="procesando()"
+                  (click)="avanzarOrden(orden)"
+                >
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              }
               <button
                 mat-icon-button
-                class="opt-accion-destructiva"
-                [attr.aria-label]="'Quitar la OT N° ' + orden.numeroOT + ' del Operativo'"
-                matTooltip="Quitar del Operativo"
-                [disabled]="esTerminal()"
-                (click)="quitarOrden(orden.ordenPublicId, orden.numeroOT)"
+                [attr.aria-label]="'Más acciones para la OT N° ' + orden.numeroOT"
+                matTooltip="Más acciones"
+                [matMenuTriggerFor]="menuOrden"
+                [matMenuTriggerData]="{ orden }"
               >
-                <mat-icon>link_off</mat-icon>
+                <mat-icon>more_vert</mat-icon>
               </button>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columnasOrdenes"></tr>
           <tr mat-row *matRowDef="let row; columns: columnasOrdenes"></tr>
         </table>
+
+        <mat-menu #menuOrden="matMenu">
+          <ng-template matMenuContent let-orden="orden">
+            @if (!ordenEstaAnulada(orden.estadoOTId)) {
+              <button mat-menu-item [disabled]="procesando()" (click)="anularOrden(orden)">
+                <mat-icon>block</mat-icon>
+                <span>Anular OT</span>
+              </button>
+            }
+            <button
+              mat-menu-item
+              class="opt-accion-destructiva"
+              [disabled]="esTerminal()"
+              (click)="quitarOrden(orden.ordenPublicId, orden.numeroOT)"
+            >
+              <mat-icon>link_off</mat-icon>
+              <span>Quitar del Operativo</span>
+            </button>
+          </ng-template>
+        </mat-menu>
+      }
+    </mat-tab>
+
+    <!-- Reporte de Cristales (HU-OP-10) -->
+    <mat-tab (click)="cargarReporteCristales()">
+      <ng-template mat-tab-label>Reporte de Cristales</ng-template>
+
+      @if (cargandoReporte()) {
+        <app-list-skeleton [rows]="3" [header]="false" />
+      } @else if (reporteCristales(); as reporte) {
+        <div class="panel__barra">
+          <span class="panel__conteo">{{ reporteFiltrado().length }} de {{ reporte.length }} OT</span>
+          <div class="panel__acciones">
+            <mat-form-field appearance="outline" class="filtro-estado">
+              <mat-label>Filtrar por estado</mat-label>
+              <mat-select
+                [value]="filtroEstadoReporte()"
+                (selectionChange)="filtroEstadoReporte.set($event.value)"
+              >
+                <mat-option [value]="null">Todos los estados</mat-option>
+                @for (estado of estadosOT(); track estado.id) {
+                  <mat-option [value]="estado.id">{{ estado.nombre }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-button (click)="exportarReporteExcel()">
+              <mat-icon>table_view</mat-icon>
+              Exportar a Excel
+            </button>
+            <button mat-stroked-button (click)="abrirReporteImprimible()">
+              <mat-icon>print</mat-icon>
+              Exportar a PDF
+            </button>
+          </div>
+        </div>
+
+        @if (reporte.length === 0) {
+          <app-empty-state
+            icon="science"
+            title="Sin recetas para reportar"
+            message="Ninguna OT de este Operativo tiene una receta de cristales vinculada todavía."
+          />
+        } @else {
+          @for (item of reporteFiltrado(); track item.ordenPublicId) {
+            <section class="reporte-ot">
+              <header class="reporte-ot__cabecera">
+                <span class="opt-mono">OT N° {{ item.numeroOT }}</span>
+                <span>{{ item.clienteNombre }}</span>
+                <app-estado-ot-chip [estadoId]="item.estadoOTId" [nombre]="item.estadoOT" />
+                @if (item.fechaAtencion) {
+                  <span class="opt-mono">{{ item.fechaAtencion | date: 'dd-MM-yyyy' }}</span>
+                }
+              </header>
+              @if (item.recetas.length === 0) {
+                <p class="reporte-ot__sin-receta">Sin receta vinculada.</p>
+              } @else {
+                @for (receta of item.recetas; track receta.publicId) {
+                  <app-receta-graduacion [receta]="receta" />
+                }
+              }
+            </section>
+          }
+        }
       }
     </mat-tab>
 

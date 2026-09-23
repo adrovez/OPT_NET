@@ -20,6 +20,8 @@ export const ORDEN_TICKET: OrdenDeTrabajo = {
   saldo: 25000,
   fechaEntrega: '2026-09-10T00:00:00-04:00',
   creadoEn: '2026-08-28T10:00:00-04:00',
+  operativoPublicId: null,
+  operativoNombre: null,
   empresaPublicId: null,
   empresaNombre: null,
   observaciones: null,
@@ -27,6 +29,7 @@ export const ORDEN_TICKET: OrdenDeTrabajo = {
   fechaAtencion: '2026-08-28',
   horaEntrega: '12:00:00',
   numeroCuotas: 2,
+  operativoCorrelativo: null,
   cliente: {
     publicId: '22222222-2222-2222-2222-222222222222',
     rut: '12345678-9',

@@ -32,11 +32,22 @@ public class Operativo : AuditableEntity
     /// <summary>Número correlativo visible, generado por la base de datos (SEQ_CorrelativoOperativo).</summary>
     public int Correlativo { get; private set; }
 
+    public string   Nombre            { get; private set; } = string.Empty;
     public int    EmpresaId         { get; private set; }
     public int    SucursalId        { get; private set; }
     public int    EstadoOperativoId { get; private set; }
     public DateOnly Fecha           { get; private set; }
     public string?  Observacion     { get; private set; }
+
+    /// <summary>
+    /// Datos de contacto de la persona de la Empresa a cargo de esta jornada — propios de este
+    /// Operativo, no de la Empresa (HU-OP-01/02: pueden cambiar de una jornada a otra aunque sea
+    /// la misma Empresa). Opcionales al crear como Prospecto; se recomienda completarlos antes de
+    /// pasar a Ingresado, pero no se fuerza a nivel de dominio.
+    /// </summary>
+    public string? NombreContacto   { get; private set; }
+    public string? MailContacto     { get; private set; }
+    public string? TelefonoContacto { get; private set; }
 
     public decimal MontoTotalVendido { get; private set; }
     public decimal MontoTotalPagado  { get; private set; }
@@ -52,16 +63,25 @@ public class Operativo : AuditableEntity
 
     protected Operativo() { }
 
-    public static Operativo Crear(int empresaId, int sucursalId, DateOnly fecha, int usuarioId,
-                                   string? observacion = null)
+    public static Operativo Crear(string nombre, int empresaId, int sucursalId, DateOnly fecha,
+                                   int usuarioId, string? observacion = null,
+                                   string? nombreContacto = null, string? mailContacto = null,
+                                   string? telefonoContacto = null)
     {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("El nombre del Operativo es obligatorio.");
+
         var operativo = new Operativo
         {
+            Nombre            = nombre.Trim(),
             EmpresaId         = empresaId,
             SucursalId        = sucursalId,
             EstadoOperativoId = EstadosOperativo.Inicial,
             Fecha             = fecha,
             Observacion       = observacion?.Trim(),
+            NombreContacto    = nombreContacto?.Trim(),
+            MailContacto      = mailContacto?.Trim(),
+            TelefonoContacto  = telefonoContacto?.Trim(),
             MontoTotalVendido = 0,
             MontoTotalPagado  = 0,
             MontoTotalGastos  = 0
@@ -71,12 +91,21 @@ public class Operativo : AuditableEntity
     }
 
     /// <summary>Datos de cabecera editables mientras el Operativo no esté en un estado terminal.</summary>
-    public void Actualizar(DateOnly fecha, string? observacion, int usuarioId)
+    public void Actualizar(string nombre, DateOnly fecha, string? observacion, int usuarioId,
+                            string? nombreContacto = null, string? mailContacto = null,
+                            string? telefonoContacto = null)
     {
         GarantizarModificable();
 
-        Fecha       = fecha;
-        Observacion = observacion?.Trim();
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new DomainException("El nombre del Operativo es obligatorio.");
+
+        Nombre           = nombre.Trim();
+        Fecha            = fecha;
+        Observacion      = observacion?.Trim();
+        NombreContacto   = nombreContacto?.Trim();
+        MailContacto     = mailContacto?.Trim();
+        TelefonoContacto = telefonoContacto?.Trim();
         SetModificacion(usuarioId);
     }
 

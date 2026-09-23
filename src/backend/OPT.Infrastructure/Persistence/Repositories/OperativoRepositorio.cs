@@ -15,6 +15,7 @@ public sealed class OperativoRepositorio(AppDbContext context)
         new Dictionary<string, Expression<Func<EntidadOperativo, object>>>(StringComparer.OrdinalIgnoreCase)
         {
             ["correlativo"] = o => o.Correlativo,
+            ["nombre"]      = o => o.Nombre,
             ["fecha"]       = o => o.Fecha,
             ["estado"]      = o => o.EstadoOperativoId,
             ["creadoEn"]    = o => o.CreadoEn,
@@ -32,6 +33,25 @@ public sealed class OperativoRepositorio(AppDbContext context)
 
     public async Task<bool> OrdenYaAsociadaAsync(int ordenDeTrabajoId, CancellationToken ct = default)
         => await Contexto.Set<OperativoOT>().AnyAsync(r => r.OrdenDeTrabajoId == ordenDeTrabajoId, ct);
+
+    public async Task<IReadOnlyDictionary<int, EntidadOperativo>> ObtenerPorOrdenesDeTrabajoIdsAsync(
+        IEnumerable<int> ordenDeTrabajoIds, CancellationToken ct = default)
+    {
+        var ids = ordenDeTrabajoIds.Distinct().ToList();
+        if (ids.Count == 0) return new Dictionary<int, EntidadOperativo>();
+
+        var relaciones = await Contexto.Set<OperativoOT>()
+            .Where(r => ids.Contains(r.OrdenDeTrabajoId))
+            .ToListAsync(ct);
+
+        var operativoIds = relaciones.Select(r => r.OperativoId).Distinct().ToList();
+        var operativos = (await Activos.Where(o => operativoIds.Contains(o.Id)).ToListAsync(ct))
+            .ToDictionary(o => o.Id);
+
+        return relaciones
+            .Where(r => operativos.ContainsKey(r.OperativoId))
+            .ToDictionary(r => r.OrdenDeTrabajoId, r => operativos[r.OperativoId]);
+    }
 
     public async Task<(IReadOnlyList<EntidadOperativo> Items, int Total)> BuscarPaginadoAsync(
         ParametrosPaginacion parametros,
@@ -53,6 +73,7 @@ public sealed class OperativoRepositorio(AppDbContext context)
 
             query = query.Where(o =>
                 (correlativo != null && o.Correlativo == correlativo) ||
+                o.Nombre.Contains(busqueda) ||
                 (o.Observacion != null && o.Observacion.Contains(busqueda)));
         }
 

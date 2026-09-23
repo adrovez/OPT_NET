@@ -1,0 +1,40 @@
+<h2 mat-dialog-title class="opt-no-imprimir">
+  <mat-icon>science</mat-icon>
+  Reporte de Cristales — {{ data.operativoNombre }}
+</h2>
+
+<mat-dialog-content>
+  <div class="hoja">
+    <h3 class="hoja__titulo">Reporte de Cristales — {{ data.operativoNombre }}</h3>
+
+    @if (data.items.length === 0) {
+      <p>Este Operativo no tiene OT con recetas vinculadas.</p>
+    } @else {
+      @for (item of data.items; track item.ordenPublicId) {
+        <section class="ot">
+          <header class="ot__cabecera">
+            <span class="opt-mono">OT N° {{ item.numeroOT }}</span>
+            <span>{{ item.clienteNombre }}</span>
+            <app-estado-ot-chip [estadoId]="item.estadoOTId" [nombre]="item.estadoOT" />
+          </header>
+
+          @if (item.recetas.length === 0) {
+            <p class="ot__sin-receta">Sin receta vinculada.</p>
+          } @else {
+            @for (receta of item.recetas; track receta.publicId) {
+              <app-receta-graduacion [receta]="receta" />
+            }
+          }
+        </section>
+      }
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="opt-no-imprimir">
+  <button mat-button type="button" mat-dialog-close>Cerrar</button>
+  <button mat-flat-button color="primary" type="button" (click)="imprimir()">
+    <mat-icon>print</mat-icon>
+    Imprimir / Guardar como PDF
+  </button>
+</mat-dialog-actions>

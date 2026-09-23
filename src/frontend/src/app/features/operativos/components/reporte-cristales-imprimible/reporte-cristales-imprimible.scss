@@ -1,0 +1,26 @@
+.hoja {
+  display: flex;
+  flex-direction: column;
+  gap: var(--opt-space-md);
+}
+
+.hoja__titulo {
+  margin: 0;
+}
+
+.ot {
+  padding-top: var(--opt-space-sm);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.ot__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-xs);
+  font-weight: 600;
+}
+
+.ot__sin-receta {
+  color: var(--mat-sys-on-surface-variant);
+}

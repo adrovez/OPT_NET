@@ -1,6 +1,8 @@
 # Módulo Operativo — Operativos Oftalmológicos en terreno
 
-Requerimiento levantado: 2026-09-15. Estado: **Etapas 1 (esquema), 2 (Domain/Application/API) y 3 (frontend) completadas, misma fecha** — solo falta aplicar el script `009` a `dbOPT_NET` y verificar todo end-to-end contra una base real. Ver ADR `[[0011-api-modulo-operativo]]` para las decisiones de diseño de la Etapa 2 (agregado propio, snapshot de montos, flujo sin retroceso, reuso de roles) y `src/frontend/CLAUDE.md` § "Módulo Operativo" para el detalle de la Etapa 3. Leer este documento completo antes de continuar cualquiera de esas etapas: fija las decisiones ya cerradas con el usuario para no volver a preguntarlas.
+Requerimiento levantado: 2026-09-15. **Sesión 2026-09-22**: se implementaron las Épicas A (contacto) y B (submenú Recepción) de `src/documentos/HU/02_HU_Modulo_Operativo.html` — ver sección 10 más abajo. La Épica C (Cobranza: vínculo laboral/desvinculación/pérdidas) y la D (Gastos: categoría/fecha) quedaron **fuera de esta sesión**, a pedido explícito del usuario, por el mayor riesgo de diseño de C (conceptos de negocio nuevos, ver `00_Analisis_Impacto.html` § preguntas abiertas 3-6).
+
+Estado previo: **Etapas 1 (esquema), 2 (Domain/Application/API) y 3 (frontend) completadas** — el script `009` ya se aplicó a `dbOPT_NET` (sesión 2026-09-16). `Operativo` ganó además un campo `Nombre` (título libre de la jornada, a pedido del usuario — no estaba en el requerimiento original) vía `010_operativo_nombre.sql`; ver la entrada 2026-09-16 de `.agents/progress.md` para el detalle completo y el fix de un bug real de UI (el diálogo de alta no mostraba ningún error cuando el usuario no elegía una empresa del autocompletado — parecía "no guardar registro"). Sigue pendiente verificar todo end-to-end contra una sesión autenticada real. Ver ADR `[[0011-api-modulo-operativo]]` para las decisiones de diseño de la Etapa 2 (agregado propio, snapshot de montos, flujo sin retroceso, reuso de roles) y `src/frontend/CLAUDE.md` § "Módulo Operativo" para el detalle de la Etapa 3. Leer este documento completo antes de continuar cualquiera de esas etapas: fija las decisiones ya cerradas con el usuario para no volver a preguntarlas.
 
 ## 1. Qué problema resuelve
 
@@ -45,9 +47,9 @@ Resuelven los puntos abiertos de la sección 8 del requerimiento original que bl
 
 Cobertura de `PublicId` (mismo criterio del ADR `0004`, aplicado por analogía sin haberlo preguntado explícitamente — revisar si el usuario objeta): `Operativo` es recurso de primer nivel → tiene `PublicId`. `OperativoOT` y `GastoOperativo` se exponen anidados bajo `/api/operativos/{publicId}/...`, un padre ya protegido → **sin** `PublicId`, mismo criterio que `Abono`/`Pago`/`Cuota`/`DetalleOT` bajo `OrdenDeTrabajo`.
 
-## 4. Esquema — `src/basedatos/009_modulo_operativo.sql`
+## 4. Esquema — `src/basedatos/009_modulo_operativo.sql` (+ `010_operativo_nombre.sql`)
 
-**No aplicado aún a `dbOPT_NET`** (pendiente correr el script). El script fue **extendido en la sesión de Domain/Application/API** (misma fecha) con dos columnas que la Etapa 1 no incluía — ver el porqué en el ADR `[[0011-api-modulo-operativo]]` § decisión 2. Contenido actual:
+**Aplicado a `dbOPT_NET`** (sesión 2026-09-16; la tabla estaba vacía al momento de aplicarlo). El script `009` fue **extendido en la sesión de Domain/Application/API** (misma fecha) con dos columnas que la Etapa 1 no incluía — ver el porqué en el ADR `[[0011-api-modulo-operativo]]` § decisión 2. `010_operativo_nombre.sql` (sesión 2026-09-16) agrega `OPT_Operativo.Nombre` (`nvarchar(200) NOT NULL`) — campo pedido por el usuario, sin relación con ningún punto abierto del requerimiento original. Contenido actual de `009`:
 
 1. **`OPT_EstadoOperativo`** — catálogo (`CatalogEntity`: Id + Nombre). Seed: `1 PROSPECTO`, `2 INGRESADO`, `3 COBRANZA`, `4 CERRADO`, `5 ANULADO`.
 2. **`SEQ_CorrelativoOperativo`** — `SEQUENCE int START WITH 1`, fuente del `DEFAULT` de `Operativo.Correlativo`.
@@ -98,11 +100,35 @@ Lo que **sigue** sin resolver:
 
 ## 6. Próximos pasos para completar el módulo
 
-1. Aplicar `009_modulo_operativo.sql` (ya con las columnas de snapshot) contra `dbOPT_NET` (con `sqlcmd`, ver `CLAUDE.md` § Comandos) y confirmarlo en este documento y en `src/basedatos/README.md`.
+1. ~~Aplicar `009_modulo_operativo.sql` contra `dbOPT_NET`~~ — hecho 2026-09-16 (junto con `010_operativo_nombre.sql`).
 2. Probar los endpoints de `OperativosController` y el frontend con una sesión autenticada real contra `dbOPT_NET`.
 3. Migración de OT históricas a Operativos (fuera de alcance hasta ahora) y filtro de Operativo en las pantallas de Cobranza si el negocio lo pide (hoy `CobranzaController` no expone ese parámetro).
 4. Si el negocio pide que el total del Operativo se actualice solo al abonar/pagar una OT ya asociada, revisar la decisión 2 del ADR `0011` (hoy requiere `POST /recalcular-montos` manual).
 5. Confirmar con el usuario los puntos que la Etapa 2 resolvió sin preguntarle (8.1 refresco manual, 8.7 reuso de roles, ausencia de bitácora) — ver ADR `[[0011-api-modulo-operativo]]`.
+6. **Épica C (Cobranza) del HU, sesión dedicada** — resolver primero las preguntas abiertas 3-6 de `00_Analisis_Impacto.html` con el negocio (dónde vive el contacto — ya resuelta, ver §10 abajo —, disparador Prospecto→Ingresado, cierre con saldo pendiente, cómo se registra la desvinculación) antes de modelar `OPT_EstadoCuota.PERDIDA` y el vínculo laboral Cliente-Empresa-Operativo.
+7. **Épica D (Gastos: categoría + fecha)** — agregar `CategoriaGastoId` (FK a catálogo nuevo `OPT_CategoriaGastoOperativo`, sembrado: Traslado/Alimentación/Gastos Generales/Otros) y `Fecha` (`date`, default = fecha del Operativo) a `OPT_GastoOperativo`. Bajo impacto (2 columnas + 1 catálogo), quedó fuera de esta sesión solo por alcance, no por riesgo.
+
+## 6a. Épicas A + B del HU (sesión 2026-09-22)
+
+Implementadas: HU-OP-01/02 (contacto del Operativo) y HU-OP-03 a HU-OP-10 (submenú Recepción completo, incluido el Reporte de Cristales). Fuente: `src/documentos/HU/02_HU_Modulo_Operativo.html` + `00_Analisis_Impacto.html`.
+
+**Backend:**
+- `OPT_Operativo` gana `NombreContacto`/`MailContacto`/`TelefonoContacto` (`nvarchar`, todos NULL) — script `012_operativo_contacto.sql`, **aplicado a `dbOPT_NET`**. Resuelve la pregunta abierta N.º 3 del análisis con el supuesto de trabajo que ya traía el propio HU: contacto **propio de cada Operativo**, no de la Empresa (puede cambiar de jornada a jornada). `Operativo.Crear`/`Actualizar`, `Crear`/`ActualizarOperativoCommand` (+ validators, mismo criterio que `Cliente`/`Empresa`: `EmailAddress()` condicional, sin regex de formato chileno — no hay ese patrón en ningún otro teléfono del proyecto) y `OperativoDto`/`OperativoDtoFactory` actualizados.
+- `OperativoOTDto` gana `FechaAtencion` (de `OrdenDeTrabajo.FechaAtencion`, ya cargada en la factory — sin query nueva).
+- **`RolesOPT.OperacionComercialConCalidad`** se extendió con `TecnicoMedico` (antes solo Admin/Supervisor/JefeSucursal/Vendedor/Operador/ControlCalidad) — HU-OP-08 pide explícitamente que el Técnico Médico avance etapas de OT desde Recepción; se aplicó a los mismos endpoints que ya usaban ese grupo (`OrdenesDeTrabajoController.ObtenerTodos/ObtenerPorId/CambiarEstado`, `OperativosController.ObtenerTodos/ObtenerPorId`) en vez de crear un grupo nuevo.
+- **Reporte de Cristales**: `GET /api/operativos/{publicId}/reporte-cristales` (`ObtenerReporteCristalesOperativoQuery`, roles: `OperacionComercialConCalidad`) — reutiliza `IRecetaCristalesRepositorio.ObtenerPorOrdenesAsync` (método **nuevo**, bulk, evita N+1 sobre las OT del Operativo) y `RecetaCristalesMapper` interno de la feature `RecetaCristales`.
+- **No se creó un comando combinado "crear OT + asociar a Operativo"** (HU-OP-04): se evaluó y se resolvió en el frontend como dos llamadas HTTP encadenadas (crear → asociar), documentado en el propio HU como aceptable ("aunque internamente se resuelva con dos llamadas"). Si la asociación falla tras crear la OT, se avisa y la OT queda creada igual (criterio de aceptación explícito).
+
+**Frontend:**
+- `operativo-form`: 3 campos de contacto nuevos (sección "Contacto en la Empresa", todos opcionales).
+- `operativo-ficha`: la pestaña "Órdenes" se **renombró a "Recepción"** y ganó columna Fecha de atención, filtro por estado de OT (`mat-select`, cliente-side — el volumen de OT por Operativo es de jornada, no amerita paginación server-side), acción "Avanzar etapa" por fila (reutiliza `OrdenesDeTrabajo.cambiarEstado`) y "Anular OT" en el menú de más acciones (reutiliza `OrdenesDeTrabajo.anular` + `MotivoDialog`) — ambas sin salir de la ficha del Operativo (HU-OP-07/08). Botón nuevo "Nueva OT" (HU-OP-04). El botón "Avanzar" de la cabecera pasa a decir **"Iniciar recepción"** en vez de "Avanzar a Ingresado" cuando el Operativo está en Prospecto (HU-OP-09) — el resto de las transiciones sigue diciendo "Avanzar a X". Nueva pestaña **"Reporte de Cristales"** (carga bajo demanda al entrar a la pestaña, no en `cargar()`): lista por OT la graduación de sus recetas (`app-receta-graduacion` reutilizado tal cual), filtro por estado, y dos exportaciones — "Exportar a Excel" genera un **CSV** client-side (sin sumar una librería de `.xlsx` al proyecto) y "Exportar a PDF" abre un diálogo imprimible nuevo (`ReporteCristalesImprimible`) que reutiliza `imprimirConClaseBody()`, el mismo mecanismo ya establecido para el ticket de OT — "Guardar como PDF" es del navegador, no hay generación de PDF real en el backend ni en el frontend. **El formato exacto de columnas del Excel no se validó con el usuario** (el propio HU lo señala como pendiente) — es una primera versión razonable, no la definitiva.
+- `orden-de-trabajo-form` gana el contexto `operativoPublicId`/`empresaPublicId`/`sucursalId` por query param (HU-OP-04): al llegar desde "Nueva OT" de un Operativo, Empresa queda precargada y bloqueada, la Sucursal usada al crear es la del Operativo (no la sucursal activa del menú del `Shell`, que puede ser otra), y tras crear la OT se la asocia automáticamente al Operativo (`Operativos.asociarOrden`) antes de mostrar el ticket; si la asociación falla, se muestra un toast de error pero la OT ya creada no se pierde y la navegación final va a la ficha del Operativo en vez de a la ficha de la OT.
+
+**Fuera de esta sesión, deliberadamente:**
+- Épica C (Cobranza) y D (Gastos: categoría/fecha) — ver puntos 6 y 7 de la sección "Próximos pasos" arriba.
+- No se verificó nada en navegador con sesión autenticada real — mismo bloqueo estructural de sesiones anteriores del módulo (usuarios migrados con clave de 4 caracteres, validador exige 6).
+
+**Verificado**: `dotnet build OPT.sln` limpio, `dotnet ef dbcontext info` (modelo EF válido), script `012_operativo_contacto.sql` aplicado y columnas confirmadas con `sqlcmd` contra `dbOPT_NET`; `npm run build`/`npm run lint` limpios, `npm test` 66/66 archivos · 105/105 tests (sin regresiones).
 
 ## 7. Requerimiento original (texto completo, para trazabilidad)
 

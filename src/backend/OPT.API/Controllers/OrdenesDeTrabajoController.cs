@@ -42,11 +42,12 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// beneficiario o RUT/nombre del cliente), ordenarPor
     /// (numeroOT|fechaEntrega|precio|saldo|estado|creadoEn), direccionOrden (asc|desc),
     /// y los filtros clientePublicId, sucursalId, estadoOTId, soloConSaldo, empresaPublicId,
-    /// operativoPublicId (OT asociadas a un Operativo — módulo Operativo, requerimiento sección 6).
+    /// operativoPublicId (OT asociadas a un Operativo — módulo Operativo, requerimiento sección 6)
+    /// y soloSucursal (OT sin ningún Operativo asociado — HU-OT-02, módulo OT).
     /// </summary>
     [HttpGet]
     [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
-                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad)]
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad, RolesOPT.TecnicoMedico)]
     [ProducesResponseType(typeof(PagedResult<OrdenDeTrabajoResumenDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ObtenerTodos([FromQuery] ObtenerOrdenesDeTrabajoQuery query,
                                                     CancellationToken ct = default)
@@ -55,7 +56,7 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// <summary>Vista completa: cabecera, detalle, abonos, pagos, cuotas y bitácora de estados.</summary>
     [HttpGet("{publicId:guid}")]
     [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
-                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad)]
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad, RolesOPT.TecnicoMedico)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObtenerPorId(Guid publicId, CancellationToken ct)
@@ -92,7 +93,7 @@ public sealed class OrdenesDeTrabajoController(IMediator mediator) : ControllerB
     /// </summary>
     [HttpPost("{publicId:guid}/estado")]
     [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
-                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad)]
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.ControlCalidad, RolesOPT.TecnicoMedico)]
     [ProducesResponseType(typeof(OrdenDeTrabajoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]

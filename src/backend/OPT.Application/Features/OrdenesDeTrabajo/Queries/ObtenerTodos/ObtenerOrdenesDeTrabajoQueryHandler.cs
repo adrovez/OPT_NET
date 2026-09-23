@@ -60,7 +60,7 @@ public sealed class ObtenerOrdenesDeTrabajoQueryHandler(
 
         var (items, total) = await ordenRepo.BuscarPaginadoAsync(
             request, clienteId, sucursalIdFiltro, request.EstadoOTId, request.SoloConSaldo,
-            empresaId, operativoId, ct);
+            empresaId, operativoId, request.SoloSucursal, ct);
 
         // Un lookup por página, no uno por fila.
         var clientes  = (await clienteRepo.ObtenerPorIdsAsync(items.Select(o => o.ClienteId), ct))
@@ -68,9 +68,15 @@ public sealed class ObtenerOrdenesDeTrabajoQueryHandler(
         var sucursales = (await sucursalRepo.ObtenerTodosAsync(ct)).ToDictionary(s => s.Id, s => s.Nombre);
         var estados    = (await estadoRepo.ObtenerTodosAsync(ct)).ToDictionary(e => e.Id, e => e.Nombre);
 
+        // Chip "Operativo"/"Sucursal" del listado (HU-OT-02) — dato 100% derivado, un lookup por
+        // página igual que clientes/sucursales/estados arriba, no un Include desde OrdenDeTrabajo.
+        var operativos = await operativoRepo.ObtenerPorOrdenesDeTrabajoIdsAsync(
+            items.Select(o => o.Id), ct);
+
         return PagedResultFactory.Crear(items, total, request, o =>
         {
             clientes.TryGetValue(o.ClienteId, out var cliente);
+            operativos.TryGetValue(o.Id, out var operativo);
 
             return new OrdenDeTrabajoResumenDto(
                 o.PublicId, o.NumeroOT,
@@ -79,7 +85,8 @@ public sealed class ObtenerOrdenesDeTrabajoQueryHandler(
                 cliente is null ? string.Empty : $"{cliente.Nombre} {cliente.Apellido}".Trim(),
                 o.SucursalId, sucursales.TryGetValue(o.SucursalId, out var s) ? s : string.Empty,
                 o.EstadoOTId, estados.TryGetValue(o.EstadoOTId, out var e) ? e : string.Empty,
-                o.Precio, o.TotalAbonado, o.Saldo, o.FechaEntrega, o.CreadoEn);
+                o.Precio, o.TotalAbonado, o.Saldo, o.FechaEntrega, o.CreadoEn,
+                operativo?.PublicId, operativo?.Nombre);
         });
     }
 }

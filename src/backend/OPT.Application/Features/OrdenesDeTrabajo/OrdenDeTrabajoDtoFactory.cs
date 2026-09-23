@@ -21,7 +21,8 @@ public sealed class OrdenDeTrabajoDtoFactory(
     IFormaPagoRepositorio   formaPagoRepo,
     IEstadoCuotaRepositorio estadoCuotaRepo,
     IComunaRepositorio      comunaRepo,
-    IRecetaCristalesRepositorio recetaRepo)
+    IRecetaCristalesRepositorio recetaRepo,
+    IOperativoRepositorio   operativoRepo)
 {
     public async Task<OrdenDeTrabajoDto> CrearAsync(EntidadOT ot, CancellationToken ct)
     {
@@ -43,6 +44,11 @@ public sealed class OrdenDeTrabajoDtoFactory(
         // prescripción con la que se fabricaron estos cristales.
         var recetas = await recetaRepo.ObtenerPorOrdenAsync(ot.Id, ct);
 
+        // A lo sumo un Operativo por OT — para mostrar su vínculo en la pestaña Cliente/cabecera
+        // (HU-OT-03), sin acoplar el agregado OrdenDeTrabajo al agregado Operativo.
+        var operativos = await operativoRepo.ObtenerPorOrdenesDeTrabajoIdsAsync([ot.Id], ct);
+        operativos.TryGetValue(ot.Id, out var operativo);
+
         var detalles = ot.Detalles.Where(d => !d.Eliminado).ToList();
         var productoIds = detalles.Select(d => d.ProductoId).Distinct().ToList();
         var productos = new Dictionary<int, Producto>();
@@ -60,6 +66,7 @@ public sealed class OrdenDeTrabajoDtoFactory(
             ot.Precio, ot.TotalAbonado, ot.Saldo,
             ot.Observaciones, ot.FechaEntrega, ot.Beneficiario,
             ot.FechaAtencion, ot.HoraEntrega, ot.NumeroCuotas,
+            operativo?.PublicId, operativo?.Correlativo, operativo?.Nombre,
 
             new ClienteOTDto(
                 cliente?.PublicId ?? Guid.Empty,

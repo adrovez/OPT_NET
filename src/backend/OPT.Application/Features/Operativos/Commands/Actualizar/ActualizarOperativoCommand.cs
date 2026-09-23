@@ -10,5 +10,9 @@ namespace OPT.Application.Features.Operativos.Commands.Actualizar;
 /// </summary>
 public record ActualizarOperativoCommand(
     Guid     PublicId,
+    string   Nombre,
     DateOnly Fecha,
-    string?  Observacion = null) : IRequest<OperativoDto>;
+    string?  Observacion = null,
+    string?  NombreContacto = null,
+    string?  MailContacto = null,
+    string?  TelefonoContacto = null) : IRequest<OperativoDto>;

@@ -16,6 +16,7 @@ import {
   OperativoCrear,
   OperativoResumen,
   RegistrarGastoOperativo,
+  ReporteCristalesItem,
 } from '../models/operativo.model';
 
 /**
@@ -90,6 +91,12 @@ export class Operativos {
 
   eliminarGasto(publicId: string, gastoId: number): Observable<Operativo> {
     return this.http.delete<Operativo>(`${this.baseUrl}/${publicId}/gastos/${gastoId}`);
+  }
+
+  // ── Reporte de Cristales (HU-OP-10) ───────────────────────────────────────────
+
+  reporteCristales(publicId: string): Observable<ReporteCristalesItem[]> {
+    return this.http.get<ReporteCristalesItem[]>(`${this.baseUrl}/${publicId}/reporte-cristales`);
   }
 
   /** Omite los filtros sin valor para que la URL quede limpia y el backend use sus defaults. */

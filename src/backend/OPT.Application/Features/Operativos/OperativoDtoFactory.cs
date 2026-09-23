@@ -45,11 +45,12 @@ public sealed class OperativoDtoFactory(
         var gananciaVendido = operativo.MontoTotalVendido - operativo.MontoTotalGastos;
 
         return new OperativoDto(
-            operativo.PublicId, operativo.Correlativo,
+            operativo.PublicId, operativo.Correlativo, operativo.Nombre,
             empresa?.PublicId ?? Guid.Empty, empresa?.Nombre ?? string.Empty,
             operativo.SucursalId, sucursal?.Nombre ?? string.Empty,
             operativo.EstadoOperativoId, Nombre(estados, operativo.EstadoOperativoId),
             operativo.Fecha, operativo.Observacion,
+            operativo.NombreContacto, operativo.MailContacto, operativo.TelefonoContacto,
             operativo.MontoTotalVendido, operativo.MontoTotalPagado, operativo.MontoTotalGastos,
             gananciaPagado, gananciaVendido,
 
@@ -65,6 +66,7 @@ public sealed class OperativoDtoFactory(
                     cliente is null ? string.Empty : $"{cliente.Nombre} {cliente.Apellido}".Trim(),
                     orden?.EstadoOTId ?? 0,
                     orden is null ? string.Empty : Nombre(estadosOT, orden.EstadoOTId),
+                    orden?.FechaAtencion,
                     r.MontoVendidoSnapshot, r.MontoPagadoSnapshot);
             }).ToList(),
 

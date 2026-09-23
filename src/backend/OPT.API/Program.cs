@@ -53,6 +53,36 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
+    // Microsoft.OpenApi >= 1.6.14 (forzado por Swashbuckle.AspNetCore.Swagger desde su propia
+    // 6.6.2, no hay forma de fijar una versión anterior sin degradar el paquete) serializa el
+    // documento v3 con "openapi":"3.0.4" en vez de "3.0.1". El swagger-ui-dist que Swashbuckle
+    // sigue embebiendo (verificado hasta su 7.2.0) todavía valida la versión con la expresión
+    // regular /^3\.0\.([0123])(?:-rc[012])?$/, que no incluye "4" -- sin este parche, Swagger UI
+    // muestra "Unable to render this definition" aunque el swagger.json es válido. Se reescribe
+    // el string servido solo para ese documento; no cambia el modelo generado ni afecta a otros
+    // consumidores del esquema. Quitar cuando Swashbuckle.AspNetCore actualice su swagger-ui-dist.
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path != "/swagger/v1/swagger.json")
+        {
+            await next();
+            return;
+        }
+
+        var originalBody = context.Response.Body;
+        using var buffer = new MemoryStream();
+        context.Response.Body = buffer;
+        await next();
+
+        buffer.Seek(0, SeekOrigin.Begin);
+        var json = await new StreamReader(buffer).ReadToEndAsync();
+        json = json.Replace("\"openapi\": \"3.0.4\"", "\"openapi\": \"3.0.1\"");
+
+        context.Response.Body = originalBody;
+        context.Response.ContentLength = System.Text.Encoding.UTF8.GetByteCount(json);
+        await context.Response.WriteAsync(json);
+    });
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }

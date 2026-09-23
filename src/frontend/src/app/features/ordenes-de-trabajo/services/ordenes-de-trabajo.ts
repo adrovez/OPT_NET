@@ -125,6 +125,9 @@ export class OrdenesDeTrabajo {
     if (filtros.soloConSaldo) {
       params['soloConSaldo'] = 'true';
     }
+    if (filtros.soloSucursal) {
+      params['soloSucursal'] = 'true';
+    }
 
     return params;
   }

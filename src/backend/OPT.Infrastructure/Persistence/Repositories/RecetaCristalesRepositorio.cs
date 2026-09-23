@@ -21,4 +21,14 @@ public sealed class RecetaCristalesRepositorio(AppDbContext context)
             .Where(r => r.OrdenDeTrabajoId == ordenDeTrabajoId)
             .OrderBy(r => r.Id)
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<RecetaCristales>> ObtenerPorOrdenesAsync(IReadOnlyCollection<int> ordenDeTrabajoIds, CancellationToken ct = default)
+    {
+        if (ordenDeTrabajoIds.Count == 0) return [];
+
+        return await Activos
+            .Where(r => r.OrdenDeTrabajoId != null && ordenDeTrabajoIds.Contains(r.OrdenDeTrabajoId.Value))
+            .OrderBy(r => r.Id)
+            .ToListAsync(ct);
+    }
 }

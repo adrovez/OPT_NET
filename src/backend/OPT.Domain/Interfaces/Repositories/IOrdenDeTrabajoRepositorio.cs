@@ -39,6 +39,9 @@ public interface IOrdenDeTrabajoRepositorio : IRepositorioBase<OrdenDeTrabajo>
     /// Los filtros son acumulativos y todos opcionales. <paramref name="operativoId"/> filtra por
     /// las OT asociadas a un Operativo (módulo Operativo, requerimiento sección 6 — Cobranza
     /// filtrada por Operativo reusa este mismo listado, igual que ya hace con empresaId).
+    /// <paramref name="soloSucursal"/> es el filtro inverso — solo OT sin ningún Operativo
+    /// asociado (HU-OT-02) — y es mutuamente excluyente con <paramref name="operativoId"/> en la
+    /// práctica (el handler no los combina, pero el repositorio no lo impide).
     /// </summary>
     Task<(IReadOnlyList<OrdenDeTrabajo> Items, int Total)> BuscarPaginadoAsync(
         ParametrosPaginacion parametros,
@@ -48,6 +51,7 @@ public interface IOrdenDeTrabajoRepositorio : IRepositorioBase<OrdenDeTrabajo>
         bool? soloConSaldo = null,
         int? empresaId = null,
         int? operativoId = null,
+        bool? soloSucursal = null,
         CancellationToken ct = default);
 
     /// <summary>

@@ -33,7 +33,9 @@ public sealed class CrearOperativoCommandHandler(
         AutorizacionSucursal.ValidarAcceso(currentUser, request.SucursalId);
 
         var operativo = EntidadOperativo.Crear(
-            empresa!.Id, request.SucursalId, request.Fecha, currentUser.UsuarioId, request.Observacion);
+            request.Nombre, empresa!.Id, request.SucursalId, request.Fecha,
+            currentUser.UsuarioId, request.Observacion,
+            request.NombreContacto, request.MailContacto, request.TelefonoContacto);
 
         operativoRepo.Agregar(operativo);
         await uow.CommitAsync(ct);

@@ -13,6 +13,7 @@ using OPT.Application.Features.Operativos.Commands.QuitarOrden;
 using OPT.Application.Features.Operativos.Commands.RecalcularMontos;
 using OPT.Application.Features.Operativos.Commands.RegistrarGasto;
 using OPT.Application.Features.Operativos.Queries.ObtenerPorId;
+using OPT.Application.Features.Operativos.Queries.ObtenerReporteCristales;
 using OPT.Application.Features.Operativos.Queries.ObtenerTodos;
 using OPT.Domain.Common;
 
@@ -37,13 +38,13 @@ namespace OPT.API.Controllers;
 public sealed class OperativosController(IMediator mediator) : ControllerBase
 {
     /// <summary>
-    /// Listado paginado. Query params: pagina, tamanioPagina, busqueda (correlativo u
-    /// observación), ordenarPor (correlativo|fecha|estado|creadoEn), direccionOrden (asc|desc),
+    /// Listado paginado. Query params: pagina, tamanioPagina, busqueda (correlativo, nombre u
+    /// observación), ordenarPor (correlativo|nombre|fecha|estado|creadoEn), direccionOrden (asc|desc),
     /// y los filtros empresaPublicId, sucursalId, estadoOperativoId.
     /// </summary>
     [HttpGet]
     [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
-                     RolesOPT.Vendedor, RolesOPT.Operador)]
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.TecnicoMedico)]
     [ProducesResponseType(typeof(PagedResult<OperativoResumenDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ObtenerTodos([FromQuery] ObtenerOperativosQuery query,
                                                     CancellationToken ct = default)
@@ -52,11 +53,23 @@ public sealed class OperativosController(IMediator mediator) : ControllerBase
     /// <summary>Vista completa: cabecera, OT asociadas y gastos.</summary>
     [HttpGet("{publicId:guid}")]
     [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
-                     RolesOPT.Vendedor, RolesOPT.Operador)]
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.TecnicoMedico)]
     [ProducesResponseType(typeof(OperativoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObtenerPorId(Guid publicId, CancellationToken ct)
         => Ok(await mediator.Send(new ObtenerOperativoPorPublicIdQuery(publicId), ct));
+
+    /// <summary>
+    /// HU-OP-10: graduación de las recetas vinculadas a cada OT del Operativo — insumo del
+    /// Reporte de Cristales del submenú Recepción (envío a laboratorio).
+    /// </summary>
+    [HttpGet("{publicId:guid}/reporte-cristales")]
+    [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,
+                     RolesOPT.Vendedor, RolesOPT.Operador, RolesOPT.TecnicoMedico)]
+    [ProducesResponseType(typeof(IReadOnlyList<ReporteCristalesItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReporteCristales(Guid publicId, CancellationToken ct)
+        => Ok(await mediator.Send(new ObtenerReporteCristalesOperativoQuery(publicId), ct));
 
     [HttpPost]
     [AutorizarRoles(RolesOPT.Administrador, RolesOPT.Supervisor, RolesOPT.JefeSucursal,

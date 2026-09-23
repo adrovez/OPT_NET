@@ -42,11 +42,17 @@ public sealed class OperativoConfiguration : IEntityTypeConfiguration<EntidadOpe
                .IsUnique()
                .HasDatabaseName("UQ_Operativos_Correlativo");
 
+        builder.Property(o => o.Nombre).IsRequired().HasMaxLength(200);
+
         builder.Property(o => o.EmpresaId).IsRequired();
         builder.Property(o => o.SucursalId).IsRequired();
         builder.Property(o => o.EstadoOperativoId).IsRequired();
         builder.Property(o => o.Fecha).HasColumnType("date").IsRequired();
         builder.Property(o => o.Observacion).HasMaxLength(500);
+
+        builder.Property(o => o.NombreContacto).HasMaxLength(200);
+        builder.Property(o => o.MailContacto).HasMaxLength(200);
+        builder.Property(o => o.TelefonoContacto).HasMaxLength(30);
 
         builder.Property(o => o.MontoTotalVendido).HasColumnType(PrecisionMonto).IsRequired();
         builder.Property(o => o.MontoTotalPagado).HasColumnType(PrecisionMonto).IsRequired();

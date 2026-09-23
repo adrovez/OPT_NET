@@ -69,6 +69,7 @@ public sealed class OrdenDeTrabajoRepositorio(AppDbContext context)
         bool? soloConSaldo = null,
         int? empresaId = null,
         int? operativoId = null,
+        bool? soloSucursal = null,
         CancellationToken ct = default)
     {
         var query = Activos;
@@ -85,6 +86,12 @@ public sealed class OrdenDeTrabajoRepositorio(AppDbContext context)
                 .Where(r => r.OperativoId == operativoId.Value)
                 .Select(r => r.OrdenDeTrabajoId);
             query = query.Where(o => ordenesDelOperativo.Contains(o.Id));
+        }
+
+        if (soloSucursal == true)
+        {
+            var ordenesConOperativo = Contexto.Set<OperativoOT>().Select(r => r.OrdenDeTrabajoId);
+            query = query.Where(o => !ordenesConOperativo.Contains(o.Id));
         }
 
         var busqueda = parametros.Busqueda?.Trim();

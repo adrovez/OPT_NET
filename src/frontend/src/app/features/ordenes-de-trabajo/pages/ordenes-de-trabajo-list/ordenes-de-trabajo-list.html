@@ -50,6 +50,16 @@
   >
     Solo con saldo
   </mat-checkbox>
+
+  <mat-checkbox
+    class="filtros__sucursal"
+    [ngModel]="filtroSoloSucursal()"
+    [disabled]="operativoPublicId() !== null"
+    matTooltip="Solo órdenes de venta en Sucursal, sin ningún Operativo asociado"
+    (ngModelChange)="filtroSoloSucursal.set($event); aplicarFiltros()"
+  >
+    Solo Sucursal
+  </mat-checkbox>
 </div>
 
 <!-- El listado arranca vacío a propósito: ver el comentario de clase en el .ts. -->
@@ -126,6 +136,24 @@
     <ng-container matColumnDef="sucursal">
       <th mat-header-cell *matHeaderCellDef>Sucursal</th>
       <td mat-cell *matCellDef="let orden">{{ orden.sucursalNombre }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="lineaNegocio">
+      <th mat-header-cell *matHeaderCellDef>Origen</th>
+      <td mat-cell *matCellDef="let orden">
+        @if (orden.operativoPublicId) {
+          <button
+            type="button"
+            class="opt-chip opt-chip--info chip-operativo"
+            [matTooltip]="'Ver el Operativo ' + orden.operativoNombre"
+            (click)="verOperativo(orden.operativoPublicId)"
+          >
+            {{ orden.operativoNombre }}
+          </button>
+        } @else {
+          <span class="opt-chip">Sucursal</span>
+        }
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="estado">
