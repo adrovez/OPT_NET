@@ -178,8 +178,15 @@ export class OperativoForm {
     }
 
     this.guardando.set(true);
-    const { nombre, sucursalId, fecha, observacion, nombreContacto, mailContacto, telefonoContacto } =
-      this.form.getRawValue();
+    const {
+      nombre,
+      sucursalId,
+      fecha,
+      observacion,
+      nombreContacto,
+      mailContacto,
+      telefonoContacto,
+    } = this.form.getRawValue();
 
     const peticion = this.esEdicion
       ? this.operativosService.actualizar(this.data.operativo!.publicId, {

@@ -27,9 +27,9 @@ public class CrearRecetaCristalesCommandValidator : AbstractValidator<CrearRecet
         RuleFor(x => x.OiEjeCerca).InclusiveBetween(0, 180).When(x => x.OiEjeCerca.HasValue);
 
         RuleFor(x => x.Observaciones).MaximumLength(500);
-        RuleFor(x => x.DpLejos).MaximumLength(20);
-        RuleFor(x => x.DpCerca).MaximumLength(20);
-        RuleFor(x => x.AddLejos).MaximumLength(20);
+        RuleFor(x => x.DpLejos).MaximumLength(20).MedidaNoNegativa("La DP de lejos");
+        RuleFor(x => x.DpCerca).MaximumLength(20).MedidaNoNegativa("La DP de cerca");
+        RuleFor(x => x.AddLejos).MaximumLength(20).MedidaNoNegativa("El ADD");
 
         RuleFor(x => x.ObservacionOdLejos).MaximumLength(50);
         RuleFor(x => x.ObservacionOiLejos).MaximumLength(50);

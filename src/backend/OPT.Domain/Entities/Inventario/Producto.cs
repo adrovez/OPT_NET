@@ -35,4 +35,16 @@ public class Producto : AuditableEntity
         p.SetCreacion(usuarioId);
         return p;
     }
+
+    public void Actualizar(string codigo, string descripcion, bool controlStock,
+                           int categoriaId, int usuarioId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(codigo);
+        ArgumentException.ThrowIfNullOrWhiteSpace(descripcion);
+        Codigo       = codigo.Trim().ToUpperInvariant();
+        Descripcion  = descripcion.Trim();
+        ControlStock = controlStock;
+        CategoriaId  = categoriaId;
+        SetModificacion(usuarioId);
+    }
 }

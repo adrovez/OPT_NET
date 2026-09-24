@@ -63,6 +63,7 @@ vive dónde antes de tocar cualquiera de esos archivos. Reglas al generar UI nue
   `.agents/context/branding-ux-ui.md`) — no agregar lógica de responsive propia por feature salvo
   que la pantalla tenga contenido ancho específico (una tabla con muchas columnas ya hace scroll
   horizontal automático vía `.contenido { overflow-x: auto }` en `shell.scss`).
+- **Menú de navegación** (2026-09-23): `gruposNav` en `layout/shell/shell.ts` — 4 grupos alfabéticos (Administración, Comercial, Inventario, Reportes) con ítems también alfabéticos. Ítem nuevo → al grupo funcional que corresponda, respetando el orden alfabético; no crear grupos de un solo ítem salvo Reportes.
 - **Selector de sucursal** (2026-09-15): `Shell` agrega, junto al menú de navegación, un selector de
   sucursal (`mat-menu`, ícono `storefront`) construido en el cliente — el constructor de `Shell` pide
   `Sucursales.listar()` y lo filtra contra `auth.usuarioActual()?.sucursalesAsignadas`, sin un endpoint

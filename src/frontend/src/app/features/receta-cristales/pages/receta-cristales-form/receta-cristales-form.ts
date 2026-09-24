@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -118,6 +118,8 @@ export class RecetaCristalesForm {
 
   private readonly graduacion = [Validators.min(MIN_GRADUACION), Validators.max(MAX_GRADUACION)];
   private readonly eje = [Validators.min(0), Validators.max(180)];
+  // DP (mm) y ADD (adición de cerca) no pueden ser negativos.
+  private readonly noNegativo = [Validators.min(0)];
   private readonly observacionDetalle = [Validators.maxLength(50)];
 
   protected readonly form = this.fb.nonNullable.group({
@@ -157,9 +159,9 @@ export class RecetaCristalesForm {
       this.graduacion,
     ),
     oiEjeCerca: this.fb.control<number | null>(this.data.receta?.oiEjeCerca ?? null, this.eje),
-    dpLejos: this.fb.control<number | null>(this.parsear(this.data.receta?.dpLejos ?? null), []),
-    dpCerca: this.fb.control<number | null>(this.parsear(this.data.receta?.dpCerca ?? null), []),
-    addLejos: this.fb.control<number | null>(this.parsear(this.data.receta?.addLejos ?? null), []),
+    dpLejos: this.fb.control<number | null>(this.parsear(this.data.receta?.dpLejos ?? null), this.noNegativo),
+    dpCerca: this.fb.control<number | null>(this.parsear(this.data.receta?.dpCerca ?? null), this.noNegativo),
+    addLejos: this.fb.control<number | null>(this.parsear(this.data.receta?.addLejos ?? null), this.noNegativo),
     urgente: [this.data.receta?.urgente ?? false],
     requiereLab: [this.data.receta?.requiereLab ?? false],
     observaciones: [this.data.receta?.observaciones ?? '', [Validators.maxLength(500)]],
@@ -181,6 +183,32 @@ export class RecetaCristalesForm {
   });
   protected readonly incluirCercaActivo = toSignal(this.form.controls.incluirCerca.valueChanges, {
     initialValue: this.form.controls.incluirCerca.value,
+  });
+
+  // Los inputs de la tabla no llevan mat-error (no caben en la celda): sin este aviso, un valor
+  // fuera de rango deshabilitaba Guardar sin explicar por qué.
+  private readonly estadoForm = toSignal(this.form.statusChanges, {
+    initialValue: this.form.status,
+  });
+  protected readonly mensajesGraduacion = computed(() => {
+    this.estadoForm();
+    const mensajes: string[] = [];
+    const c = this.form.controls;
+    const ejes = [c.odEjeLejos, c.oiEjeLejos, c.odEjeCerca, c.oiEjeCerca];
+    const grad = [
+      c.odEsferaLejos, c.odCilindroLejos, c.oiEsferaLejos, c.oiCilindroLejos,
+      c.odEsferaCerca, c.odCilindroCerca, c.oiEsferaCerca, c.oiCilindroCerca,
+    ];
+    if (ejes.some((x) => x.enabled && x.invalid)) {
+      mensajes.push('El eje debe estar entre 0 y 180.');
+    }
+    if (grad.some((x) => x.enabled && x.invalid)) {
+      mensajes.push(`Esférico y cilíndrico deben estar entre ${MIN_GRADUACION} y ${MAX_GRADUACION}.`);
+    }
+    if ([c.dpLejos, c.dpCerca, c.addLejos].some((x) => x.enabled && x.invalid)) {
+      mensajes.push('DP y ADD no pueden ser negativos.');
+    }
+    return mensajes;
   });
 
   constructor() {

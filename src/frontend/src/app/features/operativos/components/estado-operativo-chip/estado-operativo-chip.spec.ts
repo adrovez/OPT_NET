@@ -31,8 +31,6 @@ describe('EstadoOperativoChip', () => {
     fixture.componentRef.setInput('nombre', 'ANULADO');
     await fixture.whenStable();
 
-    expect(
-      (fixture.nativeElement as HTMLElement).querySelector('.opt-chip--alerta'),
-    ).toBeTruthy();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.opt-chip--alerta')).toBeTruthy();
   });
 });

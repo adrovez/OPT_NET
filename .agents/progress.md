@@ -1424,3 +1424,14 @@ Implementado: HU-OP-01/02 (`NombreContacto`/`MailContacto`/`TelefonoContacto` en
 1. Épica C (Cobranza) en sesión dedicada — resolver primero las preguntas abiertas 4-6 del análisis (disparador Prospecto→Ingresado — aunque HU-OP-09 ya quedó resuelto con acción manual explícita en esta sesión —, y sobre todo cómo se registra la desvinculación) antes de modelar `OPT_EstadoCuota.PERDIDA` y el vínculo laboral Cliente-Empresa-Operativo.
 2. Épica D (Gastos: categoría + fecha) — bajo esfuerzo, quedó fuera solo por alcance de esta sesión.
 3. Verificar en navegador con sesión autenticada real todo lo construido hoy.
+
+
+---
+
+## 2026-09-23 — Reorganización del menú de navegación (frontend)
+
+**Resumen:** `gruposNav` en `src/frontend/src/app/layout/shell/shell.ts` pasó de 9 grupos a 4 en orden alfabético: Administración (Empresas, Sucursales, Usuarios), Comercial (Clientes, Cobranza, Cobranza: Reporte, Operativos, Órdenes de Trabajo), Inventario (Ajustes, Compras, Enviar, Productos, Recibir, Stock) y Reportes. Decisiones del asistente, no confirmadas: Compras en Inventario (podría ir en Comercial); "Cobranza: Reporte" como ítem propio (podría ir en Reportes).
+
+**Verificación:** `tsc --noEmit` limpio. No se corrió `npm run lint`/`test`/`build` ni se revisó en navegador.
+
+**Docs actualizados:** `CLAUDE.md`, `src/frontend/CLAUDE.md`, `.agents/context/branding-ux-ui.md`, `Manual_Tecnico_Frontend_OPT.docx` (párrafo nuevo tras el selector de sucursal, sin render de verificación).

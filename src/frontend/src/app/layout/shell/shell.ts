@@ -24,8 +24,8 @@ interface ItemNav {
 }
 
 /**
- * Agrupación del menú por módulo de dominio (Clínico/Comercial/Inventario/Organización),
- * la misma división que usan OPT.Domain y este CLAUDE.md — a diferencia del legacy,
+ * Agrupación del menú en 4 grupos (Administración/Comercial/Inventario/Reportes), en orden
+ * alfabético, con los ítems también alfabéticos dentro de cada grupo — a diferencia del legacy,
  * que agrupaba por rol de usuario ("Administrar", "Atención") y mezclaba módulos no
  * relacionados bajo un mismo ítem. Agrupar por dominio evita reordenar el menú cada vez
  * que cambie el modelo de roles.
@@ -78,38 +78,44 @@ export class Shell {
     { initialValue: false },
   );
 
+  /** Menú definido en `doc_Cliente/Menu-Roles.xlsx`. Sin filtro por rol por ahora: todo visible para las pruebas. */
   protected readonly gruposNav: GrupoNav[] = [
     {
-      etiqueta: 'Clínico',
-      icono: 'health_and_safety',
-      items: [{ ruta: '/clientes', etiqueta: 'Clientes', icono: 'people' }],
+      etiqueta: 'Administración',
+      icono: 'apartment',
+      items: [
+        { ruta: '/empresas', etiqueta: 'Empresas', icono: 'business' },
+        { ruta: '/sucursales', etiqueta: 'Sucursales', icono: 'storefront' },
+        { ruta: '/usuarios', etiqueta: 'Usuarios', icono: 'manage_accounts' },
+      ],
     },
     {
       etiqueta: 'Comercial',
-      icono: 'receipt_long',
+      icono: 'point_of_sale',
       items: [
-        { ruta: '/ordenes-de-trabajo', etiqueta: 'Órdenes de trabajo', icono: 'assignment' },
-        { ruta: '/abonos', etiqueta: 'Abonos', icono: 'savings' },
-        { ruta: '/pagos', etiqueta: 'Pagos', icono: 'payments' },
-        { ruta: '/cuotas', etiqueta: 'Cuotas', icono: 'calendar_month' },
+        { ruta: '/clientes', etiqueta: 'Clientes', icono: 'people' },
         { ruta: '/cobranza', etiqueta: 'Cobranza', icono: 'account_balance' },
+        { ruta: '/cobranza/reporte', etiqueta: 'Cobranza: Reporte', icono: 'summarize' },
         { ruta: '/operativos', etiqueta: 'Operativos', icono: 'event_note' },
+        { ruta: '/ordenes-de-trabajo', etiqueta: 'Órdenes de Trabajo', icono: 'assignment' },
       ],
     },
     {
       etiqueta: 'Inventario',
       icono: 'inventory_2',
-      items: [{ ruta: '/inventario', etiqueta: 'Productos', icono: 'category' }],
+      items: [
+        { ruta: '/inventario/ajustes', etiqueta: 'Ajustes', icono: 'tune' },
+        { ruta: '/compras', etiqueta: 'Compras', icono: 'shopping_cart' },
+        { ruta: '/inventario/enviar', etiqueta: 'Enviar', icono: 'outbox' },
+        { ruta: '/productos', etiqueta: 'Productos', icono: 'category' },
+        { ruta: '/inventario/recibir', etiqueta: 'Recibir', icono: 'move_to_inbox' },
+        { ruta: '/inventario', etiqueta: 'Stock', icono: 'inventory' },
+      ],
     },
     {
-      etiqueta: 'Organización',
-      icono: 'apartment',
-      items: [
-        { ruta: '/sucursales', etiqueta: 'Sucursales', icono: 'storefront' },
-        { ruta: '/empresas', etiqueta: 'Empresas', icono: 'business' },
-        { ruta: '/usuarios', etiqueta: 'Usuarios', icono: 'manage_accounts' },
-        { ruta: '/roles', etiqueta: 'Roles', icono: 'admin_panel_settings' },
-      ],
+      etiqueta: 'Reportes',
+      icono: 'assessment',
+      items: [{ ruta: '/reportes', etiqueta: 'Reportes', icono: 'assessment' }],
     },
   ];
 

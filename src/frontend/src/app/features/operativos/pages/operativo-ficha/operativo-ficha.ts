@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +28,6 @@ import { OrdenesDeTrabajo } from '../../../ordenes-de-trabajo/services/ordenes-d
 import { AsociarOrdenDialog } from '../../components/asociar-orden-dialog/asociar-orden-dialog';
 import { EstadoOperativoChip } from '../../components/estado-operativo-chip/estado-operativo-chip';
 import { GastoOperativoDialog } from '../../components/gasto-operativo-dialog/gasto-operativo-dialog';
-import { ReporteCristalesImprimible } from '../../components/reporte-cristales-imprimible/reporte-cristales-imprimible';
 import {
   ESTADOS_OPERATIVO,
   EstadoOperativo,
@@ -35,6 +35,7 @@ import {
   Operativo,
   ReporteCristalesItem,
 } from '../../models/operativo.model';
+import { descargarExcelCristales } from '../../utils/reporte-cristales-excel';
 import { EstadosOperativo } from '../../services/estados-operativo';
 import { Operativos } from '../../services/operativos';
 import { OperativoForm } from '../operativo-form/operativo-form';
@@ -52,6 +53,7 @@ import { OperativoForm } from '../operativo-form/operativo-form';
 @Component({
   selector: 'app-operativo-ficha',
   imports: [
+    MatCheckboxModule,
     DatePipe,
     MatButtonModule,
     MatFormFieldModule,
@@ -114,6 +116,16 @@ export class OperativoFicha implements OnInit {
   protected readonly reporteCristales = signal<ReporteCristalesItem[] | null>(null);
   protected readonly cargandoReporte = signal(false);
   protected readonly filtroEstadoReporte = signal<number | null>(null);
+  /** OT marcadas para exportar; al cargar el reporte quedan todas marcadas. */
+  protected readonly seleccionReporte = signal<Set<string>>(new Set());
+  protected readonly seleccionadasReporte = computed(() =>
+    this.reporteFiltrado().filter((i) => this.seleccionReporte().has(i.ordenPublicId)),
+  );
+  protected readonly todasSeleccionadas = computed(
+    () =>
+      this.reporteFiltrado().length > 0 &&
+      this.seleccionadasReporte().length === this.reporteFiltrado().length,
+  );
 
   protected readonly reporteFiltrado = computed(() => {
     const filtro = this.filtroEstadoReporte();
@@ -222,7 +234,9 @@ export class OperativoFicha implements OnInit {
       .subscribe((confirmado) => {
         if (confirmado) {
           this.ejecutar(
-            this.operativosService.cambiarEstado(operativo.publicId, { nuevoEstadoId: siguiente.id }),
+            this.operativosService.cambiarEstado(operativo.publicId, {
+              nuevoEstadoId: siguiente.id,
+            }),
             `Operativo avanzado a ${siguiente.nombre}.`,
           );
         }
@@ -298,7 +312,9 @@ export class OperativoFicha implements OnInit {
       .subscribe((orden?: OrdenDeTrabajoResumen) => {
         if (orden) {
           this.ejecutar(
-            this.operativosService.asociarOrden(operativo.publicId, { ordenPublicId: orden.publicId }),
+            this.operativosService.asociarOrden(operativo.publicId, {
+              ordenPublicId: orden.publicId,
+            }),
             `OT N° ${orden.numeroOT} asociada al Operativo.`,
           );
         }
@@ -383,7 +399,10 @@ export class OperativoFicha implements OnInit {
    * completa), esto actúa sobre la OT — hay que releer el Operativo para reflejar su nuevo
    * estado en la tabla de Recepción, sin pasar por el skeleton de carga inicial.
    */
-  private ejecutarSobreOrden(peticion: ReturnType<OrdenesDeTrabajo['anular']>, mensaje: string): void {
+  private ejecutarSobreOrden(
+    peticion: ReturnType<OrdenesDeTrabajo['anular']>,
+    mensaje: string,
+  ): void {
     const operativo = this.operativo();
     if (!operativo) {
       return;
@@ -504,6 +523,13 @@ export class OperativoFicha implements OnInit {
 
   /** Se pide bajo demanda al entrar a la pestaña — no en `cargar()`, para no pagar el costo
    * en las otras pestañas, que son las que se usan más seguido. */
+  protected alCambiarPestania(indice: number): void {
+    // 0 Recepción · 1 Reporte de Cristales · 2 Gastos
+    if (indice === 1) {
+      this.cargarReporteCristales();
+    }
+  }
+
   protected cargarReporteCristales(): void {
     if (this.reporteCristales() !== null || this.cargandoReporte()) {
       return;
@@ -512,101 +538,42 @@ export class OperativoFicha implements OnInit {
     this.operativosService.reporteCristales(this.publicId()).subscribe({
       next: (items) => {
         this.reporteCristales.set(items);
+        this.seleccionReporte.set(new Set(items.map((i) => i.ordenPublicId)));
         this.cargandoReporte.set(false);
       },
       error: () => this.cargandoReporte.set(false),
     });
   }
 
-  protected abrirReporteImprimible(): void {
+  /** Exporta a .xlsx solo las OT seleccionadas (sin Empresa/Sucursal: va al proveedor). */
+  protected async exportarReporteExcel(): Promise<void> {
     const operativo = this.operativo();
-    if (!operativo) {
+    if (!operativo || this.seleccionadasReporte().length === 0) {
       return;
     }
-    this.dialog.open(ReporteCristalesImprimible, {
-      data: { operativoNombre: operativo.nombre, items: this.reporteFiltrado() },
-      width: 'min(900px, 96vw)',
-      maxWidth: '96vw',
+    await descargarExcelCristales(
+      this.seleccionadasReporte(),
+      `ListaCristales_Operativo${operativo.correlativo}.xlsx`,
+    );
+  }
+
+  protected estaSeleccionada(item: ReporteCristalesItem): boolean {
+    return this.seleccionReporte().has(item.ordenPublicId);
+  }
+
+  protected alternarSeleccion(item: ReporteCristalesItem): void {
+    this.seleccionReporte.update((s) => {
+      const nueva = new Set(s);
+      if (!nueva.delete(item.ordenPublicId)) {
+        nueva.add(item.ordenPublicId);
+      }
+      return nueva;
     });
   }
 
-  /**
-   * "Exportar a Excel" del criterio de aceptación: un CSV que Excel abre directo, sin sumar una
-   * librería de generación de .xlsx al proyecto — mismo criterio de "no agregar infraestructura
-   * nueva sin necesidad real" que ya se aplicó al resto del módulo. Una fila por receta (una OT
-   * puede tener más de una).
-   */
-  protected exportarReporteExcel(): void {
-    const operativo = this.operativo();
-    if (!operativo) {
-      return;
-    }
-
-    const encabezados = [
-      'N° OT',
-      'Cliente',
-      'Estado',
-      'Fecha atención',
-      'OD Esfera Lejos',
-      'OD Cilindro Lejos',
-      'OD Eje Lejos',
-      'OI Esfera Lejos',
-      'OI Cilindro Lejos',
-      'OI Eje Lejos',
-      'DP Lejos',
-      'OD Esfera Cerca',
-      'OD Cilindro Cerca',
-      'OD Eje Cerca',
-      'OI Esfera Cerca',
-      'OI Cilindro Cerca',
-      'OI Eje Cerca',
-      'DP Cerca',
-      'ADD Lejos',
-      'Urgente',
-      'Requiere Lab',
-    ];
-
-    const filas = this.reporteFiltrado().flatMap((item) => {
-      if (item.recetas.length === 0) {
-        return [[item.numeroOT, item.clienteNombre, item.estadoOT, item.fechaAtencion ?? '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']];
-      }
-      return item.recetas.map((r) => [
-        item.numeroOT,
-        item.clienteNombre,
-        item.estadoOT,
-        item.fechaAtencion ?? '',
-        r.odEsferaLejos ?? '',
-        r.odCilindroLejos ?? '',
-        r.odEjeLejos ?? '',
-        r.oiEsferaLejos ?? '',
-        r.oiCilindroLejos ?? '',
-        r.oiEjeLejos ?? '',
-        r.dpLejos ?? '',
-        r.odEsferaCerca ?? '',
-        r.odCilindroCerca ?? '',
-        r.odEjeCerca ?? '',
-        r.oiEsferaCerca ?? '',
-        r.oiCilindroCerca ?? '',
-        r.oiEjeCerca ?? '',
-        r.dpCerca ?? '',
-        r.addLejos ?? '',
-        r.urgente ? 'Sí' : 'No',
-        r.requiereLab ? 'Sí' : 'No',
-      ]);
-    });
-
-    const csv = [encabezados, ...filas]
-      .map((fila) => fila.map((valor) => `"${String(valor).replace(/"/g, '""')}"`).join(';'))
-      .join('\r\n');
-
-    // BOM UTF-8: sin él, Excel en Windows interpreta el archivo en la codificación regional y
-    // rompe las tildes de "N°"/"Atención".
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = `reporte-cristales-operativo-${operativo.correlativo}.csv`;
-    enlace.click();
-    URL.revokeObjectURL(url);
+  protected alternarTodas(marcar: boolean): void {
+    this.seleccionReporte.set(
+      marcar ? new Set(this.reporteFiltrado().map((i) => i.ordenPublicId)) : new Set(),
+    );
   }
 }

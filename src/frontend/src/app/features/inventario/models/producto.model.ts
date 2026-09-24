@@ -10,3 +10,10 @@ export interface Producto {
   controlStock: boolean;
   categoriaId: number;
 }
+
+/** Cuerpo de alta/edición. La categoría no se envía: el backend usa "General" (único valor del catálogo). */
+export interface ProductoFormulario {
+  codigo: string;
+  descripcion: string;
+  controlStock: boolean;
+}

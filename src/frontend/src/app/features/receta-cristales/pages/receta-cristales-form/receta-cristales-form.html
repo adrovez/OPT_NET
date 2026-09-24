@@ -175,6 +175,12 @@
       </table>
     </div>
 
+    @if (mensajesGraduacion().length > 0) {
+      <p class="mat-mdc-form-field-error" role="alert">
+        {{ mensajesGraduacion().join(' ') }}
+      </p>
+    }
+
     <mat-form-field appearance="outline" class="campo">
       <mat-label>Observaciones generales</mat-label>
       <textarea matInput formControlName="observaciones" rows="3"></textarea>

@@ -39,6 +39,59 @@ export const routes: Routes = [
         loadChildren: () => import('./features/cuotas/cuotas.routes').then((m) => m.CUOTAS_ROUTES),
       },
       {
+        path: 'cobranza/reporte',
+        data: { titulo: 'Cobranza · Reporte' },
+        loadComponent: () =>
+          import('./shared/components/pagina-en-construccion/pagina-en-construccion').then(
+            (m) => m.PaginaEnConstruccion,
+          ),
+      },
+      {
+        path: 'compras',
+        data: { titulo: 'Compras' },
+        loadComponent: () =>
+          import('./shared/components/pagina-en-construccion/pagina-en-construccion').then(
+            (m) => m.PaginaEnConstruccion,
+          ),
+      },
+      {
+        path: 'inventario/ajustes',
+        data: { titulo: 'Inventario · Ajustes' },
+        loadComponent: () =>
+          import('./shared/components/pagina-en-construccion/pagina-en-construccion').then(
+            (m) => m.PaginaEnConstruccion,
+          ),
+      },
+      {
+        path: 'inventario/enviar',
+        data: { titulo: 'Inventario · Enviar' },
+        loadComponent: () =>
+          import('./shared/components/pagina-en-construccion/pagina-en-construccion').then(
+            (m) => m.PaginaEnConstruccion,
+          ),
+      },
+      {
+        path: 'inventario/recibir',
+        data: { titulo: 'Inventario · Recibir' },
+        loadComponent: () =>
+          import('./shared/components/pagina-en-construccion/pagina-en-construccion').then(
+            (m) => m.PaginaEnConstruccion,
+          ),
+      },
+      {
+        path: 'productos',
+        loadChildren: () =>
+          import('./features/productos/productos.routes').then((m) => m.PRODUCTOS_ROUTES),
+      },
+      {
+        path: 'reportes',
+        data: { titulo: 'Reportes' },
+        loadComponent: () =>
+          import('./shared/components/pagina-en-construccion/pagina-en-construccion').then(
+            (m) => m.PaginaEnConstruccion,
+          ),
+      },
+      {
         path: 'cobranza',
         loadChildren: () =>
           import('./features/cobranza/cobranza.routes').then((m) => m.COBRANZA_ROUTES),

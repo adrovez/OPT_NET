@@ -127,6 +127,10 @@ public class Operativo : AuditableEntity
         var relacion = new OperativoOT(Id, ordenDeTrabajoId, montoVendido, montoPagado);
         _ordenes.Add(relacion);
 
+        // La primera OT asociada a un Prospecto lo pasa automáticamente a Ingresado.
+        if (EstadoOperativoId == EstadosOperativo.Prospecto)
+            EstadoOperativoId = EstadosOperativo.Ingresado;
+
         RecalcularTotales();
         SetModificacion(usuarioId);
         return relacion;

@@ -55,7 +55,10 @@
       <div class="campo">
         <dt>Estado</dt>
         <dd>
-          <app-estado-operativo-chip [estadoId]="op.estadoOperativoId" [nombre]="op.estadoOperativo" />
+          <app-estado-operativo-chip
+            [estadoId]="op.estadoOperativoId"
+            [nombre]="op.estadoOperativo"
+          />
         </dd>
       </div>
       @if (op.nombreContacto || op.mailContacto || op.telefonoContacto) {
@@ -157,7 +160,7 @@
   </section>
 
   <!-- ───────── Pestañas ───────── -->
-  <mat-tab-group class="pestanias">
+  <mat-tab-group class="pestanias" (selectedIndexChange)="alCambiarPestania($event)">
     <!-- Recepción: OT asociadas + flujo Ingresado→…→Entregado (HU-OP-03 a HU-OP-09) -->
     <mat-tab>
       <ng-template mat-tab-label>
@@ -166,7 +169,9 @@
       </ng-template>
 
       <div class="panel__barra">
-        <span class="panel__conteo">{{ ordenesFiltradas().length }} de {{ op.ordenes.length }} orden(es)</span>
+        <span class="panel__conteo"
+          >{{ ordenesFiltradas().length }} de {{ op.ordenes.length }} orden(es)</span
+        >
         <div class="panel__acciones">
           <mat-form-field appearance="outline" class="filtro-estado">
             <mat-label>Filtrar por estado</mat-label>
@@ -295,14 +300,16 @@
     </mat-tab>
 
     <!-- Reporte de Cristales (HU-OP-10) -->
-    <mat-tab (click)="cargarReporteCristales()">
+    <mat-tab>
       <ng-template mat-tab-label>Reporte de Cristales</ng-template>
 
       @if (cargandoReporte()) {
         <app-list-skeleton [rows]="3" [header]="false" />
       } @else if (reporteCristales(); as reporte) {
         <div class="panel__barra">
-          <span class="panel__conteo">{{ reporteFiltrado().length }} de {{ reporte.length }} OT</span>
+          <span class="panel__conteo"
+            >{{ reporteFiltrado().length }} de {{ reporte.length }} OT</span
+          >
           <div class="panel__acciones">
             <mat-form-field appearance="outline" class="filtro-estado">
               <mat-label>Filtrar por estado</mat-label>
@@ -316,13 +323,16 @@
                 }
               </mat-select>
             </mat-form-field>
-            <button mat-button (click)="exportarReporteExcel()">
+            <mat-checkbox [checked]="todasSeleccionadas()" (change)="alternarTodas($event.checked)">
+              Seleccionar todas
+            </mat-checkbox>
+            <button
+              mat-button
+              [disabled]="seleccionadasReporte().length === 0"
+              (click)="exportarReporteExcel()"
+            >
               <mat-icon>table_view</mat-icon>
-              Exportar a Excel
-            </button>
-            <button mat-stroked-button (click)="abrirReporteImprimible()">
-              <mat-icon>print</mat-icon>
-              Exportar a PDF
+              Exportar a Excel ({{ seleccionadasReporte().length }})
             </button>
           </div>
         </div>
@@ -337,6 +347,11 @@
           @for (item of reporteFiltrado(); track item.ordenPublicId) {
             <section class="reporte-ot">
               <header class="reporte-ot__cabecera">
+                <mat-checkbox
+                  [checked]="estaSeleccionada(item)"
+                  (change)="alternarSeleccion(item)"
+                  [attr.aria-label]="'Seleccionar OT ' + item.numeroOT"
+                />
                 <span class="opt-mono">OT N° {{ item.numeroOT }}</span>
                 <span>{{ item.clienteNombre }}</span>
                 <app-estado-ot-chip [estadoId]="item.estadoOTId" [nombre]="item.estadoOT" />

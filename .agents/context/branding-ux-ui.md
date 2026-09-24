@@ -188,7 +188,7 @@ Vive enteramente en `layout/shell/shell.ts`/`.html`/`.scss`, ya no hay `mat-side
 árbol de `Shell`. Estructural, no afectado por el cambio de paleta/tipografía de v2.0.
 
 - **Desktop (≥960px)**: cada `GrupoNav` con un solo ítem se renderiza como link directo (`mat-button`
-  + `routerLink`) en la barra; un grupo con más de un ítem (hoy solo "Organización") se renderiza como
+  + `routerLink`) en la barra; un grupo con más de un ítem (desde 2026-09-23 los 4: Administración, Comercial, Inventario y un Reportes de ítem único) se renderiza como
   botón con `[matMenuTriggerFor]` que abre un `mat-menu` (dropdown) con sus ítems. El template ref del
   `mat-menu` se declara dentro del mismo bloque `@for` — cada iteración obtiene su propia instancia,
   no hace falta un array paralelo de referencias.
@@ -431,3 +431,7 @@ resto de la aplicación. El contrato es:
 - Construyendo un alta con varias etapas o algo que se imprima → ver "Asistentes por pasos e impresión": stepper con un `FormGroup` por paso, diálogos existentes para crear entidades relacionadas, y `@media print` solo en `styles.scss`.
 - Bloqueando la edición de una entidad por su propio estado, mostrando una opción "reciente" entre muchas, o pidiendo elegir una de varias modalidades excluyentes → ver la tabla de "Patrones de UI agregados" (aviso de bloqueo, combo + historial colapsable, tarjetas de modalidad).
 - Proponiendo un color/combinación no cubierta aquí → calcular su contraste WCAG antes de proponerla, y si se adopta, añadirla a este archivo y a `Manual_Tecnico_UX_OPT.docx` en la misma sesión.
+
+### Agrupación del menú (sesión 2026-09-23)
+
+`gruposNav` en `layout/shell/shell.ts` tiene 4 grupos en orden alfabético: **Administración** (Empresas, Sucursales, Usuarios), **Comercial** (Clientes, Cobranza, Cobranza: Reporte, Operativos, Órdenes de Trabajo), **Inventario** (Ajustes, Compras, Enviar, Productos, Recibir, Stock) y **Reportes** (ítem único). Ítems dentro de cada grupo también alfabéticos. Un ítem nuevo va al grupo funcional que corresponda; grupo nuevo solo si no encaja. Solo cambió la lista de datos, no el template ni las rutas.
