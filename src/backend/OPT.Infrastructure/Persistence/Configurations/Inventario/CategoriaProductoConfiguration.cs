@@ -23,9 +23,14 @@ public sealed class CategoriaProductoConfiguration : IEntityTypeConfiguration<Ca
                .IsUnique()
                .HasDatabaseName("UQ_CategoriasProducto_Nombre");
 
-        // ── Seed: el legacy no modela categorías de producto — se parte con una sola ──
+        // ── Seed: el legacy no modela categorías de producto. "General" se conserva; las 4 reales
+        //    se agregaron en el script 014 (ADR 0013). Los ids viven en CategoriaProductoIds. ──
         builder.HasData(
-            new { Id = 1, Nombre = "General" }
+            new { Id = CategoriaProductoIds.General,     Nombre = "General" },
+            new { Id = CategoriaProductoIds.Marcos,      Nombre = "Marcos" },
+            new { Id = CategoriaProductoIds.Cristales,   Nombre = "Cristales" },
+            new { Id = CategoriaProductoIds.LentesDeSol, Nombre = "Lentes de Sol" },
+            new { Id = CategoriaProductoIds.Otros,       Nombre = "Otros" }
         );
     }
 }

@@ -10,9 +10,8 @@ public sealed class ObtenerProductosQueryHandler(IProductoRepositorio productoRe
     public async Task<PagedResult<ProductoDto>> Handle(
         ObtenerProductosQuery request, CancellationToken ct)
     {
-        var (items, total) = await productoRepo.BuscarPaginadoAsync(request, ct);
+        var (items, total) = await productoRepo.BuscarPaginadoAsync(request, request.CategoriaId, ct);
 
-        return PagedResultFactory.Crear(items, total, request, p =>
-            new ProductoDto(p.Id, p.Codigo, p.Descripcion, p.ControlStock, p.CategoriaId));
+        return PagedResultFactory.Crear(items, total, request, ProductoDtoFactory.Crear);
     }
 }

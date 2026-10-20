@@ -1,0 +1,23 @@
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--opt-space-sm);
+  align-items: flex-start;
+  margin-bottom: var(--opt-space-sm);
+}
+
+.sucursal {
+  flex: 0 1 260px;
+}
+
+.busqueda {
+  flex: 1 1 260px;
+}
+
+.tabla {
+  width: 100%;
+}
+
+.dato-secundario {
+  color: var(--mat-sys-on-surface-variant);
+}

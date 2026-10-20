@@ -107,6 +107,11 @@ export const routes: Routes = [
           import('./features/inventario/inventario.routes').then((m) => m.INVENTARIO_ROUTES),
       },
       {
+        path: 'bodegas',
+        loadChildren: () =>
+          import('./features/bodegas/bodegas.routes').then((m) => m.BODEGAS_ROUTES),
+      },
+      {
         path: 'sucursales',
         loadChildren: () =>
           import('./features/sucursales/sucursales.routes').then((m) => m.SUCURSALES_ROUTES),

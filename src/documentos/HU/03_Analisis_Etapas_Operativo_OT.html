@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etapas del Operativo y de la OT — Inventario y propuesta</title>
+<style>
+  :root{
+    --azul:#1d4ed8; --azul-suave:#eef2ff; --verde:#15803d; --verde-suave:#ecfdf5;
+    --rojo:#b91c1c; --rojo-suave:#fef2f2; --amb:#b45309; --amb-suave:#fffbeb;
+    --morado:#6d28d9; --morado-suave:#f5f3ff;
+    --gris:#475569; --gris-suave:#f1f5f9; --borde:#e2e8f0; --texto:#1e293b;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Calibri,Arial,sans-serif;color:var(--texto);max-width:1020px;margin:0 auto;padding:40px 24px 80px;line-height:1.55;font-size:15px;background:#fff}
+  h1{font-size:26px;margin-bottom:4px;color:#0f172a}
+  .subtitulo{color:var(--gris);font-size:14px;margin-bottom:28px}
+  h2{font-size:19px;margin-top:44px;padding-bottom:8px;border-bottom:2px solid var(--azul);color:#0f172a}
+  h3{font-size:16px;margin-top:26px;color:#0f172a}
+  h4{font-size:14px;margin-top:18px;color:var(--gris)}
+  p{margin:10px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin:14px 0 20px;font-size:13.5px}
+  th,td{border:1px solid var(--borde);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--gris-suave);font-weight:600}
+  tr:nth-child(even) td{background:#fafbfc}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+  .b-nuevo{background:var(--rojo-suave);color:var(--rojo)}
+  .b-ajuste{background:var(--amb-suave);color:var(--amb)}
+  .b-existente{background:var(--verde-suave);color:var(--verde)}
+  .b-abierta{background:var(--azul-suave);color:var(--azul)}
+  .caja{border:1px solid var(--borde);border-left:4px solid var(--azul);background:var(--azul-suave);padding:14px 18px;border-radius:4px;margin:16px 0}
+  .caja.alerta{border-left-color:var(--amb);background:var(--amb-suave)}
+  .caja.critica{border-left-color:var(--rojo);background:var(--rojo-suave)}
+  .caja.ok{border-left-color:var(--verde);background:var(--verde-suave)}
+  .caja h4{margin-top:0;color:inherit}
+  code{background:var(--gris-suave);padding:1px 6px;border-radius:4px;font-size:13px;font-family:Consolas,monospace}
+  .toc{background:var(--gris-suave);border:1px solid var(--borde);border-radius:6px;padding:16px 24px;margin:24px 0}
+  .toc ol{margin:4px 0}
+  .toc a{color:var(--azul);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--borde);font-size:12px;color:var(--gris)}
+  .num-p{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--azul);color:#fff;font-size:12px;font-weight:700;margin-right:8px}
+  .num-h{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--rojo);color:#fff;font-size:12px;font-weight:700;margin-right:6px}
+
+  /* Diagramas de flujo */
+  .flujo{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 4px}
+  .paso{border:1px solid var(--borde);border-radius:6px;padding:6px 10px;font-size:12.5px;font-weight:600;background:#fff;white-space:nowrap}
+  .paso small{display:block;font-weight:400;color:var(--gris);font-size:11px}
+  .paso.ini{background:var(--azul-suave);border-color:#c7d2fe}
+  .paso.fin{background:var(--verde-suave);border-color:#bbf7d0}
+  .paso.anu{background:var(--rojo-suave);border-color:#fecaca;color:var(--rojo)}
+  .flecha{color:var(--gris);font-size:13px}
+  .nota-flujo{font-size:12.5px;color:var(--gris);margin:2px 0 14px}
+
+  /* Carriles (propuesta) */
+  .carriles{border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin:16px 0}
+  .carril{display:grid;grid-template-columns:130px repeat(9,1fr);font-size:11.5px}
+  .carril + .carril{border-top:1px solid var(--borde)}
+  .carril > div{padding:8px 6px;border-left:1px solid var(--borde);text-align:center}
+  .carril > div:first-child{border-left:none;text-align:left;font-weight:700;background:var(--gris-suave)}
+  .carril.cab > div{background:var(--gris-suave);font-weight:600;color:var(--gris)}
+  .span{font-weight:600;border-radius:4px}
+  .c-pros{background:var(--morado-suave);color:var(--morado)}
+  .c-ing{background:var(--azul-suave);color:var(--azul)}
+  .c-cob{background:var(--amb-suave);color:var(--amb)}
+  .c-cer{background:var(--verde-suave);color:var(--verde)}
+  .c-ot{background:#fff}
+  .gate{background:#fff;color:var(--rojo);font-weight:700}
+  @media (max-width:760px){
+    body{padding:24px 16px 60px}
+    .carriles{overflow-x:auto}
+    .carril{min-width:760px}
+  }
+
+  /* Maqueta de progreso */
+  .maqueta{border:1px dashed #94a3b8;border-radius:8px;padding:14px 16px;margin:14px 0;background:#fcfcfd}
+  .barra{display:flex;height:22px;border-radius:4px;overflow:hidden;font-size:11px;color:#fff;font-weight:600}
+  .barra span{display:flex;align-items:center;justify-content:center}
+  .leyenda{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--gris);margin-top:8px}
+  .leyenda i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<h1>Etapas del Operativo y de la Orden de Trabajo</h1>
+<div class="subtitulo">Inventario del estado actual y propuesta para que las OT de un Operativo avancen en conjunto con él<br>
+Sistema OPT · Análisis sobre el código vigente (sin modificaciones) · 2026-09-28 · <strong>Borrador para validación</strong></div>
+
+<div class="toc">
+<strong>Contenido</strong>
+<ol>
+<li><a href="#resumen">Resumen ejecutivo</a></li>
+<li><a href="#op">Inventario: etapas del Operativo</a></li>
+<li><a href="#ot">Inventario: etapas de la OT</a></li>
+<li><a href="#relacion">Cómo se relacionan hoy los dos flujos</a></li>
+<li><a href="#hallazgos">Brechas e inconsistencias detectadas</a></li>
+<li><a href="#propuesta">Propuesta: un Operativo que avanza junto a sus OT</a></li>
+<li><a href="#impacto">Impacto por capa</a></li>
+<li><a href="#preguntas">Preguntas para validar antes de codificar</a></li>
+</ol>
+</div>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="resumen">1. Resumen ejecutivo</h2>
+<p>Hoy existen <strong>dos máquinas de estado completas pero totalmente independientes</strong>: la del Operativo (5 estados) y la de la OT (8 estados). El Operativo es un "contenedor" de OT: sabe cuáles tiene y guarda una copia de sus montos, pero <strong>no consulta ni condiciona el estado de ellas</strong>, y la OT tampoco sabe si su Operativo está cerrado.</p>
+<p>En la práctica de terreno, las OT de una jornada se reciben el mismo día y recorren laboratorio, montaje y despacho <strong>casi como un lote</strong>. El sistema actual obliga a avanzarlas de a una (una fila, un clic, una confirmación) y permite que el Operativo pase a Cobranza o se cierre mientras sus OT siguen en producción.</p>
+<div class="caja">
+<h4>Propuesta en una línea</h4>
+Mantener los dos catálogos como están, y unirlos con tres piezas: <strong>(1)</strong> avance masivo de las OT desde el Operativo, <strong>(2)</strong> reglas de paso del Operativo que dependen del estado de sus OT, y <strong>(3)</strong> una barra de progreso del lote en la ficha. Además, cerrar las brechas de consistencia detectadas (sección 5).
+</div>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="op">2. Inventario: etapas del Operativo</h2>
+<p>Catálogo <code>OPT_EstadoOperativo</code> (script <code>009_modulo_operativo.sql</code>) · reglas en <code>OPT.Domain/Entities/Operativo/EstadosOperativo.cs</code> y <code>Operativo.cs</code>.</p>
+
+<div class="flujo">
+  <span class="paso ini">1 · PROSPECTO<small>nace aquí</small></span><span class="flecha">→</span>
+  <span class="paso">2 · INGRESADO<small>"Iniciar recepción"</small></span><span class="flecha">→</span>
+  <span class="paso">3 · COBRANZA</span><span class="flecha">→</span>
+  <span class="paso fin">4 · CERRADO<small>terminal</small></span>
+  <span class="flecha">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+  <span class="paso anu">5 · ANULADO<small>terminal · solo desde 1 o 2</small></span>
+</div>
+<p class="nota-flujo">Solo avance, de a un paso. Sin retroceso. Anular es una acción separada que exige motivo.</p>
+
+<table>
+<tr><th style="width:26%">Regla</th><th>Comportamiento actual</th><th style="width:26%">Dónde vive</th></tr>
+<tr><td>Transición</td><td>Solo al estado siguiente (<code>nuevo == actual + 1</code>). No hay retroceso.</td><td><code>Operativo.CambiarEstado</code></td></tr>
+<tr><td>Paso automático 1 → 2</td><td>Al asociar la <strong>primera OT</strong> a un Prospecto, pasa solo a Ingresado. También existe el botón manual "Iniciar recepción".</td><td><code>Operativo.AsociarOrden</code></td></tr>
+<tr><td>Anular</td><td>Solo desde Prospecto o Ingresado; motivo obligatorio. El motivo se concatena en <code>Observacion</code> ("ANULADO: …").</td><td><code>Operativo.Anular</code>, <code>EstadosOperativo.PuedeAnularseDesde</code></td></tr>
+<tr><td>Bloqueo por estado terminal</td><td>En Cerrado/Anulado no se edita la cabecera ni se asocian/quitan OT.</td><td><code>GarantizarModificable</code></td></tr>
+<tr><td>Gastos</td><td>Se registran/eliminan en cualquier estado <strong>excepto Anulado</strong> (sí en Cerrado).</td><td><code>RegistrarGasto</code>, <code>EliminarGasto</code></td></tr>
+<tr><td>Recalcular montos</td><td>Manual (botón). Refresca los snapshots de precio/abonado de cada OT. Permitido en Cerrado.</td><td><code>RecalcularMontosDesdeOT</code></td></tr>
+<tr><td>Historial de cambios</td><td><span class="badge b-nuevo">No existe</span> No hay bitácora del Operativo: no se sabe quién ni cuándo lo avanzó.</td><td>—</td></tr>
+<tr><td>Roles — avanzar</td><td>Administrador, Supervisor, Jefe de Sucursal, Vendedor, Operador.</td><td><code>OperativosController</code> <code>POST {id}/estado</code></td></tr>
+<tr><td>Roles — anular</td><td>Administrador, Supervisor, Jefe de Sucursal.</td><td><code>POST {id}/anular</code></td></tr>
+<tr><td>UI</td><td>Ficha del Operativo: botón "Avanzar a X" (o "Iniciar recepción"), botón Anular, chip de estado.</td><td><code>features/operativos/pages/operativo-ficha</code></td></tr>
+</table>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="ot">3. Inventario: etapas de la OT</h2>
+<p>Catálogo <code>OPT_EstadoOT</code> (scripts <code>002</code> y <code>005</code>) · reglas en <code>OPT.Domain/Entities/Comercial/EstadosOT.cs</code> y <code>OrdenDeTrabajo.cs</code>.</p>
+
+<div class="flujo">
+  <span class="paso ini">0 · INGRESADO</span><span class="flecha">⇄</span>
+  <span class="paso">1 · EN PROCESO</span><span class="flecha">⇄</span>
+  <span class="paso">2 · MONTAJE</span><span class="flecha">⇄</span>
+  <span class="paso">3 · LABORATORIO</span><span class="flecha">⇄</span>
+  <span class="paso">4 · CALIDAD</span><span class="flecha">⇄</span>
+  <span class="paso">5 · DESPACHO</span><span class="flecha">→</span>
+  <span class="paso fin">6 · ENTREGADO<small>terminal</small></span>
+  <span class="flecha">&nbsp;|&nbsp;</span>
+  <span class="paso anu">7 · ANULADO<small>terminal · desde 0–5</small></span>
+</div>
+<p class="nota-flujo">⇄ = avanza de a uno; puede retroceder de a uno con observación obligatoria.</p>
+
+<table>
+<tr><th style="width:26%">Regla</th><th>Comportamiento actual</th><th style="width:26%">Dónde vive</th></tr>
+<tr><td>Transición</td><td>Avanza al siguiente o retrocede uno (con observación). No se saltan etapas.</td><td><code>OrdenDeTrabajo.CambiarEstado</code></td></tr>
+<tr><td>Anular</td><td>Desde cualquier estado salvo Entregado; motivo obligatorio. La OT sigue visible en listados.</td><td><code>OrdenDeTrabajo.Anular</code></td></tr>
+<tr><td>Bitácora</td><td><span class="badge b-existente">Existe</span> Cada cambio (incluida la anulación) queda en <code>OPT_BitacoraOT</code> con estado anterior, nuevo, usuario y observación.</td><td><code>BitacoraOT.Registrar</code></td></tr>
+<tr><td>Bloqueo por estado terminal</td><td>Entregado/Anulado no admiten edición, abonos, pagos ni cuotas. Reimprimir ticket sí.</td><td><code>GarantizarModificable</code></td></tr>
+<tr><td>Roles — cambiar estado</td><td>Administrador, Supervisor, Jefe de Sucursal, Vendedor, Operador, Control Calidad, Técnico Médico. <strong>Igual para todas las etapas.</strong></td><td><code>OrdenesDeTrabajoController</code> <code>POST {id}/estado</code></td></tr>
+<tr><td>Roles — anular</td><td>Administrador, Supervisor, Jefe de Sucursal.</td><td><code>POST {id}/anular</code></td></tr>
+<tr><td>Autorización por sucursal</td><td>El handler valida que la OT sea de una sucursal del usuario.</td><td><code>AutorizacionSucursal.ValidarAcceso</code></td></tr>
+<tr><td>UI</td><td>Ficha de la OT: barra de flujo con avanzar / retroceder / anular. Desde el Operativo, pestaña <strong>Recepción</strong>: "Avanzar etapa" y "Anular OT" <strong>fila por fila</strong>, con filtro por estado.</td><td><code>orden-de-trabajo-ficha</code>, <code>operativo-ficha</code> (<code>avanzarOrden</code>)</td></tr>
+</table>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="relacion">4. Cómo se relacionan hoy los dos flujos</h2>
+<table>
+<tr><th style="width:34%">Punto de contacto</th><th>¿Existe?</th><th>Detalle</th></tr>
+<tr><td>Asociar primera OT pasa el Operativo a Ingresado</td><td><span class="badge b-existente">Sí</span></td><td>Único acople automático entre ambos flujos.</td></tr>
+<tr><td>La ficha del Operativo muestra el estado de cada OT</td><td><span class="badge b-existente">Sí</span></td><td><code>OperativoDtoFactory</code> resuelve <code>EstadoOTId</code>/<code>EstadoOT</code> por fila.</td></tr>
+<tr><td>Avanzar varias OT a la vez</td><td><span class="badge b-nuevo">No</span></td><td>Solo fila por fila, cada una con su diálogo de confirmación.</td></tr>
+<tr><td>El Operativo exige un estado mínimo de sus OT para avanzar</td><td><span class="badge b-nuevo">No</span></td><td>Puede ir a Cobranza o Cerrado con OT en Ingresado o Montaje.</td></tr>
+<tr><td>La OT respeta el estado terminal de su Operativo</td><td><span class="badge b-nuevo">No</span></td><td>Ningún comando de OT consulta su Operativo (solo lo hacen las <em>queries</em> de listado/ficha).</td></tr>
+<tr><td>Vista resumida de "dónde está el lote"</td><td><span class="badge b-nuevo">No</span></td><td>Solo el filtro por estado en Recepción.</td></tr>
+<tr><td>Montos del Operativo reflejan cambios de la OT</td><td><span class="badge b-ajuste">Manual</span></td><td>Snapshot al asociar; se refresca con "Recalcular montos".</td></tr>
+</table>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="hallazgos">5. Brechas e inconsistencias detectadas</h2>
+
+<table>
+<tr><th style="width:4%">#</th><th style="width:30%">Brecha</th><th>Consecuencia</th><th style="width:12%">Severidad</th></tr>
+<tr><td><span class="num-h">1</span></td><td>Flujos desacoplados</td><td>Un Operativo puede estar en Cobranza o Cerrado con OT todavía en producción. El estado del Operativo no dice nada fiable de su avance real.</td><td><span class="badge b-nuevo">Alta</span></td></tr>
+<tr><td><span class="num-h">2</span></td><td>OT modificable dentro de un Operativo Cerrado</td><td>Se puede avanzar, anular o registrar pagos en una OT de un Operativo cerrado. Contradice la HU de cierre ("ningún dato del Operativo admite modificación") y descuadra sus totales.</td><td><span class="badge b-nuevo">Alta</span></td></tr>
+<tr><td><span class="num-h">3</span></td><td>CALIDAD sin restricción de rol</td><td>La HU-OP-08 afirma que solo Control Calidad confirma esa etapa "igual que hoy", pero no hay tal regla en dominio, handler ni controller.</td><td><span class="badge b-ajuste">Media</span></td></tr>
+<tr><td><span class="num-h">4</span></td><td>OT anuladas suman en "Vendido"</td><td><code>RecalcularTotales</code> suma todos los snapshots sin excluir OT anuladas: infla Vendido y la ganancia derivada.</td><td><span class="badge b-ajuste">Media</span></td></tr>
+<tr><td><span class="num-h">5</span></td><td>Se puede asociar una OT en cualquier estado</td><td>Una OT ya Entregada o Anulada puede entrar a un Operativo en curso.</td><td><span class="badge b-ajuste">Media</span></td></tr>
+<tr><td><span class="num-h">6</span></td><td>Sin bitácora del Operativo</td><td>No hay trazabilidad de quién avanzó/anuló el Operativo ni cuándo; el motivo de anulación queda mezclado en <code>Observacion</code>.</td><td><span class="badge b-ajuste">Media</span></td></tr>
+<tr><td><span class="num-h">7</span></td><td>Quitar la última OT no revierte a Prospecto</td><td>Un Operativo puede quedar en Ingresado sin OT.</td><td><span class="badge b-abierta">Baja</span></td></tr>
+<tr><td><span class="num-h">8</span></td><td>Nombres técnicos del catálogo en pantalla</td><td>Recepción muestra "EN PROCESO", "LABORATORIO"; la reunión habló de "Solicitar cristales", "Control de calidad de montaje" (pregunta abierta N.º 2 del Análisis de Impacto).</td><td><span class="badge b-abierta">Baja</span></td></tr>
+</table>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="propuesta">6. Propuesta: un Operativo que avanza junto a sus OT</h2>
+
+<h3>6.1 Idea central</h3>
+<p>El Operativo pasa a comportarse como un <strong>lote de OT</strong>: su etapa se lee a partir de dónde están sus OT, sus transiciones se habilitan según ellas, y desde su ficha se mueven todas juntas. Se toleran rezagadas (una OT cuyo cristal se atrasó) porque cada OT conserva su propio estado y bitácora.</p>
+
+<p>Mapa de cómo conviven ambos flujos (en rojo, las nuevas reglas de paso):</p>
+<div class="carriles">
+  <div class="carril cab"><div></div><div>—</div><div>Ingresado</div><div>En proceso</div><div>Montaje</div><div>Laboratorio</div><div>Calidad</div><div>Despacho</div><div>Entregado</div><div>Cobro</div></div>
+  <div class="carril"><div>OT (cada una)</div><div class="c-ot">—</div><div class="c-ot">●</div><div class="c-ot">●</div><div class="c-ot">●</div><div class="c-ot">●</div><div class="c-ot">●</div><div class="c-ot">●</div><div class="c-ot">●</div><div class="c-ot">abonos / cuotas</div></div>
+  <div class="carril"><div>Operativo</div><div class="span c-pros">PROSPECTO</div><div class="span c-ing" style="grid-column:span 6">INGRESADO — lote en producción (barra de progreso)</div><div class="gate">⛔ regla A</div><div class="span c-cob">COBRANZA → <span class="gate">⛔ B</span> CERRADO</div></div>
+</div>
+<p class="nota-flujo"><strong>Regla A:</strong> para pasar a Cobranza, todas las OT activas deben estar Entregadas (o Anuladas). <strong>Regla B:</strong> condición de cierre, pendiente de la pregunta abierta N.º 5 (saldo pendiente / pérdida).</p>
+
+<h3>6.2 Las piezas de la propuesta</h3>
+<table>
+<tr><th style="width:4%">#</th><th style="width:26%">Pieza</th><th>Qué hace</th><th style="width:14%">Tipo</th></tr>
+<tr><td>P1</td><td><strong>Avance masivo de OT</strong></td><td>En Recepción: checkboxes por fila + "Avanzar seleccionadas a X" (y atajo "Avanzar todas las que están en X"). Solo se habilita cuando todas las seleccionadas comparten estado. Cada OT pasa por <code>OrdenDeTrabajo.CambiarEstado</code>, así que <strong>se respetan las reglas y la bitácora</strong> de siempre. Resultado por OT (cuáles avanzaron y cuáles no, con el motivo).</td><td><span class="badge b-nuevo">Nuevo</span></td></tr>
+<tr><td>P2</td><td><strong>Reglas de paso del Operativo según sus OT</strong></td><td>Regla A: Ingresado → Cobranza solo si todas las OT no anuladas están Entregadas. Regla B: Cobranza → Cerrado según decisión de negocio (pregunta 5). Si la regla no se cumple, el botón se deshabilita con un texto que dice cuántas OT faltan y en qué estado están.</td><td><span class="badge b-ajuste">Ajuste</span></td></tr>
+<tr><td>P3</td><td><strong>Progreso del lote</strong></td><td>En la cabecera de la ficha: barra segmentada con cuántas OT hay en cada estado y la "etapa del lote" (la etapa de la OT más atrasada). También como columna compacta en el listado de Operativos.</td><td><span class="badge b-nuevo">Nuevo</span></td></tr>
+<tr><td>P4</td><td><strong>Bloqueo cruzado</strong></td><td>Los comandos de OT (cambiar estado, anular, abonos, pagos, cuotas, editar) rechazan la operación si la OT pertenece a un Operativo Cerrado o Anulado. Corrige la brecha 2.</td><td><span class="badge b-ajuste">Ajuste</span></td></tr>
+<tr><td>P5</td><td><strong>Bitácora del Operativo</strong></td><td>Tabla <code>OPT_BitacoraOperativo</code> análoga a <code>OPT_BitacoraOT</code>: estado anterior, nuevo, usuario, fecha, observación. Registra también los avances masivos ("12 OT avanzadas a MONTAJE"). Corrige la brecha 6.</td><td><span class="badge b-nuevo">Nuevo</span></td></tr>
+<tr><td>P6</td><td><strong>Correcciones menores</strong></td><td>Excluir OT anuladas de Vendido (brecha 4); solo asociar OT no terminales (brecha 5); restricción de rol en CALIDAD si se confirma (brecha 3); volver a Prospecto al quitar la última OT (brecha 7); etiquetas de negocio en pantalla si se piden (brecha 8).</td><td><span class="badge b-ajuste">Ajuste</span></td></tr>
+</table>
+
+<h3>6.3 Maqueta del progreso del lote (P3)</h3>
+<div class="maqueta">
+  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+    <strong>Operativo #14 · Empresa Ejemplo · INGRESADO</strong>
+    <span style="color:var(--gris)">Etapa del lote: <strong>MONTAJE</strong> · 20 OT activas · 1 anulada</span>
+  </div>
+  <div class="barra">
+    <span style="flex:2;background:#64748b">2</span>
+    <span style="flex:9;background:#2563eb">9 Laboratorio</span>
+    <span style="flex:6;background:#7c3aed">6 Calidad</span>
+    <span style="flex:3;background:#15803d">3 Despacho</span>
+  </div>
+  <div class="leyenda">
+    <span><i style="background:#64748b"></i>Montaje</span>
+    <span><i style="background:#2563eb"></i>Laboratorio</span>
+    <span><i style="background:#7c3aed"></i>Calidad</span>
+    <span><i style="background:#15803d"></i>Despacho</span>
+  </div>
+  <p style="font-size:12.5px;margin:10px 0 0;color:var(--gris)">[ Avanzar a COBRANZA ] deshabilitado — <em>faltan 20 OT por entregar (2 en Montaje, 9 en Laboratorio, 6 en Calidad, 3 en Despacho)</em></p>
+</div>
+<p class="nota-flujo">Datos ficticios, solo para ilustrar. Colores definitivos a tomar de los tokens <code>--opt-estado-ot-*</code> ya existentes.</p>
+
+<h3>6.4 Alternativas consideradas</h3>
+<table>
+<tr><th style="width:24%">Alternativa</th><th>Ventaja</th><th>Desventaja</th><th style="width:14%">Recomendación</th></tr>
+<tr><td><strong>A. Mantener los 5 estados + P1–P6</strong> (la propuesta)</td><td>Sin cambio de catálogo; reutiliza todo el flujo de la OT; tolera OT rezagadas.</td><td>"Ingresado" cubre mucho tiempo; el detalle lo da la barra de progreso, no el estado.</td><td><span class="badge b-existente">Recomendada</span></td></tr>
+<tr><td>B. Ampliar el catálogo del Operativo (Recepción, Producción, Despacho, Entrega, Cobranza, Cerrado)</td><td>El estado del Operativo "habla" solo, sin mirar la barra.</td><td>Duplica el flujo de la OT; hay que mantener dos máquinas sincronizadas; cambio de catálogo y datos existentes.</td><td><span class="badge b-ajuste">No por ahora</span></td></tr>
+<tr><td>C. Estado del Operativo 100% calculado desde sus OT</td><td>Imposible que se desalinee.</td><td>Se pierde la decisión humana (p. ej. cuándo iniciar cobranza); difícil con Prospecto/Anulado; cálculo en cada consulta.</td><td><span class="badge b-ajuste">No</span></td></tr>
+<tr><td>D. Avance automático del Operativo cuando la última OT se entrega</td><td>Un clic menos.</td><td>Cambios "invisibles" para el usuario; mejor sugerirlo (botón destacado) que hacerlo solo.</td><td><span class="badge b-abierta">Opcional</span></td></tr>
+</table>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="impacto">7. Impacto por capa (estimado, sujeto a validación)</h2>
+<table>
+<tr><th style="width:18%">Capa</th><th>Cambio</th><th style="width:12%">Pieza</th></tr>
+<tr><td>Base de datos</td><td>Nuevo script <code>013_bitacora_operativo.sql</code>: tabla <code>OPT_BitacoraOperativo</code>. Sin cambios en catálogos.</td><td>P5</td></tr>
+<tr><td>Domain</td><td><code>BitacoraOperativo</code>; <code>Operativo.CambiarEstado</code> recibe un resumen de estados de sus OT (sin referenciar <code>OrdenDeTrabajo</code>, igual que hoy con los montos) y valida reglas A/B; <code>RecalcularTotales</code> excluye anuladas (requiere marcar la anulación en <code>OperativoOT</code> o pasar el estado en el snapshot).</td><td>P2, P5, P6</td></tr>
+<tr><td>Application</td><td>Comando nuevo <code>AvanzarOrdenesOperativoCommand</code> (lista de OT + estado destino, en una transacción); handler de <code>CambiarEstadoOperativo</code> arma el resumen de estados; verificación "OT en Operativo terminal" en los ~10 handlers de OT (idealmente un servicio único reutilizado).</td><td>P1, P2, P4</td></tr>
+<tr><td>API</td><td><code>POST /api/operativos/{publicId}/ordenes/avanzar</code>; el DTO del Operativo gana <code>ResumenEstadosOT</code> (conteo por estado) y <code>EtapaLote</code>.</td><td>P1, P3</td></tr>
+<tr><td>Frontend</td><td>Selección múltiple y acción masiva en Recepción; barra de progreso en la ficha y columna en el listado; mensaje de por qué no se puede avanzar; pestaña "Bitácora" en la ficha del Operativo.</td><td>P1, P3, P5</td></tr>
+<tr><td>Documentación</td><td>ADR nuevo (acople Operativo ↔ OT), Manual Backend §14, Manual Frontend §6.9, Diccionario de Datos, <code>.agents/context/modulo-operativo.md</code>.</td><td>—</td></tr>
+</table>
+
+<!-- ───────────────────────────────────────────────────────── -->
+<h2 id="preguntas">8. Preguntas para validar antes de codificar</h2>
+
+<p><span class="num-p">1</span><strong>Modelo general.</strong> ¿Vamos con la alternativa A (mantener 5 estados + barra de progreso), o prefieres que el Operativo tenga más etapas propias (alternativa B)?</p>
+<p><span class="num-p">2</span><strong>Regla para pasar a Cobranza.</strong> ¿Todas las OT activas deben estar <em>Entregadas</em>, o basta con que estén en <em>Despacho</em>? ¿Se permite forzarlo (p. ej. un Supervisor con motivo) si queda alguna rezagada?</p>
+<p><span class="num-p">3</span><strong>Avance masivo.</strong> Si una de las OT seleccionadas no puede avanzar, ¿se avanzan las demás y se informa la que falló (parcial), o no se avanza ninguna (todo o nada)?</p>
+<p><span class="num-p">4</span><strong>Retroceso masivo.</strong> ¿Hace falta también "retroceder seleccionadas" (con una observación común), o el retroceso sigue siendo solo individual?</p>
+<p><span class="num-p">5</span><strong>Cierre del Operativo.</strong> ¿Se puede cerrar con saldo pendiente? (es la pregunta abierta N.º 5 del Análisis de Impacto; condiciona la regla B).</p>
+<p><span class="num-p">6</span><strong>CALIDAD.</strong> ¿Solo el rol Control Calidad (y administración) puede avanzar una OT desde/hacia Calidad, también en el avance masivo?</p>
+<p><span class="num-p">7</span><strong>OT anuladas.</strong> ¿Deben salir de "Vendido" y contarse como "Pérdida" del Operativo?</p>
+<p><span class="num-p">8</span><strong>Avance automático.</strong> Cuando se entrega la última OT, ¿el Operativo pasa solo a Cobranza, o se sugiere con un botón destacado?</p>
+
+<footer>
+Análisis realizado sobre el código de <code>src/backend</code> y <code>src/frontend</code> sin modificarlo. Referencias: <code>EstadosOperativo.cs</code>, <code>Operativo.cs</code>, <code>EstadosOT.cs</code>, <code>OrdenDeTrabajo.cs</code>, <code>BitacoraOT.cs</code>, <code>OperativosController.cs</code>, <code>OrdenesDeTrabajoController.cs</code>, <code>CambiarEstadoOrdenDeTrabajoCommandHandler.cs</code>, <code>OperativoDtoFactory.cs</code>, <code>operativo-ficha.ts</code>, scripts <code>002</code>, <code>005</code>, <code>009</code>; documentos <code>00_Analisis_Impacto.html</code> y <code>02_HU_Modulo_Operativo.html</code>.
+</footer>
+
+</body>
+</html>

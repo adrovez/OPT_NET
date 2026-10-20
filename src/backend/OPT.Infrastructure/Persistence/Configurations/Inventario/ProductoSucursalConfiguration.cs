@@ -20,9 +20,6 @@ public sealed class ProductoSucursalConfiguration : IEntityTypeConfiguration<Pro
         builder.Property(ps => ps.ProductoId).IsRequired();
         builder.Property(ps => ps.SucursalId).IsRequired();
 
-        builder.Property(ps => ps.StockActual).IsRequired();
-        builder.Property(ps => ps.StockMinimo).IsRequired();
-        builder.Property(ps => ps.StockMaximo).IsRequired();
         builder.Property(ps => ps.PrecioVenta).HasColumnType("decimal(18,2)").IsRequired();
 
         builder.HasOne<Sucursal>()
@@ -31,7 +28,7 @@ public sealed class ProductoSucursalConfiguration : IEntityTypeConfiguration<Pro
                .OnDelete(DeleteBehavior.Restrict)
                .HasConstraintName("FK_ProductoSucursales_Sucursales");
 
-        // El stock se controla por producto+sucursal de forma independiente (preservar del legacy).
+        // Un precio por producto+sucursal. El stock vive en ProductoBodega (ADR 0012).
         builder.HasIndex(ps => new { ps.ProductoId, ps.SucursalId })
                .IsUnique()
                .HasDatabaseName("UQ_ProductoSucursales_ProductoSucursal");

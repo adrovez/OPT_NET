@@ -7,6 +7,8 @@ public class ActualizarProductoCommandValidator : AbstractValidator<ActualizarPr
     public ActualizarProductoCommandValidator()
     {
         RuleFor(x => x.Codigo).NotEmpty().WithMessage("El código es obligatorio.").MaximumLength(50);
-        RuleFor(x => x.Descripcion).NotEmpty().WithMessage("La descripción es obligatoria.").MaximumLength(200);
+
+        ProductoValidacion.Aplicar(this, x => x.Descripcion, x => x.CategoriaId,
+            x => x.Marca, x => x.Modelo, x => x.Color);
     }
 }

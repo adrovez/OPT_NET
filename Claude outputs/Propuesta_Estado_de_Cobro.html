@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propuesta Estado de Cobro</title>
+<style>
+  :root{--bg:#f7f8fa;--card:#fff;--ink:#1c2430;--mute:#5d6b7c;--line:#e1e5eb;--acc:#1f5fbf;--warn:#b45309;--warnbg:#fff4e0;--ok:#166534;--okbg:#e8f6ec;--bad:#9b1c1c;--badbg:#fdeaea;--code:#0f172a;--codefg:#e2e8f0}
+  @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#171e28;--ink:#e6ebf2;--mute:#9aa7b8;--line:#2a3442;--acc:#6ea3f2;--warn:#f5b563;--warnbg:#2c2314;--ok:#7bd89a;--okbg:#14261b;--bad:#f09a9a;--badbg:#2e1818}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  main{max-width:1000px;margin:0 auto;padding:28px 16px 60px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:19px;margin:34px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:15.5px;margin:20px 0 6px}
+  p.sub{color:var(--mute);margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0}
+  .resumen{border-left:4px solid var(--acc)}
+  code{font:13px/1.4 ui-monospace,Consolas,monospace;background:var(--line);padding:1px 5px;border-radius:4px}
+  pre{background:var(--code);color:var(--codefg);padding:14px;border-radius:8px;overflow:auto;font:12.5px/1.5 ui-monospace,Consolas,monospace;margin:8px 0}
+  pre code{background:none;padding:0}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14px;background:var(--card)}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:var(--bg)}
+  .pill{display:inline-block;font-size:12.5px;font-weight:600;padding:1px 9px;border-radius:99px}
+  .p-ok{background:var(--okbg);color:var(--ok)} .p-par{background:var(--warnbg);color:var(--warn)} .p-bad{background:var(--badbg);color:var(--bad)} .p-gr{background:var(--line);color:var(--mute)}
+  .hall{border-left:4px solid var(--warn);background:var(--warnbg);border-radius:8px;padding:10px 14px;margin:10px 0}
+  .ok{border-left:4px solid var(--ok);background:var(--okbg);border-radius:8px;padding:10px 14px;margin:10px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  ul,ol{padding-left:20px;margin:6px 0}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Propuesta: Estado de Cobro de OT y Cuotas</h1>
+<p class="sub">Qué OT se pagaron, cuáles pagaron una parte y cuáles siguen completamente adeudadas · 7 oct 2026</p>
+
+<div class="card resumen">
+<strong>Idea central.</strong> Hoy hay tres «verdades» que se contradicen: el estado de la OT, el estado de cada cuota y el dinero realmente registrado (abonos + pagos). Si alguien pagó pero no marcó la cuota, el sistema no lo sabe.
+La propuesta es que <strong>la única fuente de verdad sea el dinero registrado</strong>, y que el estado de cobro de la OT y el de cada cuota <strong>se deriven de él</strong> en lugar de digitarse a mano. Para el atraso histórico se agrega una categoría explícita <em>«Por conciliar»</em> y una herramienta de regularización masiva.
+</div>
+
+<h2>1. Diagnóstico: por qué hoy no se puede responder la pregunta</h2>
+
+<div class="hall"><strong>A. Marcar una cuota como pagada no mueve el saldo.</strong>
+<code>OrdenDeTrabajo.PagarCuota()</code> cambia solo el estado de la cuota, «sin registrar un <code>Pago</code>» (lo dice su propio comentario). El <code>Saldo</code> se calcula con abonos + pagos, así que una OT con las 6 cuotas «PAGADA» puede seguir con el saldo completo, y a la inversa.</div>
+
+<div class="hall"><strong>B. Pagar no marca cuotas.</strong>
+<code>RegistrarPago</code> sube <code>TotalAbonado</code> pero no imputa el dinero a ninguna cuota. Cuota y pago son dos registros independientes que nadie concilia.</div>
+
+<div class="hall"><strong>C. El estado «cobro» no existe como concepto.</strong>
+El flujo de <code>EstadoOT</code> es operativo (Ingresado … Entregado, Anulado); no dice si está pagada. El legacy tenía <code>EstadoPago</code> (PENDIENTE/PAGADO) y se perdió; hoy solo hay <code>Saldo &gt; 0</code>, que mezcla «no pagó nada» con «pagó casi todo».</div>
+
+<div class="hall"><strong>D. El plan de cuotas se calcula sobre el Precio, no sobre el Saldo.</strong>
+En <code>GenerarPlanCuotas</code>, <code>valorCuota = Precio / numeroCuotas</code>. Si hubo abono inicial, la suma de las cuotas supera lo que realmente se debe. (Legacy: <code>Saldo / NumeroCuota</code>.) Conviene verificarlo en el flujo del asistente de alta, porque podría compensarse en el frontend.</div>
+
+<div class="hall"><strong>E. Datos históricos.</strong>
+Se migraron 3.736 pagos y 34.110 cuotas del legacy, pero el propio usuario indica que muchas OT se cobraron sin registrar las cuotas. Para esas OT, «sin pagos registrados» no significa «no pagó».</div>
+
+<h2>2. Propuesta de modelo</h2>
+
+<h3>2.1 Estado de cobro de la OT (derivado, no digitado)</h3>
+<p>Nuevo concepto <code>EstadoCobro</code>, calculado a partir de <code>Precio</code>, <code>TotalAbonado</code> y <code>Saldo</code>, y recalculado en la misma transacción que el movimiento (regla ADR 0003, igual que <code>Saldo</code>).</p>
+<table>
+<tr><th>Estado</th><th>Regla</th><th>Responde a</th></tr>
+<tr><td><span class="pill p-ok">PAGADA</span></td><td><code>Saldo ≤ 0</code></td><td>«Se pagaron»</td></tr>
+<tr><td><span class="pill p-par">PARCIAL</span></td><td><code>TotalAbonado &gt; 0</code> y <code>Saldo &gt; 0</code></td><td>«Pagaron una parte»</td></tr>
+<tr><td><span class="pill p-bad">ADEUDADA</span></td><td><code>TotalAbonado = 0</code> y <code>Precio &gt; 0</code></td><td>«Quedaron completamente adeudadas»</td></tr>
+<tr><td><span class="pill p-gr">ANULADA</span></td><td><code>EstadoOT = ANULADO</code></td><td>Excluida de cobranza</td></tr>
+</table>
+<p>Decisión a validar: el abono inicial cuenta como «pagó una parte». Si prefieres que PARCIAL signifique «pagó al menos una cuota», se separa el abono del resto (ver preguntas abiertas).</p>
+
+<h3>2.2 Indicadores superpuestos (no son estados nuevos)</h3>
+<div class="grid">
+<div class="card"><strong>En mora</strong><br>Existe al menos una cuota no pagada con <code>FechaVencimiento &lt; hoy</code>. Permite priorizar la cobranza.</div>
+<div class="card"><strong>Por conciliar</strong><br>OT con saldo, entregada hace más de N días (propuesto 60) y <em>sin ningún pago registrado</em>. Es la zona de duda: puede estar pagada sin registrar.</div>
+<div class="card"><strong>Inconsistente</strong><br>Estado de cuotas distinto del dinero registrado (ver consulta de la sección 4).</div>
+</div>
+
+<h3>2.3 Estado de la cuota: derivado por imputación</h3>
+<ol>
+<li>Cada cuota tiene <code>MontoPagado</code> (nuevo campo). Los pagos se <strong>imputan en orden</strong> a las cuotas más antiguas (FIFO, por número).</li>
+<li>Estados: <code>PENDIENTE</code> (pagado 0), <span class="pill p-par">PARCIAL</span> (0 &lt; pagado &lt; valor, nuevo en el catálogo), <code>PAGADA</code> (pagado ≥ valor), <code>ANULADA</code>. «Vencida» no se almacena: es <code>PENDIENTE/PARCIAL</code> + fecha pasada.</li>
+<li><strong>Cambio de regla clave:</strong> «Pagar cuota» deja de ser un clic suelto; pasa a <em>registrar un Pago</em> (monto, forma, fecha) que se imputa a esa cuota. Así no se pueden volver a desfasar el estado y el dinero.</li>
+<li>Los abonos iniciales se imputan primero, de modo que el plan nuevo se genere sobre el saldo real (corrige el punto D).</li>
+</ol>
+
+<h3>2.4 Una sola regla de verdad</h3>
+<pre><code>Dinero recibido  = Σ Abonos vigentes + Σ Pagos vigentes          (única fuente)
+Saldo OT         = Precio − Dinero recibido
+EstadoCobro OT   = f(Precio, Dinero recibido, EstadoOT)           (derivado)
+Estado cuota     = f(imputación del dinero a las cuotas en orden) (derivado)</code></pre>
+
+<h2>3. Cómo resolver el histórico (OT pagadas sin registrar)</h2>
+<p>No se puede deducir automáticamente que una OT se pagó. Se propone un proceso en tres niveles, de menor a mayor intervención:</p>
+<table>
+<tr><th>Nivel</th><th>Acción</th><th>Cuándo</th></tr>
+<tr><td>1. Reglas seguras</td><td>Si <em>todas</em> las cuotas figuran PAGADA y no hay pagos, se genera un pago de regularización por cada cuota (fecha = <code>FechaPago</code> de la cuota, referencia «REGULARIZACION CUOTA»). El dinero ya estaba declarado en la cuota.</td><td>Automático, previo respaldo y revisión del listado.</td></tr>
+<tr><td>2. Carga masiva</td><td>Subir el Excel de tesorería/transferencias (OT, monto, fecha) — equivalente moderno del «Pago masivo» legacy — y generar los pagos con imputación automática.</td><td>Lotes por empresa o por periodo.</td></tr>
+<tr><td>3. Acción manual</td><td>Botón «Regularizar pago» en la ficha de la OT: registra el pago por el saldo (o parcial), con <strong>motivo obligatorio</strong> y marca de origen «regularización». Queda en bitácora.</td><td>Casos individuales, confirmados por cobranza.</td></tr>
+</table>
+<p>Lo que quede con saldo, sin pagos y antiguo se muestra como <span class="pill p-gr">Por conciliar</span> y se separa en el reporte de la deuda confirmada, para no sobrestimar la deuda real.</p>
+
+<h2>4. Consultas de diagnóstico (contra <code>dbOPT_NET</code>)</h2>
+<p>Sirven para dimensionar el problema <strong>antes</strong> de programar nada. Están escritas según el esquema real (<code>OrdenDeTrabajoId</code>, <code>Eliminado</code>, <code>EstadoOTId = 7</code> anulado, cuotas: 1 pendiente / 2 pagada / 3 anulada). No las ejecuté: no tengo conexión a tu servidor.</p>
+
+<h3>4.1 Clasificación de todas las OT</h3>
+<pre><code>;WITH ot AS (
+  SELECT o.OrdenDeTrabajoId, o.NumeroOT, o.EmpresaId, o.Precio, o.TotalAbonado, o.Saldo,
+         EstadoCobro = CASE
+            WHEN o.Saldo &lt;= 0         THEN 'PAGADA'
+            WHEN o.TotalAbonado &gt; 0  THEN 'PARCIAL'
+            ELSE                          'ADEUDADA' END
+  FROM OPT_OrdenDeTrabajo o
+  WHERE o.Eliminado = 0 AND o.EstadoOTId &lt;&gt; 7 AND o.Precio &gt; 0
+)
+SELECT EstadoCobro, COUNT(*) AS OTs, SUM(Precio) AS Precio,
+       SUM(TotalAbonado) AS Recibido, SUM(Saldo) AS Saldo
+FROM ot GROUP BY EstadoCobro ORDER BY EstadoCobro;</code></pre>
+
+<h3>4.2 Inconsistencias entre cuotas y dinero</h3>
+<pre><code>;WITH c AS (
+  SELECT OrdenDeTrabajoId,
+         Total      = COUNT(*),
+         Pagadas    = SUM(CASE WHEN EstadoCuotaId = 2 THEN 1 ELSE 0 END),
+         Pendientes = SUM(CASE WHEN EstadoCuotaId = 1 THEN 1 ELSE 0 END),
+         ValorPagadas = SUM(CASE WHEN EstadoCuotaId = 2 THEN ValorCuota ELSE 0 END)
+  FROM OPT_Cuota WHERE Eliminado = 0 AND EstadoCuotaId &lt;&gt; 3
+  GROUP BY OrdenDeTrabajoId
+), p AS (
+  SELECT OrdenDeTrabajoId, Pagos = SUM(Monto)
+  FROM OPT_Pago WHERE Eliminado = 0 GROUP BY OrdenDeTrabajoId
+)
+SELECT o.NumeroOT, o.Precio, o.TotalAbonado, o.Saldo,
+       c.Total, c.Pagadas, c.ValorPagadas, ISNULL(p.Pagos,0) AS Pagos,
+       Caso = CASE
+         WHEN c.Pagadas &gt; 0 AND ISNULL(p.Pagos,0) = 0         THEN 'A: cuotas pagadas sin pagos registrados'
+         WHEN o.Saldo &lt;= 0 AND c.Pendientes &gt; 0               THEN 'B: OT saldada con cuotas pendientes'
+         WHEN o.Saldo &gt; 0 AND c.Pendientes = 0 AND c.Total &gt; 0 THEN 'C: cuotas todas pagadas pero hay saldo'
+         ELSE 'OK' END
+FROM OPT_OrdenDeTrabajo o
+JOIN c ON c.OrdenDeTrabajoId = o.OrdenDeTrabajoId
+LEFT JOIN p ON p.OrdenDeTrabajoId = o.OrdenDeTrabajoId
+WHERE o.Eliminado = 0 AND o.EstadoOTId &lt;&gt; 7
+  AND (   (c.Pagadas &gt; 0 AND ISNULL(p.Pagos,0) = 0)
+       OR (o.Saldo &lt;= 0 AND c.Pendientes &gt; 0)
+       OR (o.Saldo &gt; 0 AND c.Pendientes = 0 AND c.Total &gt; 0));</code></pre>
+
+<h3>4.3 «Por conciliar»: saldo, sin pagos, y entregada hace más de 60 días</h3>
+<pre><code>SELECT o.NumeroOT, o.EmpresaId, o.Precio, o.TotalAbonado, o.Saldo, o.FechaEntrega
+FROM OPT_OrdenDeTrabajo o
+WHERE o.Eliminado = 0 AND o.EstadoOTId &lt;&gt; 7 AND o.Saldo &gt; 0
+  AND NOT EXISTS (SELECT 1 FROM OPT_Pago p WHERE p.OrdenDeTrabajoId = o.OrdenDeTrabajoId AND p.Eliminado = 0)
+  AND o.FechaEntrega &lt; DATEADD(DAY, -60, SYSDATETIMEOFFSET());</code></pre>
+
+<h2>5. Cambios técnicos propuestos</h2>
+<table>
+<tr><th>Capa</th><th>Cambio</th></tr>
+<tr><td>Esquema (script <code>013_estado_cobro.sql</code>, escrito junto con entidades — evitar el desajuste que dejó <code>004</code>)</td><td>• <code>OPT_Cuota.MontoPagado decimal(18,2) NOT NULL DEFAULT 0</code>.<br>• <code>OPT_EstadoCuota</code>: agregar <code>PARCIAL</code> (id 4).<br>• <code>OPT_OrdenDeTrabajo.EstadoCobroId</code> con catálogo <code>OPT_EstadoCobro</code> (PAGADA/PARCIAL/ADEUDADA), o bien columna derivada en consulta (ver decisión abierta).<br>• <code>OPT_Pago.Origen</code> (NORMAL / REGULARIZACION) y <code>CuotaId</code> opcional.<br>• Backfill del estado de cobro y de <code>MontoPagado</code> desde los datos existentes, fuera del script de esquema (carpeta <code>migracion/</code>).</td></tr>
+<tr><td>Dominio</td><td>• <code>OrdenDeTrabajo.RegistrarPago</code> imputa a cuotas y recalcula estados en la misma operación.<br>• <code>PagarCuota</code> pasa a crear un <code>Pago</code>.<br>• Corregir <code>GenerarPlanCuotas</code> para dividir el saldo, no el precio.<br>• Método <code>Regularizar(monto, motivo)</code>.</td></tr>
+<tr><td>Aplicación / API</td><td>• Filtro <code>estadoCobro</code> en el listado de OT.<br>• <code>CobranzaController</code>: devolver por empresa los tres montos (pagado / parcial / adeudado) y el aparte «por conciliar».<br>• Endpoint de carga masiva de pagos y de regularización (roles de cobranza/supervisión).</td></tr>
+<tr><td>Frontend</td><td>• Chip de cobro (verde / ámbar / rojo) en listado y ficha, usando las clases <code>.opt-chip*</code> existentes.<br>• Pestaña Cuotas con barra de avance y estado «vencida».<br>• Pantalla Cobranza con las tres columnas y filtro «por conciliar».<br>• Acción «Regularizar pago» y carga masiva.</td></tr>
+</table>
+
+<h2>6. Plan por fases</h2>
+<table>
+<tr><th>Fase</th><th>Entregable</th><th>Riesgo</th></tr>
+<tr><td>0 · Medir</td><td>Ejecutar las consultas 4.1-4.3 y revisar el volumen real de cada caso.</td><td>Ninguno (solo lectura)</td></tr>
+<tr><td>1 · Reporte</td><td>Estado de cobro calculado al vuelo en listado y Cobranza, sin tocar el esquema. Ya responde la pregunta del negocio.</td><td>Bajo</td></tr>
+<tr><td>2 · Regularizar</td><td>Reglas seguras (nivel 1), carga masiva (nivel 2), acción manual (nivel 3).</td><td>Medio: modifica datos financieros, exige respaldo y bitácora</td></tr>
+<tr><td>3 · Reglas a futuro</td><td>Imputación de pagos a cuotas, «Pagar cuota» que crea Pago, corrección del plan de cuotas, estado persistido.</td><td>Medio: cambia el dominio</td></tr>
+</table>
+<div class="ok">Recomiendo empezar por las fases 0 y 1: entregan de inmediato la respuesta pedida (pagadas / parciales / adeudadas) sin alterar ningún dato, y los números de la fase 0 definen cuánto esfuerzo realmente requiere la fase 2.</div>
+
+<h2>7. Decisiones que necesito de ti</h2>
+<ol>
+<li><strong>¿«Pagó una parte» incluye el abono inicial?</strong> Propuesto: sí. Alternativa: solo pagos de cuotas posteriores.</li>
+<li><strong>Plazo para «Por conciliar».</strong> Propuesto 60 días desde la entrega, ajustable.</li>
+<li><strong>Cuotas marcadas PAGADA sin pago:</strong> ¿se consideran dinero recibido (se generan pagos de regularización, nivel 1) o se tratan como dato dudoso?</li>
+<li><strong>Estado persistido o calculado.</strong> Persistido es más rápido en listados grandes (11 mil clientes, 12 mil OT); calculado evita un campo más que mantener. Propongo persistirlo, como ya se hace con <code>Saldo</code>.</li>
+<li><strong>Sobrepago:</strong> hoy está permitido por decisión del negocio. Con esta propuesta quedaría como PAGADA con saldo negativo (a favor del cliente); confirmar que es lo deseado.</li>
+</ol>
+
+<div class="card">
+<strong>Límites de este análisis.</strong> Se basa en el código y los scripts del repositorio. No consulté la base de datos viva ni el respaldo, por lo que las cifras de cada categoría son desconocidas hasta correr la fase 0. No revisé el frontend del asistente de alta para confirmar el punto D.
+</div>
+
+</main>
+</body>
+</html>

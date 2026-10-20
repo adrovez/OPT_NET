@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe Legacy: Deudores</title>
+<style>
+  :root{--bg:#f7f8fa;--card:#fff;--ink:#1c2430;--mute:#5d6b7c;--line:#e1e5eb;--acc:#1f5fbf;--warn:#b45309;--warnbg:#fff4e0;--ok:#166534;--okbg:#e8f6ec;--code:#0f172a;--codefg:#e2e8f0}
+  @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#171e28;--ink:#e6ebf2;--mute:#9aa7b8;--line:#2a3442;--acc:#6ea3f2;--warn:#f5b563;--warnbg:#2c2314;--ok:#7bd89a;--okbg:#14261b}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  main{max-width:980px;margin:0 auto;padding:28px 16px 60px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:19px;margin:34px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:15.5px;margin:20px 0 6px}
+  p.sub{color:var(--mute);margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0}
+  .resumen{border-left:4px solid var(--acc)}
+  .tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--line);color:var(--mute);margin-left:6px}
+  code{font:13px/1.4 ui-monospace,Consolas,monospace;background:var(--line);padding:1px 5px;border-radius:4px}
+  pre{background:var(--code);color:var(--codefg);padding:14px;border-radius:8px;overflow:auto;font:12.5px/1.5 ui-monospace,Consolas,monospace;margin:8px 0}
+  pre code{background:none;padding:0}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14px;background:var(--card)}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:var(--bg)}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+  .flow span{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+  .flow b{color:var(--mute)}
+  .hall{border-left:4px solid var(--warn);background:var(--warnbg);border-radius:8px;padding:10px 14px;margin:10px 0}
+  .hall h3{margin:0 0 4px}
+  .ok{border-left:4px solid var(--ok);background:var(--okbg);border-radius:8px;padding:10px 14px;margin:10px 0}
+  .path{color:var(--mute);font-size:12.5px;font-family:ui-monospace,Consolas,monospace}
+  ul{padding-left:20px;margin:6px 0}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Cómo se obtienen los Deudores en el Legacy</h1>
+<p class="sub">Análisis de <code>old/Fuente</code> y <code>old/BD</code> · módulo <code>OrdenTrabajo/Deuda</code> · 7 oct 2026</p>
+
+<div class="card resumen">
+  <strong>Resumen.</strong> El listado de deudores lo calcula el procedimiento almacenado <code>sp_ListaDeudores</code> (y su detalle, <code>sp_DetalleDeudores</code>). El script SQL <strong>sí existe</strong> en <code>old/BD/Create_Procedure.sql</code>.
+  Una OT es «deuda» cuando <code>OPT_OrdenDeTrabajo.EstadoPago = 'PENDIENTE'</code>. La deuda de cada empresa es
+  <strong>Σ Saldo − Σ Pagos</strong>, donde <code>Saldo = Precio − Abono</code> queda guardado en la OT y los pagos posteriores viven aparte en <code>OPT_Pago</code>. La resta de pagos <strong>se hace en la vista Razor</strong>, no en el SP.
+</div>
+
+<h2>1. Recorrido del código</h2>
+<div class="flow">
+  <span>Menú «Deudores»</span><b>→</b>
+  <span><code>DeudaController.Index()</code></span><b>→</b>
+  <span><code>OPT_OrdenDeTrabajoDAL.ListaDeudores()</code></span><b>→</b>
+  <span>EF <code>db.sp_ListaDeudores()</code></span><b>→</b>
+  <span>SP en SQL Server</span><b>→</b>
+  <span>Vista <code>Deuda/Index.cshtml</code></span>
+</div>
+
+<table>
+<tr><th>Pieza</th><th>Archivo (bajo <code>old/Fuente/</code>)</th><th>Qué hace</th></tr>
+<tr><td>Controlador</td><td class="path">OPT.Web/Areas/OrdenTrabajo/Controllers/DeudaController.cs</td><td><code>Index</code> (lista), <code>Reporte</code> (PDF), <code>Details(id)</code> (modal), <code>ReporteDetalleDeudores(id)</code> (Excel).</td></tr>
+<tr><td>DAL listado</td><td class="path">OPT.Dato/DAL/OPT_OrdenDeTrabajoDAL.cs:128</td><td><code>ListaDeudores()</code> → <code>db.sp_ListaDeudores().ToList()</code>.</td></tr>
+<tr><td>DAL detalle</td><td class="path">OPT.Dato/DAL/OPT_PagoDAL.cs:70</td><td><code>DetalleDeudores(idEmpresa)</code> → <code>db.sp_DetalleDeudores(idEmpresa)</code>.</td></tr>
+<tr><td>Mapeo EF</td><td class="path">OPT.Dato/ModelOptica.Context.cs:57-68</td><td>Importación de función de los dos SP.</td></tr>
+<tr><td>DTOs de resultado</td><td class="path">OPT.Entidad/sp_ListaDeudores_Result.cs · sp_DetalleDeudores_Result.cs</td><td>Columnas que devuelve cada SP.</td></tr>
+<tr><td>Vistas</td><td class="path">OPT.Web/Areas/OrdenTrabajo/Views/Deuda/Index.cshtml · _ModalDetails.cshtml</td><td>Tabla por empresa y modal con las OT de esa empresa.</td></tr>
+<tr><td>Reportes</td><td class="path">OPT.Web/Areas/OrdenTrabajo/Rpt/rptDeudaListar.rdlc · rptListaDeudoresDetalle2.rdlc</td><td>PDF del listado y Excel del detalle, usando los mismos SP vía TableAdapter.</td></tr>
+<tr><td>Home</td><td class="path">OPT.Web/Controllers/HomeController.cs:44</td><td><code>ViewBag.Deudores = ListaDeudores().Count()</code>: el contador del panel es el <em>número de empresas</em> con deuda, no de OT.</td></tr>
+<tr><td>Pago masivo</td><td class="path">OPT.Web/Areas/OrdenTrabajo/Controllers/PagoController.cs · OPT_OrdenDeTrabajoDAL.ListaPendiente()</td><td>Botón «Pago Masivo» del listado: carga un Excel (OT, monto) y registra pagos.</td></tr>
+</table>
+
+<h2>2. Script SQL</h2>
+<p>Ubicación: <code>old/BD/Create_Procedure.sql</code> (codificación <strong>UTF-16 LE</strong>; hay que abrirlo así o convertirlo). Base: <code>db_a25cfd_opt2</code>, generado el 20-02-2026. Líneas 462-570 del archivo convertido.</p>
+
+<h3>2.1 <code>sp_ListaDeudores</code> — una fila por empresa</h3>
+<pre><code>CREATE PROCEDURE [dbo].[sp_ListaDeudores]
+AS
+BEGIN
+	DECLARE  @TEMP TABLE
+		(idEmpresa INT, Empresa NVARCHAR(100),
+		 Precio decimal, Abono decimal, Saldo decimal, Pagado decimal, OT INT)
+
+	INSERT INTO @TEMP
+	Select    A.idEmpresa
+			 ,B.Empresa
+			 ,A.Precio as Precio
+			 ,A.Abono  as Abono
+			 ,A.Saldo  as Saldo
+			 ,(Select ISNULL(SUM(Monto),0) FROM OPT_Pago as D where D.idOt = A.idOt ) AS Pagado
+			 ,1 as OT
+	FROM OPT_OrdenDeTrabajo  as A
+	INNER JOIN OPT_Empresa  AS B ON A.idEmpresa = B.idEmpresa
+	WHERE A.EstadoPago = 'PENDIENTE'
+
+	SELECT idEmpresa, Empresa,
+		   SUM(Precio) as Precio, SUM(Abono) as Abono, SUM(Saldo) as Saldo,
+		   SUM(Pagado) as Pagado, COUNT(OT) as OT
+	FROM @TEMP
+	GROUP BY idEmpresa, Empresa
+	ORDER BY Empresa
+
+	-- (versión anterior comentada: LEFT JOIN OPT_Pago + SUM(Precio)... )
+END</code></pre>
+
+<h3>2.2 <code>sp_DetalleDeudores @idEmpresa</code> — una fila por OT pendiente</h3>
+<pre><code>CREATE PROCEDURE [dbo].[sp_DetalleDeudores] ( @idEmpresa INT )
+AS
+BEGIN
+	Select A.idEmpresa, C.Empresa, B.RutCliente, B.Nombre, A.Beneficiario,
+		   A.idOT, A.FechaAtencion, A.Precio, A.Abono, A.Saldo, A.NumeroCuota
+		  ,CASE WHEN A.NumeroCuota = 0 THEN 0
+		        ELSE CONVERT(INT,(A.Saldo / A.NumeroCuota)) END as ValorCuota
+		  ,(Select COUNT(1) FROM OPT_Pago as D where A.idOT = D.idOT) as CuotasCanceladas
+		  ,CASE WHEN A.NumeroCuota = 0 THEN A.Saldo
+				ELSE ISNULL((Select SUM(ISNULL(D.Monto,0)) FROM OPT_Pago as D where A.idOT = D.idOT),0)
+			END as MontoCancelado
+		  ,CASE WHEN A.NumeroCuota = 0 THEN 0
+				ELSE (A.Saldo - ISNULL((Select SUM(ISNULL(D.Monto,0)) FROM OPT_Pago as D where A.idOT = D.idOT),0))
+			END as TotalDeuda
+		  ,A.EstadoPago as Estado
+		  ,B.Celular
+	FROM  OPT_OrdenDeTrabajo  as A
+	INNER JOIN OPT_Cliente AS B ON A.RutCliente = B.RutCliente
+	INNER JOIN OPT_Empresa AS C ON A.idEmpresa  = C.idEmpresa
+	WHERE A.EstadoPago = 'PENDIENTE'
+	  AND A.idEmpresa = @idEmpresa
+	ORDER BY A.idOT
+END</code></pre>
+
+<h2>3. La lógica de negocio</h2>
+
+<h3>3.1 Tablas involucradas</h3>
+<table>
+<tr><th>Tabla</th><th>Campos relevantes</th><th>Rol</th></tr>
+<tr><td><code>OPT_OrdenDeTrabajo</code></td><td><code>Precio, Abono, Saldo, NumeroCuota, EstadoPago, idEmpresa</code></td><td>Define quién es deudor. <code>EstadoPago</code> es <code>varchar(50)</code> libre (<code>PENDIENTE</code>/<code>PAGADO</code>).</td></tr>
+<tr><td><code>OPT_Pago</code></td><td><code>idOT, FechaPago, Monto, TipoPago</code></td><td>Pagos posteriores al ingreso (cobranza).</td></tr>
+<tr><td><code>OPT_Abono</code></td><td><code>idOT, idFormaPago, Monto, FechaAbono</code></td><td>Abono(s) al crear la OT. Su suma queda en <code>OPT_OrdenDeTrabajo.Abono</code>.</td></tr>
+<tr><td><code>OPT_Cuota</code></td><td><code>idOT, Numero, ValorCuota, FechaBencimiento, Estado</code></td><td><strong>No participa</strong> en el cálculo de deudores.</td></tr>
+<tr><td><code>OPT_Empresa</code> / <code>OPT_Cliente</code></td><td>nombre, RUT, celular</td><td>Datos de presentación (INNER JOIN).</td></tr>
+</table>
+
+<h3>3.2 Cómo se llega a «PENDIENTE» y a «PAGADO»</h3>
+<table>
+<tr><th>Momento</th><th>Archivo</th><th>Regla</th></tr>
+<tr><td>Al completar la OT</td><td class="path">IngresoController.cs:893-897</td><td><code>Saldo = Precio − Abono</code>; <code>EstadoPago = Saldo &gt; 0 ? "PENDIENTE" : "PAGADO"</code>. Si hay saldo y <code>NumeroCuota = 0</code> lanza «Debe ingresar número de cuotas».</td></tr>
+<tr><td>Pago individual</td><td class="path">PagoController.cs:90-103</td><td>Inserta <code>OPT_Pago</code>; recalcula <code>Precio − (ΣPagos + Abono)</code>; si es ≤ 0 pasa a <code>PAGADO</code>. <strong><code>Saldo</code> de la OT no se modifica.</strong></td></tr>
+<tr><td>Pago masivo (Excel)</td><td class="path">PagoController.cs:225-265</td><td>Solo OT pendientes de la empresa. Rechaza si <code>monto &gt; Saldo − ΣPagos</code>. Si <code>ΣPagos ≥ Saldo</code> → <code>PAGADO</code>. Registra siempre <code>TipoPago = "TRANSFERENCIA"</code> y agrega bitácora «Entregado / Se realiza Pago Masivo» si aún no estaba entregada.</td></tr>
+</table>
+
+<h3>3.3 Fórmulas</h3>
+<pre><code>Saldo (guardado en OT)   = Precio − Abono                  -- se fija al ingresar; los Pagos NO lo reducen
+Pagado (por OT)          = Σ OPT_Pago.Monto
+Deuda vigente (por OT)   = Saldo − Pagado                  -- calculada en la vista Razor
+Deuda por empresa        = Σ Saldo − Σ Pagado   (solo OT con EstadoPago = 'PENDIENTE')
+Valor cuota (detalle)    = INT(Saldo / NumeroCuota)</code></pre>
+
+<div class="card">
+<strong>Dónde se resta realmente:</strong> en <code>Deuda/Index.cshtml</code>,
+<code>SaldoPendiente = long.Parse(Item.Saldo) − long.Parse(Item.Pagado)</code>; el total del pie es la suma de esos valores. El SP entrega Saldo y Pagado por separado.
+</div>
+
+<h2>4. Hallazgos y particularidades</h2>
+
+<div class="hall"><h3>1. El detalle y el listado no cuadran</h3>
+La pantalla de detalle (<code>_ModalDetails</code>) muestra y totaliza <code>Saldo</code> (bruto, sin descontar pagos), mientras el listado muestra <code>Saldo − Pagado</code>. Una OT parcialmente pagada se ve distinta en ambas pantallas. La columna <code>TotalDeuda</code> del SP existe, pero la vista no la usa.</div>
+
+<div class="hall"><h3>2. Caso <code>NumeroCuota = 0</code> inconsistente en el detalle</h3>
+En <code>sp_DetalleDeudores</code>, si <code>NumeroCuota = 0</code> entonces <code>MontoCancelado = Saldo</code> y <code>TotalDeuda = 0</code>: una OT pendiente figura como «deuda cero». El listado, en cambio, sí la cuenta completa. El alta normal lo impide, pero el pago masivo y los datos históricos pueden producirlo.</div>
+
+<div class="hall"><h3>3. Las OT sin empresa no aparecen</h3>
+Ambos SP usan <code>INNER JOIN OPT_Empresa</code>. Las OT de clientes particulares (<code>idEmpresa</code> nulo) con saldo pendiente nunca figuran como deuda. El detalle además exige existir en <code>OPT_Cliente</code>. Nota: el sistema nuevo sí las incluye (una fila con <code>empresaPublicId = null</code>).</div>
+
+<div class="hall"><h3>4. Se confía en <code>EstadoPago</code> como bandera</h3>
+Es texto libre, actualizado en tres lugares del código. Si un pago no pasa por esos flujos, la bandera queda desactualizada. El SP no verifica el saldo real (<code>Saldo − Pagado &gt; 0</code>) ni el estado de la OT en bitácora, así que una OT anulada con <code>PENDIENTE</code> seguiría contándose.</div>
+
+<div class="hall"><h3>5. Cuotas y mora: no existen en el cálculo</h3>
+<code>OPT_Cuota</code> (con vencimientos y estado) no interviene. «Cuotas canceladas» se estima como <code>COUNT(OPT_Pago)</code>, o sea 1 pago = 1 cuota; no hay noción de vencida/en mora. <code>ValorCuota</code> se trunca a entero.</div>
+
+<div class="hall"><h3>6. Por qué existe la tabla temporal</h3>
+La consulta original (comentada al final del SP) hacía <code>LEFT JOIN OPT_Pago</code> y luego <code>SUM(Precio)</code>: con N pagos por OT, el precio, abono y saldo se multiplican por N. El rediseño con subconsulta por OT evita ese error. Cualquier reimplementación debe respetar esto.</div>
+
+<div class="hall"><h3>7. Detalles menores</h3>
+<ul>
+<li>El contador «Deudores» del Home cuenta empresas, no OT ni dinero.</li>
+<li>Las columnas <code>decimal</code> del <code>@TEMP</code> sin precisión equivalen a <code>decimal(18,0)</code>: ok para pesos chilenos, truncaría decimales.</li>
+<li>El listado carga <em>todas</em> las empresas de una vez, sin paginar ni filtrar por sucursal.</li>
+</ul></div>
+
+<h2>5. Comparación con el sistema nuevo</h2>
+<table>
+<tr><th>Aspecto</th><th>Legacy</th><th>Nuevo (<code>CobranzaController</code> / <code>ObtenerDeudaPorEmpresaAsync</code>)</th></tr>
+<tr><td>Criterio de deuda</td><td><code>EstadoPago = 'PENDIENTE'</code> (texto)</td><td><code>Saldo &gt; 0</code> y <code>EstadoOTId ≠ ANULADO</code></td></tr>
+<tr><td>Saldo</td><td><code>Precio − Abono</code>; pagos aparte</td><td>Recalculado en la OT: <code>Precio − (abonos + pagos)</code></td></tr>
+<tr><td>Dónde se resta Pagado</td><td>Vista Razor</td><td>Dominio (<code>OrdenDeTrabajo</code>) y BD</td></tr>
+<tr><td>OT sin empresa</td><td>Excluidas</td><td>Fila con <code>empresaPublicId = null</code></td></tr>
+<tr><td>Anuladas</td><td>No se consideran</td><td>Excluidas</td></tr>
+<tr><td>Detalle por deudor</td><td>SP propio, con inconsistencias</td><td>Listado de OT filtrado por <code>empresaPublicId</code> + <code>soloConSaldo</code></td></tr>
+</table>
+<div class="ok">Coincide con lo que ya anotó CLAUDE.md: la migración <code>M004</code> recalculó <code>Saldo</code> como <code>abonos + pagos</code> porque el legacy dejaba 3.472 OT con el saldo inflado. Eso es consecuencia directa del punto 3.3 de este informe.</div>
+
+<h3>Consulta equivalente en una sola pasada (referencia, para validar contra el legacy)</h3>
+<pre><code>SELECT o.idEmpresa, e.Empresa,
+       COUNT(*)                          AS OT,
+       SUM(o.Precio)                     AS Precio,
+       SUM(o.Abono)                      AS Abono,
+       SUM(o.Saldo)                      AS Saldo,
+       SUM(ISNULL(p.Pagado,0))           AS Pagado,
+       SUM(o.Saldo - ISNULL(p.Pagado,0)) AS DeudaVigente
+FROM OPT_OrdenDeTrabajo o
+INNER JOIN OPT_Empresa e ON e.idEmpresa = o.idEmpresa
+OUTER APPLY (SELECT SUM(Monto) AS Pagado FROM OPT_Pago WHERE idOT = o.idOT) p
+WHERE o.EstadoPago = 'PENDIENTE'
+GROUP BY o.idEmpresa, e.Empresa
+ORDER BY e.Empresa;</code></pre>
+
+<div class="card">
+<strong>Alcance y límites.</strong> Se analizó el código fuente y los scripts <code>Create_Procedure.sql</code>/<code>Create_Table.sql</code>. No ejecuté consultas: junto a los scripts hay un respaldo <code>db_a25cfd_opt2_9_28_2026_7.bak</code>, pero no se restauró. No revisé el contenido de los archivos <code>.rdlc</code> más allá de que usan los mismos SP. Si quieres, puedo restaurar el respaldo y cuantificar cuántas OT caen en los casos 1-4.
+</div>
+
+</main>
+</body>
+</html>

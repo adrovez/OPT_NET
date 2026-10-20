@@ -105,6 +105,7 @@ export class Shell {
       icono: 'inventory_2',
       items: [
         { ruta: '/inventario/ajustes', etiqueta: 'Ajustes', icono: 'tune' },
+        { ruta: '/bodegas', etiqueta: 'Bodegas', icono: 'warehouse' },
         { ruta: '/compras', etiqueta: 'Compras', icono: 'shopping_cart' },
         { ruta: '/inventario/enviar', etiqueta: 'Enviar', icono: 'outbox' },
         { ruta: '/productos', etiqueta: 'Productos', icono: 'category' },

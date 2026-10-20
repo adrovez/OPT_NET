@@ -1,0 +1,157 @@
+<app-page-header title="Bodegas" subtitle="Lugares donde se guarda el stock de cada sucursal">
+  <button mat-flat-button color="primary" [disabled]="sucursalId() === undefined" (click)="nueva()">
+    <mat-icon>add</mat-icon>
+    Nueva bodega
+  </button>
+</app-page-header>
+
+<div class="filtros">
+  <mat-form-field appearance="outline" class="sucursal">
+    <mat-label>Sucursal</mat-label>
+    <mat-select [value]="sucursalId() ?? TODAS" (selectionChange)="cambiarSucursal($event.value)">
+      @if (esAdministrador()) {
+        <mat-option [value]="TODAS">Todas las sucursales</mat-option>
+      }
+      @for (sucursal of sucursales(); track sucursal.id) {
+        <mat-option [value]="sucursal.id">{{ sucursal.nombre }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <app-search-box
+    class="busqueda"
+    etiqueta="Buscar por código o nombre"
+    [valorInicial]="estado.busqueda()"
+    (buscar)="estado.buscar($event)"
+  />
+</div>
+
+@if (estado.cargando()) {
+  <app-list-skeleton [rows]="5" />
+} @else if (estado.error()) {
+  <app-empty-state
+    icon="error_outline"
+    tone="error"
+    title="No se pudieron cargar las bodegas"
+    message="Ocurrió un problema al conectar con el servidor. Inténtalo nuevamente."
+  >
+    <button mat-stroked-button (click)="estado.refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </app-empty-state>
+} @else if (estado.items().length === 0 && estado.hayBusqueda()) {
+  <app-empty-state
+    icon="search_off"
+    title="Sin resultados"
+    message="Ninguna bodega coincide con el texto buscado."
+  />
+} @else if (estado.items().length === 0) {
+  <app-empty-state
+    icon="warehouse"
+    title="Esta sucursal aún no tiene bodegas"
+    message="Crea la primera bodega para empezar a controlar el stock."
+  >
+    @if (sucursalId() !== undefined) {
+      <button mat-flat-button color="primary" (click)="nueva()">
+        <mat-icon>add</mat-icon>
+        Nueva bodega
+      </button>
+    }
+  </app-empty-state>
+} @else {
+  <table
+    mat-table
+    matSort
+    [dataSource]="estado.items()"
+    class="tabla"
+    (matSortChange)="estado.ordenar($event)"
+  >
+    <ng-container matColumnDef="codigo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Código</th>
+      <td mat-cell *matCellDef="let bodega" class="opt-mono">{{ bodega.codigo }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let bodega">
+        {{ bodega.nombre }}
+        @if (sucursalId() === undefined) {
+          <span class="dato-secundario"> · {{ nombreSucursal(bodega.sucursalId) }}</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let bodega">
+        <mat-chip-set>
+          @if (bodega.esPrincipal) {
+            <mat-chip>Principal</mat-chip>
+          }
+          @if (!bodega.activa) {
+            <mat-chip color="warn" highlighted>Inactiva</mat-chip>
+          }
+          @if (!bodega.esPrincipal && bodega.activa) {
+            <span class="dato-secundario">Activa</span>
+          }
+        </mat-chip-set>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let bodega">
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Editar la bodega ' + bodega.nombre"
+          matTooltip="Editar"
+          (click)="editar(bodega)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          [attr.aria-label]="'Más acciones para la bodega ' + bodega.nombre"
+          matTooltip="Más acciones"
+          [matMenuTriggerFor]="menuAcciones"
+          [matMenuTriggerData]="{ bodega }"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  <mat-menu #menuAcciones="matMenu">
+    <ng-template matMenuContent let-bodega="bodega">
+      @if (!bodega.esPrincipal && bodega.activa) {
+        <button mat-menu-item (click)="marcarPrincipal(bodega)">
+          <mat-icon>star</mat-icon>
+          <span>Marcar como principal</span>
+        </button>
+      }
+      @if (!bodega.esPrincipal) {
+        <button mat-menu-item (click)="alternarActiva(bodega)">
+          <mat-icon>{{ bodega.activa ? 'block' : 'check_circle' }}</mat-icon>
+          <span>{{ bodega.activa ? 'Desactivar' : 'Activar' }}</span>
+        </button>
+        <button mat-menu-item class="opt-accion-destructiva" (click)="eliminar(bodega)">
+          <mat-icon>delete</mat-icon>
+          <span>Eliminar</span>
+        </button>
+      }
+    </ng-template>
+  </mat-menu>
+
+  <mat-paginator
+    [length]="estado.total()"
+    [pageSize]="estado.tamanioPagina()"
+    [pageIndex]="estado.pagina() - 1"
+    [pageSizeOptions]="opcionesTamanioPagina"
+    (page)="estado.cambiarPagina($event)"
+  />
+}

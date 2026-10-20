@@ -1,8 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -16,7 +19,8 @@ import { crearMatPaginatorIntlEs } from '../../../../shared/i18n/mat-paginator-i
 import { OPCIONES_TAMANIO_PAGINA } from '../../../../shared/models/parametros-consulta-paginada.model';
 import { Toast } from '../../../../shared/services/toast';
 import { EstadoListaPaginada } from '../../../../shared/utils/estado-lista-paginada';
-import { Producto } from '../../../inventario/models/producto.model';
+import { CategoriaProducto, Producto } from '../../../inventario/models/producto.model';
+import { CategoriasProducto } from '../../../inventario/services/categorias-producto';
 import { Productos } from '../../../inventario/services/productos';
 import { ProductoForm } from '../producto-form/producto-form';
 
@@ -25,8 +29,10 @@ import { ProductoForm } from '../producto-form/producto-form';
   selector: 'app-productos-list',
   imports: [
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
     MatPaginatorModule,
+    MatSelectModule,
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
@@ -41,17 +47,47 @@ import { ProductoForm } from '../producto-form/producto-form';
 })
 export class ProductosList {
   private readonly productosService = inject(Productos);
+  private readonly categoriasService = inject(CategoriasProducto);
   private readonly dialog = inject(MatDialog);
   private readonly toast = inject(Toast);
 
-  protected readonly columnas = ['codigo', 'descripcion', 'controlStock', 'acciones'];
+  protected readonly columnas = [
+    'codigo',
+    'categoria',
+    'marca',
+    'modelo',
+    'color',
+    'descripcion',
+    'controlStock',
+    'acciones',
+  ];
   protected readonly opcionesTamanioPagina = OPCIONES_TAMANIO_PAGINA;
 
+  protected readonly categorias = signal<CategoriaProducto[]>([]);
+  protected readonly categoriaFiltro = signal<number | null>(null);
+  private readonly nombreCategoria = computed(
+    () => new Map(this.categorias().map((c) => [c.id, c.nombre])),
+  );
+
   protected readonly estado = new EstadoListaPaginada<Producto>((p) =>
-    this.productosService.buscar(p),
+    this.productosService.buscar(p, this.categoriaFiltro()),
   );
 
   constructor() {
+    this.categoriasService
+      .listar()
+      .pipe(takeUntilDestroyed())
+      .subscribe((categorias) => this.categorias.set(categorias));
+    this.estado.cargar();
+  }
+
+  protected nombreDe(categoriaId: number): string {
+    return this.nombreCategoria().get(categoriaId) ?? '—';
+  }
+
+  protected filtrarCategoria(categoriaId: number | null): void {
+    this.categoriaFiltro.set(categoriaId);
+    this.estado.pagina.set(1);
     this.estado.cargar();
   }
 

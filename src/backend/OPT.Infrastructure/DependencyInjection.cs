@@ -46,9 +46,11 @@ public static class DependencyInjection
         services.AddScoped<IRegionRepositorio,          RegionRepositorio>();
         services.AddScoped<IComunaRepositorio,          ComunaRepositorio>();
         services.AddScoped<IProductoRepositorio,        ProductoRepositorio>();
+        services.AddScoped<IBodegaRepositorio,          BodegaRepositorio>();
         services.AddScoped<IEstadoOTRepositorio,        EstadoOTRepositorio>();
         services.AddScoped<IFormaPagoRepositorio,       FormaPagoRepositorio>();
         services.AddScoped<IEstadoCuotaRepositorio,     EstadoCuotaRepositorio>();
+        services.AddScoped<ICategoriaProductoRepositorio, CategoriaProductoRepositorio>();
         services.AddScoped<IOperativoRepositorio,       OperativoRepositorio>();
         services.AddScoped<IEstadoOperativoRepositorio, EstadoOperativoRepositorio>();
 

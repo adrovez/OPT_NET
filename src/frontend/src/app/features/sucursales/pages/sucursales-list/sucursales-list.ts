@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
@@ -31,6 +32,7 @@ import { SucursalForm } from '../sucursal-form/sucursal-form';
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
+    RouterLink,
     EmptyState,
     ListSkeleton,
     PageHeader,

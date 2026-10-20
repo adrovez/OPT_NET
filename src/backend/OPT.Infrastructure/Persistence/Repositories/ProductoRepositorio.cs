@@ -21,25 +21,32 @@ public sealed class ProductoRepositorio(AppDbContext context)
         {
             ["codigo"]      = p => p.Codigo,
             ["descripcion"] = p => p.Descripcion,
+            ["marca"]       = p => p.Marca!,
+            ["modelo"]      = p => p.Modelo!,
+            ["color"]       = p => p.Color!,
         };
 
     public async Task<Producto?> ObtenerPorCodigoAsync(string codigo, CancellationToken ct = default)
         => await Activos.FirstOrDefaultAsync(p => p.Codigo == codigo, ct);
 
-    public async Task<ProductoSucursal?> ObtenerStockAsync(
-        int productoId, int sucursalId, CancellationToken ct = default)
-        => await Contexto.Set<ProductoSucursal>()
-            .Where(ps => !ps.Eliminado)
-            .FirstOrDefaultAsync(ps => ps.ProductoId == productoId && ps.SucursalId == sucursalId, ct);
+    public async Task<ProductoBodega?> ObtenerStockAsync(
+        int productoId, int bodegaId, CancellationToken ct = default)
+        => await Contexto.Set<ProductoBodega>()
+            .Where(pb => !pb.Eliminado)
+            .FirstOrDefaultAsync(pb => pb.ProductoId == productoId && pb.BodegaId == bodegaId, ct);
 
     public async Task<IReadOnlyList<Producto>> ObtenerConStockBajoAsync(
         int sucursalId, CancellationToken ct = default)
     {
-        var productoIds = Contexto.Set<ProductoSucursal>()
-            .Where(ps => !ps.Eliminado
-                         && ps.SucursalId == sucursalId
-                         && ps.StockActual <= ps.StockMinimo)
-            .Select(ps => ps.ProductoId);
+        var bodegaIds = Contexto.Set<Bodega>()
+            .Where(b => !b.Eliminado && b.Activa && b.SucursalId == sucursalId)
+            .Select(b => b.Id);
+
+        var productoIds = Contexto.Set<ProductoBodega>()
+            .Where(pb => !pb.Eliminado
+                         && bodegaIds.Contains(pb.BodegaId)
+                         && pb.StockActual <= pb.StockMinimo)
+            .Select(pb => pb.ProductoId);
 
         return await Activos
             .Where(p => p.ControlStock && productoIds.Contains(p.Id))
@@ -48,13 +55,19 @@ public sealed class ProductoRepositorio(AppDbContext context)
     }
 
     public async Task<(IReadOnlyList<Producto> Items, int Total)> BuscarPaginadoAsync(
-        ParametrosPaginacion parametros, CancellationToken ct = default)
+        ParametrosPaginacion parametros, int? categoriaId = null, CancellationToken ct = default)
     {
         var query = Activos;
 
+        if (categoriaId is { } cat)
+            query = query.Where(p => p.CategoriaId == cat);
+
         var busqueda = parametros.Busqueda?.Trim();
         if (!string.IsNullOrWhiteSpace(busqueda))
-            query = query.Where(p => p.Codigo.Contains(busqueda) || p.Descripcion.Contains(busqueda));
+            query = query.Where(p => p.Codigo.Contains(busqueda) || p.Descripcion.Contains(busqueda)
+                                     || (p.Marca != null && p.Marca.Contains(busqueda))
+                                     || (p.Modelo != null && p.Modelo.Contains(busqueda))
+                                     || (p.Color != null && p.Color.Contains(busqueda)));
 
         query = query.AplicarOrden(
             parametros.OrdenarPor, parametros.OrdenDescendente, ColumnasOrden, p => p.Descripcion);

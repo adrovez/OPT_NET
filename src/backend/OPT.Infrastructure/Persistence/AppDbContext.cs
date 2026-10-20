@@ -51,6 +51,8 @@ public class AppDbContext : DbContext
     public DbSet<Producto>          Productos          => Set<Producto>();
     public DbSet<ProductoSucursal>  ProductoSucursal   => Set<ProductoSucursal>();
     public DbSet<CategoriaProducto> CategoriasProducto => Set<CategoriaProducto>();
+    public DbSet<Bodega>            Bodegas            => Set<Bodega>();
+    public DbSet<ProductoBodega>    ProductoBodega     => Set<ProductoBodega>();
 
     // ── Operativo ────────────────────────────────────────────────────────────
     public DbSet<EntidadOperativo> Operativos         => Set<EntidadOperativo>();

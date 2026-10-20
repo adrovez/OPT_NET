@@ -7,6 +7,7 @@ namespace OPT.Application.Features.Productos.Commands.Actualizar;
 
 public sealed class ActualizarProductoCommandHandler(
     IProductoRepositorio productoRepo,
+    ICategoriaProductoRepositorio categoriaRepo,
     ICurrentUserService  currentUser,
     IUnitOfWork          uow)
     : IRequestHandler<ActualizarProductoCommand, ProductoDto>
@@ -24,11 +25,14 @@ public sealed class ActualizarProductoCommandHandler(
                 ["Codigo"] = [$"Ya existe un producto con el código {codigo}."]
             });
 
-        producto.Actualizar(request.Codigo, request.Descripcion, request.ControlStock,
-            request.CategoriaId ?? producto.CategoriaId, currentUser.UsuarioId);
+        var categoriaId = request.CategoriaId ?? producto.CategoriaId;
+        if (!await categoriaRepo.ExisteAsync(categoriaId, ct))
+            throw new NotFoundException("CategoriaProducto", categoriaId);
+
+        producto.Actualizar(request.Codigo, request.Descripcion, request.Marca, request.Modelo,
+            request.Color, request.ControlStock, categoriaId, currentUser.UsuarioId);
         await uow.CommitAsync(ct);
 
-        return new ProductoDto(producto.Id, producto.Codigo, producto.Descripcion,
-            producto.ControlStock, producto.CategoriaId);
+        return ProductoDtoFactory.Crear(producto);
     }
 }

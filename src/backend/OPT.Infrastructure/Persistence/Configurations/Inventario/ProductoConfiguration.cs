@@ -29,6 +29,13 @@ public sealed class ProductoConfiguration : IEntityTypeConfiguration<Producto>
                .IsRequired()
                .HasMaxLength(200);
 
+        builder.Property(p => p.Marca).HasMaxLength(100);
+        builder.Property(p => p.Modelo).HasMaxLength(100);
+        builder.Property(p => p.Color).HasMaxLength(50);
+
+        builder.HasIndex(p => p.Marca)
+               .HasDatabaseName("IX_Productos_Marca");
+
         builder.Property(p => p.ControlStock).IsRequired();
         builder.Property(p => p.CategoriaId).IsRequired();
 

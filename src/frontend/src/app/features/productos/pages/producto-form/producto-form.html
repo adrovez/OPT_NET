@@ -3,6 +3,15 @@
 <form [formGroup]="form" (ngSubmit)="guardar()">
   <mat-dialog-content>
     <mat-form-field appearance="outline" class="campo">
+      <mat-label>Categoría</mat-label>
+      <mat-select formControlName="categoriaId">
+        @for (categoria of categorias(); track categoria.id) {
+          <mat-option [value]="categoria.id">{{ categoria.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
       <mat-label>Código</mat-label>
       <input matInput formControlName="codigo" />
       @if (form.controls.codigo.hasError('required')) {
@@ -13,16 +22,54 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="campo">
-      <mat-label>Descripción</mat-label>
-      <input matInput formControlName="descripcion" />
-      @if (form.controls.descripcion.hasError('required')) {
-        <mat-error>La descripción es obligatoria.</mat-error>
-      }
-      @if (form.controls.descripcion.hasError('maxlength')) {
-        <mat-error>Máximo 200 caracteres.</mat-error>
-      }
-    </mat-form-field>
+    @if (usaMarcaModelo()) {
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Marca</mat-label>
+        <input matInput formControlName="marca" />
+        @if (form.controls.marca.hasError('required')) {
+          <mat-error>La marca es obligatoria.</mat-error>
+        }
+        @if (form.controls.marca.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Modelo</mat-label>
+        <input matInput formControlName="modelo" />
+        @if (form.controls.modelo.hasError('required')) {
+          <mat-error>El modelo es obligatorio.</mat-error>
+        }
+        @if (form.controls.modelo.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Color (opcional)</mat-label>
+        <input matInput formControlName="color" />
+        @if (form.controls.color.hasError('maxlength')) {
+          <mat-error>Máximo 50 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Descripción (calculada)</mat-label>
+        <input matInput [value]="descripcionCalculada()" readonly />
+        <mat-hint>Se arma sola con Marca, Modelo y Color.</mat-hint>
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Descripción</mat-label>
+        <input matInput formControlName="descripcion" />
+        @if (form.controls.descripcion.hasError('required')) {
+          <mat-error>La descripción es obligatoria.</mat-error>
+        }
+        @if (form.controls.descripcion.hasError('maxlength')) {
+          <mat-error>Máximo 200 caracteres.</mat-error>
+        }
+      </mat-form-field>
+    }
 
     <mat-checkbox formControlName="controlStock">Controla stock</mat-checkbox>
   </mat-dialog-content>

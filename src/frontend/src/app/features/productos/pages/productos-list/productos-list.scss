@@ -10,3 +10,20 @@
 .dato-secundario {
   color: var(--mat-sys-on-surface-variant);
 }
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--opt-space-sm);
+  margin-bottom: var(--opt-space-sm);
+
+  .filtro {
+    flex: 1 1 280px;
+    margin-bottom: 0;
+  }
+
+  .filtro-categoria {
+    flex: 0 1 200px;
+  }
+}

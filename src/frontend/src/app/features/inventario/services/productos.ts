@@ -20,8 +20,15 @@ export class Productos {
   private readonly baseUrl = `${environment.apiUrl}/productos`;
 
   /** Búsqueda paginada — 4.018 productos migrados, nunca se pide la lista completa. */
-  buscar(parametros: ParametrosConsultaPaginada): Observable<PagedResult<Producto>> {
-    return this.http.get<PagedResult<Producto>>(this.baseUrl, { params: aHttpParams(parametros) });
+  buscar(
+    parametros: ParametrosConsultaPaginada,
+    categoriaId?: number | null,
+  ): Observable<PagedResult<Producto>> {
+    const params: Record<string, string | number> = aHttpParams(parametros);
+    if (categoriaId) {
+      params['categoriaId'] = categoriaId;
+    }
+    return this.http.get<PagedResult<Producto>>(this.baseUrl, { params });
   }
 
   crear(datos: ProductoFormulario): Observable<Producto> {
